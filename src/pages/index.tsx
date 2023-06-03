@@ -181,15 +181,12 @@ export default function Home() {
               >
                 <Flex flexDirection={'column'} flex={1}>
                   <Text as={'h2'} color={theme.colors.green}>
-                    01
+                    {v.step}
                   </Text>
                   <Text as={'h3'} color={theme.colors.green}>
-                    Apply
+                    {v.title}
                   </Text>
-                  <Text mt={1}>
-                    Click on the Sign Up Button to start the application
-                    process.
-                  </Text>
+                  <Text mt={1}>{v.description}</Text>
                 </Flex>
                 <Image src={v.image} alt={'image'} />
               </Flex>
