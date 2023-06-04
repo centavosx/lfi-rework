@@ -9,6 +9,8 @@ import { MobileView, WebView } from '../views'
 import { BaseHead } from '../basehead'
 import { useUser } from 'hooks'
 import { NotifButton } from 'components/button'
+import { CustomModal } from 'components/modal'
+import { Chat, ChatMessages } from 'components/chat'
 
 export const Main = ({
   pageTitle,
@@ -146,8 +148,25 @@ export const Main = ({
                       )
                     }}
                   />
-
-                  <NotifButton
+                  <CustomModal
+                    modalChild={() => {
+                      return <Chat title="Your messages" />
+                    }}
+                  >
+                    {({ isOpen, setOpen }) => (
+                      <Image
+                        src={'/assets/icons/chat.png'}
+                        width={18}
+                        height={18}
+                        alt="image"
+                        style={{ cursor: 'pointer' }}
+                        alignSelf={'center'}
+                        justifyContent={'center'}
+                        onClick={() => setOpen((v) => !v)}
+                      />
+                    )}
+                  </CustomModal>
+                  {/* <NotifButton
                     src={'/assets/icons/chat.png'}
                     width={18}
                     height={18}
@@ -195,7 +214,7 @@ export const Main = ({
                     //     </Flex>
                     //   )
                     // }}
-                  />
+                  /> */}
                 </Flex>
               )}
               <WebView>

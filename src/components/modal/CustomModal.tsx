@@ -9,6 +9,7 @@ import {
 import Modal from '@mui/material/Modal'
 import { AiOutlineClose } from 'react-icons/ai'
 import { Flex } from 'rebass'
+import { number } from 'yup'
 
 type ChildrenProps = {
   isOpen: boolean
@@ -22,12 +23,13 @@ type ChildProps = ChildrenProps & {
 export function CustomModal({
   children,
   modalChild,
-
+  maxHeight,
   onSubmit,
 }: {
   modalChild?: ((props: ChildProps) => ReactNode) | ReactNode
   children: ((props: ChildrenProps) => ReactNode) | ReactNode
   onSubmit?: () => void
+  maxHeight?: number[] | string[] | number | string
 }) {
   const [open, setOpen] = useState<boolean>(false)
 
@@ -58,7 +60,8 @@ export function CustomModal({
             left: '50%',
             transform: 'translate(-50%, -50%)',
             width: ['80%', '80%'],
-            height: ['80%', 'auto'],
+            height: 'auto',
+            maxHeight: maxHeight ?? ['80%', 'unset'],
             backgroundColor: 'white',
             border: '1px solid gray',
             borderRadius: '10px',
