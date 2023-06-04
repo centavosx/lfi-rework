@@ -36,7 +36,14 @@ const TextInput = ({
   children,
   padding,
   ...other
-}: TextFieldProps & InputColor & { padding?: number }) => {
+}: TextFieldProps &
+  InputColor & {
+    padding?: number
+    paddingTop?: number
+    paddingBottom?: number
+    paddingLeft?: number
+    paddingRight?: number
+  }) => {
   const [password, setPassword] = useState(false)
   return (
     <TextField
@@ -67,33 +74,45 @@ const TextInput = ({
     />
   )
 }
-export const Input = styled(TextInput)(({ inputcolor, padding }) => ({
-  borderRadius: 4,
-  backgroundColor: inputcolor?.backgroundColor,
-  '& label.Mui-focused': {
-    color: inputcolor?.labelColor,
-  },
+export const Input = styled(TextInput)(
+  ({
+    inputcolor,
+    padding,
+    paddingTop,
+    paddingBottom,
+    paddingLeft,
+    paddingRight,
+  }) => ({
+    borderRadius: 4,
+    backgroundColor: inputcolor?.backgroundColor,
+    '& label.Mui-focused': {
+      color: inputcolor?.labelColor,
+    },
 
-  '& .MuiOutlinedInput-root': {
-    color: inputcolor?.color,
-    padding: padding ?? 1,
-    '& fieldset': {
-      borderColor: inputcolor?.labelColor,
+    '& .MuiOutlinedInput-root': {
+      color: inputcolor?.color,
+      paddingTop: paddingTop ?? padding ?? 1,
+      paddingBottom: paddingBottom ?? padding ?? 1,
+      paddingLeft: paddingLeft ?? padding ?? 1,
+      paddingRight: paddingRight ?? padding ?? 1,
+      '& fieldset': {
+        borderColor: inputcolor?.labelColor,
+      },
+      '&:hover': {
+        color: inputcolor?.hover?.color,
+      },
+      '&:hover fieldset': {
+        borderColor: inputcolor?.hover?.labelColor,
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: inputcolor?.labelColor,
+      },
     },
-    '&:hover': {
-      color: inputcolor?.hover?.color,
+    '& .MuiInputBase-root:after': {
+      borderBottomColor: inputcolor?.borderBottomColor,
     },
-    '&:hover fieldset': {
-      borderColor: inputcolor?.hover?.labelColor,
-    },
-    '&.Mui-focused fieldset': {
-      borderColor: inputcolor?.labelColor,
-    },
-  },
-  '& .MuiInputBase-root:after': {
-    borderBottomColor: inputcolor?.borderBottomColor,
-  },
-}))
+  })
+)
 
 export const SearchableInput = ({
   key,

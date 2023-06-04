@@ -3,9 +3,9 @@ import SelectComponent, { StylesConfig } from 'react-select'
 import { StateManagerProps } from 'react-select/dist/declarations/src/useStateManager'
 import { StyledProps } from 'styled-components'
 
-export interface Option {
-  readonly value: string
-  readonly label: string
+export interface Option<T extends any = any, V extends any = any> {
+  readonly value: V
+  readonly label: T
 }
 
 const colourStyles: StylesConfig<Option> = {
@@ -49,13 +49,13 @@ interface SelectStyles {
   singleValueStyle?: CSSProperties
 }
 
-export const Select = ({
+export function Select<T extends any = any, V extends any = any>({
   controlStyle,
   inputStyle,
   placeholderStyle,
   singleValueStyle,
   ...other
-}: StateManagerProps<Option> & SelectStyles) => {
+}: StateManagerProps<Option<T, V>> & SelectStyles) {
   const [_document, setDocument] = useState<Document | undefined>(undefined)
 
   useEffect(() => {

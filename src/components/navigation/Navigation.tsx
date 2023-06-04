@@ -16,122 +16,42 @@ import { Button, ButtonDropdown, SecondaryButton } from '../button'
 import { useRouter } from 'next/router'
 
 import { TextModal } from '../modal'
-
 import { useUser } from 'hooks'
-
-type Services = {
-  name: string
-  src: string
-}
-const navigations = ['Home']
-const services: Services[] = [
-  {
-    name: 'Preventive Care',
-    src: '/assets/services/Preventive Care.png',
-  },
-  {
-    name: 'Wellness',
-    src: '/assets/services/wellness.png',
-  },
-  {
-    name: 'Consultation',
-    src: '/assets/services/Consultation.png',
-  },
-  {
-    name: 'Nutritional Counseling',
-    src: '/assets/services/nutritional counseling.png',
-  },
-  {
-    name: 'Laboratory',
-    src: '/assets/services/laboratory.png',
-  },
-  {
-    name: 'Surgery',
-    src: '/assets/services/surgery.png',
-  },
-  {
-    name: 'Telemedicine',
-    src: '/assets/services/telemedicine.png',
-  },
-  {
-    name: 'Dental Care',
-    src: '/assets/services/dental care.png',
-  },
-  {
-    name: 'Hospitalization',
-    src: '/assets/services/hospitalization.png',
-  },
-  {
-    name: 'After-hour emergency',
-    src: '/assets/services/afrer hour emergency.png',
-  },
-  {
-    name: 'Pet supplies',
-    src: '/assets/services/pet-supplies.png',
-  },
-]
-
-export const ContactUs = () => (
-  <Flex flexDirection={'column'}>
-    <Text as={'h1'} sx={{ fontSize: 24, color: 'black' }}>
-      Contact Us
-    </Text>
-    <Flex
-      flexDirection={'column'}
-      pt={20}
-      pb={20}
-      justifyContent={'center'}
-      sx={{ gap: 1, wordWrap: 'break-word' }}
-    >
-      <Text>0238 SANLY BLDG P TUAZON BLVD SOCORRO, CUBAO QC</Text>
-      <Text>09123456789</Text>
-      <Text>manila.feline.center@gmail.com</Text>
-      <Text as={'h2'} sx={{ fontSize: 18, color: 'black', mt: 3 }}>
-        Links
-      </Text>
-      <Text
-        sx={{
-          textDecoration: 'underline',
-        }}
-      >
-        <Anchor
-          href="https://facebook.com/ManilaFelineCenter"
-          sx={{ wordWrap: 'break-word' }}
-        >
-          https://facebook.com/ManilaFelineCenter
-        </Anchor>
-      </Text>
-      <Text
-        sx={{
-          textDecoration: 'underline',
-        }}
-      >
-        <Anchor
-          href="https://instragram.com/ManilaFelineCenter"
-          sx={{ wordWrap: 'break-word' }}
-        >
-          https://instragram.com/ManilaFelineCenter
-        </Anchor>
-      </Text>
-      <Text as={'h2'} sx={{ fontSize: 18, color: 'black', mt: 3 }}>
-        Opening hours
-      </Text>
-      <Text>9:00 AM to 8:00PM</Text>
-    </Flex>
-  </Flex>
-)
 
 export const WebNavigation = ({ isLink }: { isLink?: boolean }) => {
   const { push } = useRouter()
   const { logout } = useUser()
+
+  const textLink = isLink ? '/' : '/#'
+
   return (
     <>
-      <SecondaryButton style={{ textTransform: 'capitalize', fontWeight: 400 }}>
+      <TextModal
+        width={'auto'}
+        fontWeight={'bold'}
+        style={{ cursor: 'pointer', alignSelf: 'center' }}
+        onMouseOver={(e) => (e.currentTarget.style.opacity = '0.7')}
+        onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+        sx={{
+          fontSize: [14, 16],
+          fontFamily: 'Castego',
+          padding: 0,
+        }}
+        color={theme.colors.darkestGreen}
+        onClick={() => push(textLink)}
+        isNotClickable={true}
+      >
+        Home
+      </TextModal>
+      <SecondaryButton
+        style={{ textTransform: 'capitalize', fontWeight: 400 }}
+        onClick={() => push(textLink + 'register')}
+      >
         Sign Up
       </SecondaryButton>
       <ButtonDropdown
         style={{ textTransform: 'capitalize', fontWeight: 400 }}
-        display={
+        display={(close) => (
           <Flex
             sx={{
               width: 150,
@@ -158,6 +78,14 @@ export const WebNavigation = ({ isLink }: { isLink?: boolean }) => {
                 textAlign: 'center',
                 cursor: 'pointer',
               }}
+              onClick={async () => {
+                await push(textLink + 'login', {
+                  query: {
+                    who: 'Scholar',
+                  },
+                })
+                close()
+              }}
             >
               For Scholar
             </Text>
@@ -173,11 +101,19 @@ export const WebNavigation = ({ isLink }: { isLink?: boolean }) => {
                 textAlign: 'center',
                 cursor: 'pointer',
               }}
+              onClick={async () => {
+                await push(textLink + 'login', {
+                  query: {
+                    who: 'Employee',
+                  },
+                })
+                close()
+              }}
             >
               For Employee
             </Text>
           </Flex>
-        }
+        )}
       >
         Login
       </ButtonDropdown>

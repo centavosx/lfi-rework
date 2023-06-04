@@ -1,5 +1,4 @@
 import { Flex, Image, Link as Anchor, FlexProps } from 'rebass'
-import Wave from 'react-wavify'
 import Navigation from '../navigation'
 
 import { theme } from '../../utils/theme'
@@ -8,13 +7,16 @@ import { Header } from '../header'
 import { Text } from '../text'
 import { MobileView, WebView } from '../views'
 import { BaseHead } from '../basehead'
-import { useRouter } from 'next/router'
+import { useUser } from 'hooks'
+import { NotifButton } from 'components/button'
 
 export const Main = ({
   pageTitle,
   children,
   isLink,
 }: { pageTitle?: string; isLink?: boolean } & FlexProps) => {
+  const { user } = useUser()
+
   return (
     <>
       <BaseHead
@@ -80,14 +82,88 @@ export const Main = ({
                 </Flex>
               </Anchor>
             </Flex>
-            <WebView>
-              <Flex sx={{ gap: 16, padding: 15 }}>
-                <Navigation.WebNavigation isLink={isLink} />
-              </Flex>
-            </WebView>
-            <MobileView>
-              <Navigation.MobileNavigation isLink={isLink} />
-            </MobileView>
+            <Flex
+              flexDirection={['row', 'row-reverse']}
+              sx={{ gap: 2, alignItems: 'center' }}
+            >
+              {!user && (
+                <Flex
+                  flexDirection={['row', 'row-reverse']}
+                  sx={{ gap: [3, 4, 4], mr: 2 }}
+                >
+                  <NotifButton
+                    src={'/assets/icons/bell.png'}
+                    width={18}
+                    height={18}
+                    minWidth={'auto'}
+                    alt="image"
+                    notifNumber={1232}
+                    modalContainerProps={{
+                      sx: {
+                        right: [-10, 0],
+                      },
+                    }}
+                    displayModal={(close) => {
+                      return (
+                        <Flex
+                          sx={{
+                            width: [200, 250],
+                            maxHeight: 550,
+                            flexDirection: 'column',
+                            gap: 2,
+                            border: '1px solid gray',
+                            borderRadius: 3,
+                            marginTop: 1,
+                            paddingTop: 2,
+                            paddingBottom: 2,
+                            zIndex: 9999,
+                            backgroundColor: theme.colors.white,
+                          }}
+                        >
+                          <Text
+                            sx={{
+                              ':hover': {
+                                backgroundColor: theme.colors.green,
+                                color: theme.colors.white,
+                              },
+                              color: theme.colors.black,
+                              width: '100%',
+                              padding: '6px',
+                              cursor: 'pointer',
+                            }}
+                            onClick={async () => {
+                              // await push(textLink + 'login', {
+                              //   query: {
+                              //     who: 'Scholar',
+                              //   },
+                              // })
+                              close()
+                            }}
+                          >
+                            For Scholar
+                          </Text>
+                        </Flex>
+                      )
+                    }}
+                  />
+                  <NotifButton
+                    src={'/assets/icons/chat.png'}
+                    width={18}
+                    height={18}
+                    minWidth={'auto'}
+                    alt="image"
+                  />
+                </Flex>
+              )}
+              <WebView>
+                <Flex sx={{ gap: 16, padding: 15 }}>
+                  <Navigation.WebNavigation isLink={isLink} />
+                </Flex>
+              </WebView>
+              <MobileView>
+                <Navigation.MobileNavigation isLink={isLink} />
+              </MobileView>
+            </Flex>
           </Header>
         </Flex>
         <Flex
@@ -118,6 +194,7 @@ export const Main = ({
               gap: 2,
               padding: 20,
               width: '100%',
+              position: 'relative',
             }}
             maxWidth={2250}
             alignSelf="center"
