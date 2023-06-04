@@ -7,7 +7,12 @@ import { Button } from 'components/button'
 
 export const ChatMessages = () => {
   return (
-    <Flex flexDirection="column" padding={2} sx={{ borderRadius: 8 }} flex={1}>
+    <Flex
+      flexDirection="column"
+      padding={2}
+      sx={{ borderRadius: 8, overflowY: 'scroll' }}
+      flex={1}
+    >
       {Array(100)
         .fill(null)
         .map((_, i) => (
@@ -101,7 +106,7 @@ ChatInput.displayName = 'ChatInput'
 
 export const Chat = ({ title }: { title: string }) => {
   return (
-    <Flex sx={{ flexDirection: 'column', gap: 2 }} flex={1}>
+    <Flex sx={{ flexDirection: 'column', gap: 2, overflow: 'auto' }} flex={1}>
       <Text as={'h2'}>{title}</Text>
       <ChatMessages />
       <ChatInput />

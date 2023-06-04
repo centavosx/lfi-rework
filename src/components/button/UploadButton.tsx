@@ -80,6 +80,7 @@ export const UploadProcess = memo(
     textProps,
     children = 'Upload',
     errorString,
+    name,
   }: {
     title?: string
     width?: number | string
@@ -87,6 +88,7 @@ export const UploadProcess = memo(
     textProps?: TextProps
     children?: ReactNode
     errorString?: string
+    name?: string
   }) => {
     const fb = useRef<Firebase>(new Firebase('test')).current
 
@@ -112,7 +114,7 @@ export const UploadProcess = memo(
     }, [link])
 
     return (
-      <Flex width={'auto'} flexDirection={'column'} sx={{ gap: 2 }}>
+      <Flex name={name} width={'auto'} flexDirection={'column'} sx={{ gap: 2 }}>
         {!!title && <Text {...textProps}>{title}</Text>}
         <InputError error={errorString} />
         <Flex flexDirection={'row'} sx={{ gap: 2 }}>

@@ -4,7 +4,7 @@ import { theme } from 'utils/theme'
 
 import { useState, useEffect, useCallback, memo, useRef } from 'react'
 import { Formik } from 'formik'
-import { FormContainer } from 'components/forms'
+import { FormContainer, ScrollToError } from 'components/forms'
 import { FormInput, InputError } from 'components/input'
 import { Button, UploadButton, UploadProcess } from 'components/button'
 import { FormikValidation } from 'helpers'
@@ -229,6 +229,7 @@ export default function Login() {
               <Flex flexWrap={'wrap'} flexDirection={'column'} sx={{ gap: 2 }}>
                 {DISPLAY_FILES.map((v) => (
                   <UploadProcess
+                    name={v.name}
                     key={v.name}
                     title={v.title}
                     textProps={{
@@ -241,13 +242,18 @@ export default function Login() {
                   />
                 ))}
               </Flex>
-              <Button
-                style={{ width: 120, alignSelf: 'flex-end' }}
-                type="submit"
-                disabled={isSubmitting}
-              >
-                Sign up
-              </Button>
+              <ScrollToError>
+                {(scroll) => (
+                  <Button
+                    style={{ width: 120, alignSelf: 'flex-end' }}
+                    type="submit"
+                    disabled={isSubmitting}
+                    onClick={() => scroll()}
+                  >
+                    Sign up
+                  </Button>
+                )}
+              </ScrollToError>
             </FormContainer>
           )}
         </Formik>

@@ -4,6 +4,7 @@ import {
   useState,
   Dispatch,
   SetStateAction,
+  memo,
 } from 'react'
 
 import Modal from '@mui/material/Modal'
@@ -20,69 +21,82 @@ type ChildProps = ChildrenProps & {
   onSubmit: () => void
 }
 
-export function CustomModal({
-  children,
-  modalChild,
-  maxHeight,
-  onSubmit,
-}: {
-  modalChild?: ((props: ChildProps) => ReactNode) | ReactNode
-  children: ((props: ChildrenProps) => ReactNode) | ReactNode
-  onSubmit?: () => void
-  maxHeight?: number[] | string[] | number | string
-}) {
-  const [open, setOpen] = useState<boolean>(false)
+export const CustomModal = memo(
+  ({
+    children,
+    modalChild,
+    maxHeight,
+    maxWidth,
+    onSubmit,
+    isModalOverFlow = true,
+  }: {
+    modalChild?: ((props: ChildProps) => ReactNode) | ReactNode
+    children: ((props: ChildrenProps) => ReactNode) | ReactNode
+    onSubmit?: () => void
+    maxHeight?: number[] | string[] | number | string
+    maxWidth?: number[] | string[] | number | string
+    isModalOverFlow?: boolean
+  }) => {
+    const [open, setOpen] = useState<boolean>(false)
 
-  const onSubmitSuccess = useCallback(() => {
-    onSubmit?.()
-    setOpen(false)
-  }, [onSubmit, setOpen])
+    const onSubmitSuccess = useCallback(() => {
+      onSubmit?.()
+      setOpen(false)
+    }, [onSubmit, setOpen])
 
-  return (
-    <>
-      {typeof children === 'function'
-        ? children({ isOpen: open, setOpen })
-        : children}
-      <Modal
-        open={open}
-        onClose={() => setOpen(false)}
-        sx={{
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '100%',
-          height: '100%',
-        }}
-      >
-        <Flex
+    return (
+      <>
+        {typeof children === 'function'
+          ? children({ isOpen: open, setOpen })
+          : children}
+        <Modal
+          open={open}
+          onClose={() => setOpen(false)}
           sx={{
-            position: 'absolute' as 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: ['80%', '80%'],
-            height: 'auto',
-            maxHeight: maxHeight ?? ['80%', 'unset'],
-            backgroundColor: 'white',
-            border: '1px solid gray',
-            borderRadius: '10px',
-            boxShadow: 24,
-            overflow: 'auto',
-            p: 4,
-            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+            height: '100%',
           }}
         >
-          <Flex sx={{ alignSelf: 'end' }}>
-            <AiOutlineClose
-              style={{ cursor: 'pointer' }}
-              onClick={() => setOpen(false)}
-            />
+          <Flex
+            sx={{
+              position: 'absolute' as 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: ['80%', '80%'],
+              height: 'auto',
+              maxHeight: maxHeight ?? ['80%', 'unset'],
+              maxWidth: maxWidth,
+              backgroundColor: 'white',
+              border: '1px solid gray',
+              borderRadius: '10px',
+              boxShadow: 24,
+              overflow: !isModalOverFlow ? undefined : 'auto',
+              p: 4,
+              flexDirection: 'column',
+            }}
+          >
+            <Flex sx={{ alignSelf: 'end' }}>
+              <AiOutlineClose
+                style={{ cursor: 'pointer' }}
+                onClick={() => setOpen(false)}
+              />
+            </Flex>
+            {open &&
+              (typeof modalChild === 'function'
+                ? modalChild({
+                    onSubmit: onSubmitSuccess,
+                    isOpen: open,
+                    setOpen,
+                  })
+                : modalChild)}
           </Flex>
-          {open &&
-            (typeof modalChild === 'function'
-              ? modalChild({ onSubmit: onSubmitSuccess, isOpen: open, setOpen })
-              : modalChild)}
-        </Flex>
-      </Modal>
-    </>
-  )
-}
+        </Modal>
+      </>
+    )
+  }
+)
+
+CustomModal.displayName = 'CustomModal'

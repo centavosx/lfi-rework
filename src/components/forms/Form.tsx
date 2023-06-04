@@ -1,8 +1,9 @@
 import { LabelProps } from '@rebass/forms'
 import { Label } from '../label'
-import { Form } from 'formik'
+import { Form, useFormikContext } from 'formik'
 import { Flex, FlexProps, ImageProps, Image } from 'rebass'
 import { CSSProperties } from 'styled-components'
+import { useEffect, ReactNode, useCallback } from 'react'
 
 export const FormContainer = ({
   label,
@@ -45,4 +46,22 @@ export const FormContainer = ({
       </Flex>
     </Form>
   )
+}
+
+export function ScrollToError({
+  children,
+}: {
+  children: (scrollIfError: () => void) => ReactNode
+}) {
+  const formik = useFormikContext()
+
+  const scrollIfError = useCallback(() => {
+    const errors = Object.keys(formik?.errors ?? {})
+    if (errors.length === 0) return
+
+    const el = document.getElementsByName(errors[0])
+    el?.[0]?.scrollIntoView({ block: 'center' })
+  }, [formik])
+
+  return <>{children(scrollIfError)}</>
 }
