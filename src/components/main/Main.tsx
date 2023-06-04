@@ -146,12 +146,55 @@ export const Main = ({
                       )
                     }}
                   />
+
                   <NotifButton
                     src={'/assets/icons/chat.png'}
                     width={18}
                     height={18}
                     minWidth={'auto'}
                     alt="image"
+                    // displayModal={(close) => {
+                    //   return (
+                    //     <Flex
+                    //       sx={{
+                    //         width: '80vw',
+                    //         maxHeight: 550,
+                    //         flexDirection: 'column',
+                    //         gap: 2,
+                    //         border: '1px solid gray',
+                    //         borderRadius: 3,
+                    //         marginTop: 1,
+                    //         paddingTop: 2,
+                    //         paddingBottom: 2,
+                    //         zIndex: 9999,
+                    //         backgroundColor: theme.colors.white,
+                    //       }}
+                    //     >
+                    //       <Text
+                    //         sx={{
+                    //           ':hover': {
+                    //             backgroundColor: theme.colors.green,
+                    //             color: theme.colors.white,
+                    //           },
+                    //           color: theme.colors.black,
+                    //           width: '100%',
+                    //           padding: '6px',
+                    //           cursor: 'pointer',
+                    //         }}
+                    //         onClick={async () => {
+                    //           // await push(textLink + 'login', {
+                    //           //   query: {
+                    //           //     who: 'Scholar',
+                    //           //   },
+                    //           // })
+                    //           close()
+                    //         }}
+                    //       >
+                    //         For Scholar
+                    //       </Text>
+                    //     </Flex>
+                    //   )
+                    // }}
                   />
                 </Flex>
               )}
