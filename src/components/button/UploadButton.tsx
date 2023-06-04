@@ -184,10 +184,8 @@ export const UploadProcess = memo(
           {!!state && (state === 'success' || progress === 100) && (
             <SecondaryButton
               onClick={async () => {
-                const check = await fb.deleteUploadedFile()
-                if (check) {
-                  setUploadState({ state: undefined, progress: 0 })
-                }
+                await fb.deleteUploadedFile()
+                setUploadState({ state: undefined, progress: 0 })
               }}
             >
               Delete
@@ -201,4 +199,4 @@ export const UploadProcess = memo(
   }
 )
 
-UploadProcess.displayName = 'UploadProcess'
+UploadProcess.displayName

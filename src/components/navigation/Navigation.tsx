@@ -17,10 +17,11 @@ import { useRouter } from 'next/router'
 
 import { TextModal } from '../modal'
 import { useUser } from 'hooks'
+import { User } from 'entities'
 
 export const WebNavigation = ({ isLink }: { isLink?: boolean }) => {
   const { push } = useRouter()
-  const { logout } = useUser()
+  const { logout, user } = useUser()
 
   const textLink = isLink ? '/' : '/#'
 
@@ -43,80 +44,102 @@ export const WebNavigation = ({ isLink }: { isLink?: boolean }) => {
       >
         Home
       </TextModal>
-      <SecondaryButton
-        style={{ textTransform: 'capitalize', fontWeight: 400 }}
-        onClick={() => push(textLink + 'register')}
-      >
-        Sign Up
-      </SecondaryButton>
-      <ButtonDropdown
-        style={{ textTransform: 'capitalize', fontWeight: 400 }}
-        display={(close) => (
-          <Flex
-            sx={{
-              width: 150,
-              flexDirection: 'column',
-              gap: 2,
-              border: '1px solid gray',
-              borderRadius: 3,
-              marginTop: 1,
-              paddingTop: 2,
-              paddingBottom: 2,
-              zIndex: 9999,
-              backgroundColor: theme.colors.white,
-            }}
+      {!user ? (
+        <TextModal
+          width={'auto'}
+          fontWeight={'bold'}
+          style={{ cursor: 'pointer', alignSelf: 'center' }}
+          onMouseOver={(e) => (e.currentTarget.style.opacity = '0.7')}
+          onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+          sx={{
+            fontSize: [14, 16],
+            fontFamily: 'Castego',
+            padding: 0,
+          }}
+          color={theme.colors.darkestGreen}
+          onClick={() => push(textLink + 'user')}
+          isNotClickable={true}
+        >
+          Dashboard
+        </TextModal>
+      ) : (
+        <>
+          <SecondaryButton
+            style={{ textTransform: 'capitalize', fontWeight: 400 }}
+            onClick={() => push(textLink + 'register')}
           >
-            <Text
-              sx={{
-                ':hover': {
-                  backgroundColor: theme.colors.green,
-                  color: theme.colors.white,
-                },
-                color: theme.colors.black,
-                width: '100%',
-                padding: '2px',
-                textAlign: 'center',
-                cursor: 'pointer',
-              }}
-              onClick={async () => {
-                await push(textLink + 'login', {
-                  query: {
-                    who: 'Scholar',
-                  },
-                })
-                close()
-              }}
-            >
-              For Scholar
-            </Text>
-            <Text
-              sx={{
-                ':hover': {
-                  backgroundColor: theme.colors.green,
-                  color: theme.colors.white,
-                },
-                color: theme.colors.black,
-                padding: '2px',
-                width: '100%',
-                textAlign: 'center',
-                cursor: 'pointer',
-              }}
-              onClick={async () => {
-                await push(textLink + 'login', {
-                  query: {
-                    who: 'Employee',
-                  },
-                })
-                close()
-              }}
-            >
-              For Employee
-            </Text>
-          </Flex>
-        )}
-      >
-        Login
-      </ButtonDropdown>
+            Sign Up
+          </SecondaryButton>
+          <ButtonDropdown
+            style={{ textTransform: 'capitalize', fontWeight: 400 }}
+            display={(close) => (
+              <Flex
+                sx={{
+                  width: 150,
+                  flexDirection: 'column',
+                  gap: 2,
+                  border: '1px solid gray',
+                  borderRadius: 3,
+                  marginTop: 1,
+                  paddingTop: 2,
+                  paddingBottom: 2,
+                  zIndex: 9999,
+                  backgroundColor: theme.colors.white,
+                }}
+              >
+                <Text
+                  sx={{
+                    ':hover': {
+                      backgroundColor: theme.colors.green,
+                      color: theme.colors.white,
+                    },
+                    color: theme.colors.black,
+                    width: '100%',
+                    padding: '2px',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                  }}
+                  onClick={async () => {
+                    await push(textLink + 'login', {
+                      query: {
+                        who: 'Scholar',
+                      },
+                    })
+                    close()
+                  }}
+                >
+                  For Scholar
+                </Text>
+                <Text
+                  sx={{
+                    ':hover': {
+                      backgroundColor: theme.colors.green,
+                      color: theme.colors.white,
+                    },
+                    color: theme.colors.black,
+                    padding: '2px',
+                    width: '100%',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                  }}
+                  onClick={async () => {
+                    await push(textLink + 'login', {
+                      query: {
+                        who: 'Employee',
+                      },
+                    })
+                    close()
+                  }}
+                >
+                  For Employee
+                </Text>
+              </Flex>
+            )}
+          >
+            Login
+          </ButtonDropdown>
+        </>
+      )}
     </>
   )
 }

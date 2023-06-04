@@ -14,7 +14,7 @@ export const ListItem = ({
   ...rest
 }: DetailedHTMLProps<LiHTMLAttributes<HTMLLIElement>, HTMLLIElement>) => (
   <li
-    style={{ color: theme.colors.green }}
+    style={{ color: theme.colors.green, ...style }}
     color={theme.colors.green}
     {...rest}
   >

@@ -15,7 +15,7 @@ import { Chat, ChatMessages } from 'components/chat'
 export const Main = ({
   pageTitle,
   children,
-  isLink,
+  isLink = false,
 }: { pageTitle?: string; isLink?: boolean } & FlexProps) => {
   const { user } = useUser()
 
@@ -88,7 +88,7 @@ export const Main = ({
               flexDirection={['row', 'row-reverse']}
               sx={{ gap: 2, alignItems: 'center' }}
             >
-              {!user && (
+              {!!user && (
                 <Flex
                   flexDirection={['row', 'row-reverse']}
                   sx={{ gap: [3, 4, 4], mr: 2 }}

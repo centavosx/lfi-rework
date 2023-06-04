@@ -1,7 +1,7 @@
 import { Flex } from 'rebass'
 
 import { ReactNode, useEffect, useCallback, useMemo } from 'react'
-import 'react-calendar/dist/Calendar.css'
+
 import { Main } from '../../../components/main'
 import { Calendar } from '../../../components/calendar'
 import { useRouter } from 'next/router'

@@ -33,7 +33,10 @@ export class Firebase {
   }
 
   public uploadFile(file: File) {
-    const storageRef = ref(storage, this.id + '/' + file.name)
+    const storageRef = ref(
+      storage,
+      this.id + '/' + (new Date().getTime() + '-' + file.name)
+    )
     this.uploadTask = uploadBytesResumable(storageRef, file)
   }
 
