@@ -83,7 +83,7 @@ export default function Home() {
   const { replace } = useRouter()
 
   return (
-    <Main isLink={true}>
+    <Main>
       <Carousel
         fadeDuration={150}
         carouselContent={['lao2', 'lao3', 'lao4'].map((data, i) => (

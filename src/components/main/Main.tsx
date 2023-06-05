@@ -15,8 +15,7 @@ import { Chat, ChatMessages } from 'components/chat'
 export const Main = ({
   pageTitle,
   children,
-  isLink = false,
-}: { pageTitle?: string; isLink?: boolean } & FlexProps) => {
+}: { pageTitle?: string } & FlexProps) => {
   const { user } = useUser()
 
   return (
@@ -24,7 +23,7 @@ export const Main = ({
       <BaseHead
         title="Lao Foundation"
         pageTitle={pageTitle}
-        description="Set your appointment now"
+        description="Scholarships"
       />
       <Flex
         width={'100%'}
@@ -196,11 +195,11 @@ export const Main = ({
               )}
               <WebView>
                 <Flex sx={{ gap: 16, padding: 15 }}>
-                  <Navigation.WebNavigation isLink={isLink} />
+                  <Navigation.WebNavigation />
                 </Flex>
               </WebView>
               <MobileView>
-                <Navigation.MobileNavigation isLink={isLink} />
+                <Navigation.MobileNavigation />
               </MobileView>
             </Flex>
           </Header>

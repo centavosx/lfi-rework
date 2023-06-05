@@ -74,7 +74,7 @@ export default function Login() {
     yshift = 0
 
   return (
-    <Main isLink={true}>
+    <Main>
       <Flex sx={{ flexDirection: 'column', gap: 4, padding: 4 }}>
         <Formik<RegFormType>
           key={1}

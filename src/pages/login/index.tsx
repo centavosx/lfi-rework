@@ -86,7 +86,7 @@ export default function Register({ who = 'Scholar' }: { who?: User }) {
   }, [asPath])
 
   return (
-    <Main isLink={true}>
+    <Main>
       <Flex sx={{ flexDirection: ['column', 'column', 'row'], gap: 4 }}>
         <Flex flex={1}>
           <Image

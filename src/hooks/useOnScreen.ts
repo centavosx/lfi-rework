@@ -14,7 +14,7 @@ export function useOnScreen<T extends HTMLElement = HTMLElement>(
   )
 
   useEffect(() => {
-    observer.observe(ref.current)
+    if (ref.current) observer.observe(ref.current)
     return () => observer.disconnect()
   }, [])
 

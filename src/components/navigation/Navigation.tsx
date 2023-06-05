@@ -1,7 +1,6 @@
-import React, { useCallback, useState, Fragment, useEffect } from 'react'
-import { Flex, Text, Link as Anchor } from 'rebass'
+import React, { useCallback, useState, Fragment, memo } from 'react'
+import { Flex, Text } from 'rebass'
 import Drawer from '@mui/material/Drawer'
-import { scroller } from 'react-scroll'
 
 import { theme } from '../../utils/theme'
 import { FiMenu } from 'react-icons/fi'
@@ -24,11 +23,11 @@ import { TextModal } from '../modal'
 import { useUser } from 'hooks'
 import { User } from 'entities'
 
-export const WebNavigation = ({ isLink }: { isLink?: boolean }) => {
+export const WebNavigation = memo(() => {
   const { push } = useRouter()
   const { logout, user } = useUser()
 
-  const textLink = isLink ? '/' : '/#'
+  const textLink = '/'
 
   return (
     <>
@@ -49,7 +48,7 @@ export const WebNavigation = ({ isLink }: { isLink?: boolean }) => {
       >
         Home
       </TextModal>
-      {!user ? (
+      {!!user ? (
         <>
           <TextModal
             width={'auto'}
@@ -63,7 +62,9 @@ export const WebNavigation = ({ isLink }: { isLink?: boolean }) => {
               padding: 0,
             }}
             color={theme.colors.darkestGreen}
-            onClick={() => push(textLink + 'user')}
+            onClick={() =>
+              push(textLink + 'user', undefined, { shallow: true })
+            }
             isNotClickable={true}
           >
             Dashboard
@@ -185,11 +186,15 @@ export const WebNavigation = ({ isLink }: { isLink?: boolean }) => {
                     cursor: 'pointer',
                   }}
                   onClick={async () => {
-                    await push(textLink + 'login', {
-                      query: {
-                        who: 'Scholar',
+                    await push(
+                      textLink + 'login',
+                      {
+                        query: {
+                          who: 'Scholar',
+                        },
                       },
-                    })
+                      { shallow: true }
+                    )
                     close()
                   }}
                 >
@@ -208,11 +213,15 @@ export const WebNavigation = ({ isLink }: { isLink?: boolean }) => {
                     cursor: 'pointer',
                   }}
                   onClick={async () => {
-                    await push(textLink + 'login', {
-                      query: {
-                        who: 'Employee',
+                    await push(
+                      textLink + 'login',
+                      {
+                        query: {
+                          who: 'Employee',
+                        },
                       },
-                    })
+                      { shallow: true }
+                    )
                     close()
                   }}
                 >
@@ -227,16 +236,17 @@ export const WebNavigation = ({ isLink }: { isLink?: boolean }) => {
       )}
     </>
   )
-}
+})
 
-export const MobileNavigation = ({ isLink }: { isLink?: boolean }) => {
+WebNavigation.displayName = 'WebNav'
+
+export const MobileNavigation = memo(() => {
   const { push } = useRouter()
   const { logout } = useUser()
   const [state, setState] = useState({
     right: false,
   })
-  const [link, setLink] = useState<string | null>(null)
-  const [open, setOpen] = useState(false)
+
   const toggleDrawer = useCallback(
     (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
       if (
@@ -265,23 +275,22 @@ export const MobileNavigation = ({ isLink }: { isLink?: boolean }) => {
                 <ListItem disablePadding={true}>
                   <ListItemButton
                     onClick={async () => {
-                      setLink(data)
                       switch (data) {
                         case 'Home':
-                          await push(isLink ? '/' : '/#')
+                          await push('/')
                           break
                         case 'Sign Up':
-                          await push((isLink ? '/' : '/#') + 'register')
+                          await push('/register')
                           break
                         case 'Login for scholar':
-                          await push((isLink ? '/' : '/#') + 'login', {
+                          await push('/login', {
                             query: {
                               who: 'Scholar',
                             },
                           })
                           break
                         case 'Login for employee':
-                          await push((isLink ? '/' : '/#') + 'login', {
+                          await push('/login', {
                             query: {
                               who: 'Employee',
                             },
@@ -291,10 +300,7 @@ export const MobileNavigation = ({ isLink }: { isLink?: boolean }) => {
                           logout()
                           break
                         default:
-                          push(
-                            (isLink ? '/' : '/#') +
-                              data?.split(' ').join('').toLowerCase()
-                          )
+                          push('/' + data?.split(' ').join('').toLowerCase())
                           break
                       }
                     }}
@@ -311,13 +317,6 @@ export const MobileNavigation = ({ isLink }: { isLink?: boolean }) => {
     []
   )
 
-  useEffect(() => {
-    if (link !== 'Services') {
-      setState({ right: false })
-      setOpen(false)
-    }
-  }, [link, setState, setOpen])
-
   return (
     <>
       <Button onClick={toggleDrawer(true)} sx={{ minWidth: 34, zIndex: -1 }}>
@@ -329,4 +328,6 @@ export const MobileNavigation = ({ isLink }: { isLink?: boolean }) => {
       </Drawer>
     </>
   )
-}
+})
+
+MobileNavigation.displayName = 'MobileNav'

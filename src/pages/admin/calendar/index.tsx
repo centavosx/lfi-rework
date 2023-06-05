@@ -1,19 +1,16 @@
 import { useState } from 'react'
-import { Event, EventCalendar } from 'components/calendar'
-import { Main } from 'components/main'
-import { Flex, Text } from 'rebass'
-
-import { format } from 'date-fns'
+import { EventCalendar, Event } from 'components/calendar'
+import { AdminMain } from 'components/main'
 import { ButtonModal, CustomModal } from 'components/modal'
-
 import { ListContainer, ListItem } from 'components/ul'
+import { format } from 'date-fns'
+import { Flex, Text } from 'rebass'
 import { AreYouSure } from 'components/are-you-sure'
 
-export default function Dashboard() {
+export default function Calendar() {
   const [selectedDate, setSelectedDate] = useState(new Date())
-
   return (
-    <Main>
+    <AdminMain>
       <Flex
         sx={{
           flexDirection: 'column',
@@ -22,18 +19,6 @@ export default function Dashboard() {
           width: '100%',
         }}
       >
-        <Flex sx={{ width: '100%', gap: 4 }}>
-          <Text as={'h1'}>Welcome Vincent...</Text>
-          <ButtonModal
-            style={{ height: 50 }}
-            width={250}
-            title="Logout"
-            titleProps={{ as: 'h3' }}
-            modalChild={<AreYouSure message="Are you sure?" />}
-          >
-            Logout
-          </ButtonModal>
-        </Flex>
         <CustomModal
           title={format(selectedDate, 'cccc LLLL d, yyyy hh:mm a')}
           titleProps={{ as: 'h3' }}
@@ -117,6 +102,6 @@ export default function Dashboard() {
           )}
         </CustomModal>
       </Flex>
-    </Main>
+    </AdminMain>
   )
 }
