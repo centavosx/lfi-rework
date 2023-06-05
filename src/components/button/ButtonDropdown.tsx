@@ -61,3 +61,41 @@ export const ButtonDropdown = memo(
 )
 
 ButtonDropdown.displayName = 'ButtonDropdown'
+
+export const CustomDropdown = memo(
+  ({
+    children,
+    display,
+    ...rest
+  }: {
+    display?: ((v: () => void) => ReactNode) | ReactNode
+    children: (v: () => void) => ReactNode
+  }) => {
+    const { ref, isComponentVisible, setIsComponentVisible } =
+      useComponentVisible(false)
+
+    return (
+      <Flex style={{ position: 'relative', width: 'auto', height: 'auto' }}>
+        {children(() => setIsComponentVisible((v) => !v))} {<DownArrow />}
+        <Flex
+          ref={ref}
+          sx={{
+            position: 'absolute',
+            top: '100%',
+            width: 'auto',
+            height: 'auto',
+            right: 0,
+            zIndex: 9999,
+          }}
+        >
+          {isComponentVisible &&
+            (!!display && typeof display === 'function'
+              ? display(() => setIsComponentVisible(false))
+              : display)}
+        </Flex>
+      </Flex>
+    )
+  }
+)
+
+CustomDropdown.displayName = 'ButtonDropdown'

@@ -9,8 +9,7 @@ import {
 
 import Modal from '@mui/material/Modal'
 import { AiOutlineClose } from 'react-icons/ai'
-import { Flex } from 'rebass'
-import { number } from 'yup'
+import { Flex, TextProps, Text } from 'rebass'
 
 type ChildrenProps = {
   isOpen: boolean
@@ -29,6 +28,9 @@ export const CustomModal = memo(
     maxWidth,
     onSubmit,
     isModalOverFlow = true,
+    width,
+    titleProps,
+    title,
   }: {
     modalChild?: ((props: ChildProps) => ReactNode) | ReactNode
     children: ((props: ChildrenProps) => ReactNode) | ReactNode
@@ -36,6 +38,9 @@ export const CustomModal = memo(
     maxHeight?: number[] | string[] | number | string
     maxWidth?: number[] | string[] | number | string
     isModalOverFlow?: boolean
+    width?: string[] | number[] | number | string
+    titleProps?: TextProps
+    title?: string
   }) => {
     const [open, setOpen] = useState<boolean>(false)
 
@@ -65,7 +70,7 @@ export const CustomModal = memo(
               top: '50%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
-              width: ['80%', '80%'],
+              width: width ?? ['80%', '80%'],
               height: 'auto',
               maxHeight: maxHeight ?? ['80%', 'unset'],
               maxWidth: maxWidth,
@@ -78,7 +83,10 @@ export const CustomModal = memo(
               flexDirection: 'column',
             }}
           >
-            <Flex sx={{ alignSelf: 'end' }}>
+            <Flex sx={{ mb: 2 }} flex={1}>
+              <Text flex={1} {...titleProps}>
+                {title}
+              </Text>
               <AiOutlineClose
                 style={{ cursor: 'pointer' }}
                 onClick={() => setOpen(false)}
