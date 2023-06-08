@@ -1,30 +1,25 @@
 import { API, apiAuth } from '../utils'
 import { TokenDTO } from '../dto'
 import Cookies from 'js-cookie'
+import { RequiredFiles, UserInfo } from 'constant'
 
-export const registerUser = async ({
-  name,
-  email,
-  password,
-}: {
-  name: string
-  email: string
-  password: string
-}) => {
-  const response = await API.post('/user/register', {
-    name,
-    email,
-    password,
-  })
+export const registerUser = async (data?: UserInfo & RequiredFiles) => {
+  try {
+    if (!data) return null
+    const response = await API.post('/user/register', data)
 
-  const { accessToken, refreshToken }: TokenDTO = response.data
-  localStorage.setItem('accessToken', accessToken)
-  Cookies.set('refreshToken', refreshToken)
+    const { accessToken, refreshToken }: TokenDTO = response.data
+    localStorage.setItem('accessToken', accessToken)
+    Cookies.set('refreshToken', refreshToken)
+    return response.data
+  } catch (e) {
+    throw e
+  }
 }
 
 export const me = async () => {
   try {
-    const response = await apiAuth.get('/user/me/information')
+    const response = await apiAuth.get('/user/me')
     return response.data
   } catch {
     return undefined
@@ -68,13 +63,18 @@ export const verifyUser = async ({ code }: { code: string }) => {
     const { accessToken, refreshToken }: TokenDTO = response.data
     localStorage.setItem('accessToken', accessToken)
     Cookies.set('refreshToken', refreshToken)
+    return true
   } catch (e) {
     throw e
   }
 }
 export const refreshVerifCode = async () => {
-  const response = await apiAuth.get('/user/refresh-code')
-  return response
+  try {
+    const response = await apiAuth.get('/user/refresh-code')
+    return true
+  } catch (e) {
+    throw e
+  }
 }
 
 export const resetPass = async (email: string) => {

@@ -19,3 +19,7 @@ a {
 line {
   color: unset;
 }
+
+#__next {
+  height: 100vh;
+}

@@ -53,6 +53,7 @@ export class Firebase {
     onSuccess?: (link: string | undefined) => void,
     error?: (error: StorageError) => void
   ) {
+    console.log('HAY')
     this.uploadTask?.on(
       'state_changed',
       (snapshot) => {

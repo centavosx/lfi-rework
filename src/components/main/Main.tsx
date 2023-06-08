@@ -11,6 +11,7 @@ import { useUser } from 'hooks'
 import { NotifButton } from 'components/button'
 import { CustomModal } from 'components/modal'
 import { Chat, ChatMessages } from 'components/chat'
+import { UserStatus } from 'entities'
 
 export const Main = ({
   pageTitle,
@@ -87,7 +88,7 @@ export const Main = ({
               flexDirection={['row', 'row-reverse']}
               sx={{ gap: 2, alignItems: 'center' }}
             >
-              {!!user && (
+              {!!user && user.status === UserStatus.ACTIVE && (
                 <Flex
                   flexDirection={['row', 'row-reverse']}
                   sx={{ gap: [3, 4, 4], mr: 2 }}

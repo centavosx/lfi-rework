@@ -17,17 +17,27 @@ export enum ShsTrackAndStrandsEnum {
 }
 
 export type RequiredFiles = {
-  idPic?: string
-  ncae?: string
-  certificate?: string
-  pantawid?: string
-  gradeSlip?: string
-  birthCert?: string
-  homeSketch?: string
+  idPic: string
+  ncae: string
+  certificate: string
+  pantawid: string
+  gradeSlip: string
+  birthCert: string
+  homeSketch: string
   waterBill?: string
   electricBill?: string
   wifiBill?: string
   enrollmentBill?: string
+}
+
+export type UserInfo = {
+  fname: string
+  mname?: string
+  lname: string
+  level: string
+  address: string
+  email: string
+  program: string
 }
 
 export type RegFormType = {
@@ -38,7 +48,7 @@ export type RegFormType = {
   address: string
   email: string
   program?: CollegeEnum | ShsTrackAndStrandsEnum | null
-} & RequiredFiles
+} & Partial<RequiredFiles>
 
 export enum CollegeEnum {
   ABHist = 'AB History',

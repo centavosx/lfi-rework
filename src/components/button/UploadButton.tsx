@@ -24,37 +24,41 @@ export const UploadButton = ({
   accept?: string[]
   onFileChange?: (f: File[]) => void
 }) => {
-  const selectFile = useCallback(
-    ({
-      target: { files },
-    }: {
-      target: {
-        files: FileList | null
-      }
-    }) => {
-      if (!files) return []
-      const fileList: File[] = []
-      for (let i = 0; i < files.length; i++) {
-        const f = files.item(i)
-        if (!f) continue
-        const extension = f.type
-        if (
-          accept?.some((v) => {
-            return v === extension
-          }) ||
-          accept.includes('*')
-        )
-          fileList.push(f)
-      }
+  const ref = useRef<HTMLInputElement>(null)
 
-      return fileList
-    },
-    [accept]
-  )
+  const onClear = () => {
+    if (!!ref?.current?.value) ref.current.value = ''
+    if (!!ref.current?.files) ref.current.files = null
+  }
+  const selectFile = ({
+    target: { files },
+  }: {
+    target: {
+      files: FileList | null
+    }
+  }) => {
+    if (!files) return []
+    const fileList: File[] = []
+    for (let i = 0; i < files.length; i++) {
+      const f = files.item(i)
+      if (!f) continue
+      const extension = f.type
+      if (
+        accept?.some((v) => {
+          return v === extension
+        }) ||
+        accept.includes('*')
+      )
+        fileList.push(f)
+    }
+    onClear()
+    return fileList
+  }
 
   return (
     <Button style={{ position: 'relative' }} {...rest}>
       <input
+        ref={ref}
         type="file"
         style={{
           opacity: 0,
@@ -63,7 +67,9 @@ export const UploadButton = ({
           position: 'absolute',
           cursor: 'pointer',
         }}
-        onChange={(e) => onFileChange?.(selectFile(e))}
+        onChange={(e) => {
+          onFileChange?.(selectFile(e))
+        }}
         multiple={multiple}
         accept={accept?.join(', ')}
       />
@@ -90,7 +96,7 @@ export const UploadProcess = memo(
     errorString?: string
     name?: string
   }) => {
-    const fb = useRef<Firebase>(new Firebase('test')).current
+    let fb = useRef<Firebase>(new Firebase('userFolders')).current
 
     const [{ progress, state, uploadedName, link, err }, setUploadState] =
       useState<{
@@ -102,11 +108,14 @@ export const UploadProcess = memo(
       }>({ state: undefined, progress: 0 })
 
     useEffect(() => {
-      fb.listenUpload(
-        (progress, state) => setUploadState((v) => ({ ...v, progress, state })),
-        (l) => setUploadState((v) => ({ ...v, link: l })),
-        (error) => setUploadState((v) => ({ ...v, err: error }))
-      )
+      if (!!uploadedName) {
+        fb.listenUpload(
+          (progress, state) =>
+            setUploadState((v) => ({ ...v, progress, state })),
+          (l) => setUploadState((v) => ({ ...v, link: l })),
+          (error) => setUploadState((v) => ({ ...v, err: error }))
+        )
+      }
     }, [uploadedName])
 
     useEffect(() => {
@@ -126,7 +135,10 @@ export const UploadProcess = memo(
               onFileChange={async (f) => {
                 if (f.length > 0) {
                   fb.uploadControls().stop?.()
-                  if (!!uploadedName) await fb.deleteUploadedFile?.()
+                  if (!!uploadedName)
+                    try {
+                      await fb.deleteUploadedFile?.()
+                    } catch {}
                   fb.uploadFile(f[0])
                   setUploadState({
                     progress: 0,
@@ -168,6 +180,7 @@ export const UploadProcess = memo(
                       ? fb.uploadControls().resume()
                       : fb.uploadControls().pause()
                   }
+                  style={{ minWidth: 0, fontSize: 10 }}
                 >
                   {state === 'paused' ? 'Play' : 'Pause'}
                 </Button>
@@ -176,6 +189,7 @@ export const UploadProcess = memo(
                     fb.uploadControls().stop()
                     setUploadState({ state: undefined, progress: 0 })
                   }}
+                  style={{ minWidth: 0, fontSize: 10 }}
                 >
                   Stop
                 </SecondaryButton>
@@ -183,10 +197,17 @@ export const UploadProcess = memo(
             )}
           {!!state && (state === 'success' || progress === 100) && (
             <SecondaryButton
-              onClick={async () => {
-                await fb.deleteUploadedFile()
-                setUploadState({ state: undefined, progress: 0 })
+              onClick={() => {
+                fb.deleteUploadedFile().finally(() => {
+                  fb.uploadControls().stop()
+                  setUploadState({
+                    state: undefined,
+                    progress: 0,
+                    uploadedName: undefined,
+                  })
+                })
               }}
+              style={{ minWidth: 0, fontSize: 10 }}
             >
               Delete
             </SecondaryButton>
