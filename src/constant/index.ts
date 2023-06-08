@@ -152,7 +152,7 @@ export const DISPLAY_FILES = [
   { name: 'waterBill', title: 'Water Bill' },
   { name: 'electricBill', title: 'Electric Bill' },
   { name: 'wifiBill', title: 'Wifi Bill' },
-  { name: 'enrollmentSlip', title: 'Enrollment Bill' },
+  { name: 'enrollmentBill', title: 'Enrollment Bill' },
 ]
 
 export * from './types'

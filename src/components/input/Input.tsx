@@ -1,11 +1,12 @@
 import {
-  Button,
   CircularProgress,
   InputAdornment,
   TextField,
   TextFieldProps,
+  Theme,
 } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled, SxProps } from '@mui/material/styles'
+
 import {
   ChangeEventHandler,
   useCallback,
@@ -14,8 +15,7 @@ import {
   ChangeEvent,
 } from 'react'
 import { theme } from 'utils/theme'
-import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined'
-import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined'
+import { FormInput } from './FormInput'
 
 export type InputColor = {
   inputcolor?: {
@@ -36,83 +36,36 @@ const TextInput = ({
   children,
   padding,
   ...other
-}: TextFieldProps &
-  InputColor & {
-    padding?: number
-    paddingTop?: number
-    paddingBottom?: number
-    paddingLeft?: number
-    paddingRight?: number
-  }) => {
-  const [password, setPassword] = useState(false)
-  return (
-    <TextField
-      sx={{ width: '100%', ...sx }}
-      {...other}
-      type={!password ? other.type : 'text'}
-      InputProps={{
-        endAdornment: other.type === 'password' && (
-          <InputAdornment position="end">
-            <Button
-              style={{
-                marginRight: 14,
-                cursor: 'pointer',
-                padding: 3,
-                minWidth: 'auto',
-              }}
-              onClick={() => setPassword((v) => !v)}
-            >
-              {password ? (
-                <VisibilityOutlinedIcon />
-              ) : (
-                <VisibilityOffOutlinedIcon />
-              )}
-            </Button>
-          </InputAdornment>
-        ),
-      }}
-    />
-  )
+}: TextFieldProps & InputColor & { padding?: number }) => {
+  return <TextField sx={{ width: '100%', ...sx }} {...other} />
 }
-export const Input = styled(TextInput)(
-  ({
-    inputcolor,
-    padding,
-    paddingTop,
-    paddingBottom,
-    paddingLeft,
-    paddingRight,
-  }) => ({
-    borderRadius: 4,
-    backgroundColor: inputcolor?.backgroundColor,
-    '& label.Mui-focused': {
-      color: inputcolor?.labelColor,
-    },
+export const Input = styled(TextInput)(({ inputcolor, padding }) => ({
+  borderRadius: 4,
+  backgroundColor: inputcolor?.backgroundColor,
+  '& label.Mui-focused': {
+    color: inputcolor?.labelColor,
+  },
 
-    '& .MuiOutlinedInput-root': {
-      color: inputcolor?.color,
-      paddingTop: paddingTop ?? padding ?? 1,
-      paddingBottom: paddingBottom ?? padding ?? 1,
-      paddingLeft: paddingLeft ?? padding ?? 1,
-      paddingRight: paddingRight ?? padding ?? 1,
-      '& fieldset': {
-        borderColor: inputcolor?.labelColor,
-      },
-      '&:hover': {
-        color: inputcolor?.hover?.color,
-      },
-      '&:hover fieldset': {
-        borderColor: inputcolor?.hover?.labelColor,
-      },
-      '&.Mui-focused fieldset': {
-        borderColor: inputcolor?.labelColor,
-      },
+  '& .MuiOutlinedInput-root': {
+    color: inputcolor?.color,
+    padding: padding ?? 1,
+    '& fieldset': {
+      borderColor: inputcolor?.labelColor,
     },
-    '& .MuiInputBase-root:after': {
-      borderBottomColor: inputcolor?.borderBottomColor,
+    '&:hover': {
+      color: inputcolor?.hover?.color,
     },
-  })
-)
+    '&:hover fieldset': {
+      borderColor: inputcolor?.hover?.labelColor,
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: inputcolor?.labelColor,
+    },
+  },
+  '& .MuiInputBase-root:after': {
+    borderBottomColor: inputcolor?.borderBottomColor,
+  },
+}))
 
 export const SearchableInput = ({
   key,
@@ -123,6 +76,8 @@ export const SearchableInput = ({
   onSearch,
   onChange,
   disabled,
+  sx,
+  loadingSize,
 }: {
   key?: any
   label?: string
@@ -132,6 +87,8 @@ export const SearchableInput = ({
   onSearch?: (val: string) => Promise<void>
   onChange?: ChangeEventHandler<HTMLTextAreaElement | HTMLInputElement>
   disabled?: boolean
+  sx?: SxProps<Theme>
+  loadingSize?: number
 }) => {
   const [val, setVal] = useState('')
   const [isSearching, setIsSearching] = useState<boolean>(false)
@@ -171,10 +128,10 @@ export const SearchableInput = ({
       inputcolor={{
         labelColor: 'gray',
         backgroundColor: 'white',
-        borderBottomColor: theme.mainColors.first,
+        borderBottomColor: theme.colors.darkGreen,
         color: 'black',
       }}
-      sx={{ color: 'black', width: '100%' }}
+      sx={{ color: 'black', width: '100%', ...sx }}
       placeholder={placeHolder}
       onChange={onChangeValue}
       value={value ?? val}

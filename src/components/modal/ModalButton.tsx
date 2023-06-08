@@ -5,6 +5,7 @@ import {
   Dispatch,
   SetStateAction,
   memo,
+  useEffect,
 } from 'react'
 
 import Modal from '@mui/material/Modal'
@@ -31,10 +32,14 @@ export const ButtonModal = memo(
     width,
     maxWidth,
     titleProps,
+    height,
+    onClose,
     ...props
   }: ButtonProps & {
     modalChild?: ((props: ChildProps) => ReactNode) | ReactNode
     onSubmit?: () => void
+    onClose?: () => void
+    height?: string[] | number[] | number | string
     maxHeight?: string[] | number[] | number | string
     width?: string[] | number[] | number | string
     maxWidth?: string[] | number[] | number | string
@@ -47,6 +52,10 @@ export const ButtonModal = memo(
       onSubmit?.()
       setOpen(false)
     }, [onSubmit, setOpen])
+
+    useEffect(() => {
+      if (open === false) onClose?.()
+    }, [open])
 
     return (
       <>
@@ -85,7 +94,7 @@ export const ButtonModal = memo(
               transform: 'translate(-50%, -50%)',
               width: width ?? ['80%', '80%'],
               maxWidth: maxWidth,
-              height: 'auto',
+              height: height ?? 'auto',
               maxHeight: maxHeight ?? ['80%', 'unset'],
               backgroundColor: 'white',
               border: '1px solid gray',

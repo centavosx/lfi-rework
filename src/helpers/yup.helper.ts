@@ -66,7 +66,7 @@ export const FormikValidation = {
         curr.name === 'waterBill' ||
         curr.name === 'electricBill' ||
         curr.name === 'wifiBill' ||
-        curr.name === 'enrollmentSlip'
+        curr.name === 'enrollmentBill'
       )
         return prev
       return { ...prev, [curr.name]: Yup.string().required('Required') }

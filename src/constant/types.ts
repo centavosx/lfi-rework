@@ -27,7 +27,7 @@ export type RequiredFiles = {
   waterBill?: string
   electricBill?: string
   wifiBill?: string
-  enrollmentSlip?: string
+  enrollmentBill?: string
 }
 
 export type RegFormType = {
