@@ -218,91 +218,91 @@ export const Main = ({
           alignSelf="center"
         >
           {children}
-        </Flex>
-        <Flex
-          sx={{
-            height: 'auto',
-            width: '100%',
-            flexDirection: 'column',
-            backgroundColor: theme.colors.darkestGreen,
-          }}
-        >
-          <Header
-            id={'footer'}
+          <Flex
             sx={{
-              gap: 2,
-              padding: 20,
+              height: 'auto',
               width: '100%',
-              position: 'relative',
+              flexDirection: 'column',
+              backgroundColor: theme.colors.darkestGreen,
             }}
-            maxWidth={2250}
-            alignSelf="center"
           >
-            <Flex
-              flex={1}
-              flexDirection={['column', 'row']}
+            <Header
+              id={'footer'}
               sx={{
-                gap: 1,
-                alignItems: 'center',
+                gap: 2,
+                padding: 20,
+                width: '100%',
+                position: 'relative',
               }}
+              maxWidth={2250}
+              alignSelf="center"
             >
-              <Image
-                src={'/assets/logo-white.png'}
-                width={50}
-                height={50}
-                mr={[0, 4]}
-                minWidth={'auto'}
-                alt="image"
-              />
+              <Flex
+                flex={1}
+                flexDirection={['column', 'row']}
+                sx={{
+                  gap: 1,
+                  alignItems: 'center',
+                }}
+              >
+                <Image
+                  src={'/assets/logo-white.png'}
+                  width={50}
+                  height={50}
+                  mr={[0, 4]}
+                  minWidth={'auto'}
+                  alt="image"
+                />
 
-              <Flex
-                flex={0.8}
-                flexDirection={'column'}
-                sx={{ gap: '2px' }}
-                textAlign={['center', 'left']}
-              >
-                <Text as={'h5'}>ADDRESS</Text>
-                <Text>
-                  65 Colle Industria Bagumbayan Quezon City 1110, Philippines
-                </Text>
-              </Flex>
-              <Flex
-                flex={0.8}
-                flexDirection={'column'}
-                sx={{ gap: 2 }}
-                textAlign={['center', 'left']}
-              >
-                <Text as={'h5'}>CONTACT US</Text>
-                <Text>hello@thelaoufoundation.org</Text>
-                <Text>+63 2 8635 0680</Text>
-              </Flex>
-              <Flex
-                flex={0.2}
-                flexDirection={'column'}
-                textAlign={['center', 'left']}
-                sx={{ gap: 2 }}
-              >
-                <Text as={'h5'}>Follow US</Text>
-                <Flex width={'100%'} flexDirection={'row'} sx={{ gap: 2 }}>
-                  <Image
-                    height={24}
-                    width={24}
-                    src={'/assets/fb.png'}
-                    minWidth={'auto'}
-                    color={'white'}
-                    alt="image"
-                  />
-                  <Image
-                    height={24}
-                    width={24}
-                    src={'/assets/ig.png'}
-                    minWidth={'auto'}
-                    alt="image"
-                  />
+                <Flex
+                  flex={0.8}
+                  flexDirection={'column'}
+                  sx={{ gap: '2px' }}
+                  textAlign={['center', 'left']}
+                >
+                  <Text as={'h5'}>ADDRESS</Text>
+                  <Text>
+                    65 Colle Industria Bagumbayan Quezon City 1110, Philippines
+                  </Text>
+                </Flex>
+                <Flex
+                  flex={0.8}
+                  flexDirection={'column'}
+                  sx={{ gap: 2 }}
+                  textAlign={['center', 'left']}
+                >
+                  <Text as={'h5'}>CONTACT US</Text>
+                  <Text>hello@thelaoufoundation.org</Text>
+                  <Text>+63 2 8635 0680</Text>
+                </Flex>
+                <Flex
+                  flex={0.2}
+                  flexDirection={'column'}
+                  textAlign={['center', 'left']}
+                  sx={{ gap: 2 }}
+                >
+                  <Text as={'h5'}>Follow US</Text>
+                  <Flex width={'100%'} flexDirection={'row'} sx={{ gap: 2 }}>
+                    <Image
+                      height={24}
+                      width={24}
+                      src={'/assets/fb.png'}
+                      minWidth={'auto'}
+                      color={'white'}
+                      alt="image"
+                    />
+                    <Image
+                      height={24}
+                      width={24}
+                      src={'/assets/ig.png'}
+                      minWidth={'auto'}
+                      alt="image"
+                    />
+                  </Flex>
                 </Flex>
               </Flex>
-            </Flex>
-          </Header>
+            </Header>
+          </Flex>
         </Flex>
       </Flex>
     </>

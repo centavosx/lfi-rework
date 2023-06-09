@@ -57,9 +57,10 @@ export const loginUser = async ({
   }
 }
 
-export const verifyUser = async ({ code }: { code: string }) => {
+export const verifyUser = async (data: { code: string } | undefined) => {
   try {
-    const response = await apiAuth.post('/user/verify', { code })
+    if (!data) return false
+    const response = await apiAuth.post('/user/verify', { code: data.code })
     const { accessToken, refreshToken }: TokenDTO = response.data
     localStorage.setItem('accessToken', accessToken)
     Cookies.set('refreshToken', refreshToken)

@@ -67,13 +67,13 @@ const COLLEGE_PROGRAMS: Option<string, CollegeEnum | null>[] = [
 
 const ValidateEmail = () => {
   const { user, refetch } = useUser()
-  const [errorM, setError] = useState('')
 
   const [time, setTime] = useState(180)
 
-  const { callApi, isSuccess, isFetching, error } = useApiPost<boolean, any>(
-    verifyUser
-  )
+  const { callApi, isSuccess, isFetching, error } = useApiPost<
+    boolean,
+    { code: string } | undefined
+  >(verifyUser)
 
   const {
     isFetching: isRefreshing,
@@ -103,14 +103,8 @@ const ValidateEmail = () => {
       initialValues={{ code: '' }}
       onSubmit={(values, { setSubmitting }) => {
         setSubmitting(true)
-        if (time > 0) {
-          callApi({ code: values.code })
-          return
-        }
+        callApi({ code: values.code })
         setSubmitting(false)
-        return setError(
-          'Your verification code is now expired, please resend new verification code.'
-        )
       }}
       validationSchema={FormikValidation.code}
     >
@@ -119,7 +113,7 @@ const ValidateEmail = () => {
           flex={1}
           label="Verify your account"
           labelProps={{ sx: { justifyContent: 'center', mb: 10 } }}
-          flexProps={{ sx: { gap: 20, height: '100%', flex: 1 } }}
+          flexProps={{ sx: { gap: 10, height: '100%', flex: 1 } }}
         >
           <Flex flexDirection={'column'} sx={{ gap: 4 }}>
             <Text>
@@ -149,35 +143,38 @@ const ValidateEmail = () => {
               alignItems={'end'}
               sx={{ gap: 1, width: '100%' }}
             >
-              {time > 0 && (
+              {time > 0 ? (
                 <Text textAlign={'right'} flex={1} sx={{ color: 'black' }}>
                   {time}s
                 </Text>
+              ) : (
+                <Text
+                  sx={{
+                    color: 'blue',
+                    flex: [],
+                    width: time === 0 ? '100%' : 'auto',
+                    textDecoration: 'underline',
+                    cursor: 'pointer',
+                    textAlign: 'right',
+                  }}
+                  onClick={() => refreshCode()}
+                >
+                  Resend
+                </Text>
               )}
-              <Text
-                sx={{
-                  color: 'blue',
-                  flex: [],
-                  width: time === 0 ? '100%' : 'auto',
-                  textDecoration: 'underline',
-                  cursor: 'pointer',
-                  textAlign: 'right',
-                }}
-                onClick={() => refreshCode()}
-              >
-                Resend
-              </Text>
             </Flex>
           </Flex>
-          <InputError error={errorM || error} />
-          <Button
-            type="submit"
-            fullWidth={false}
-            style={{ width: 120, alignSelf: 'flex-end' }}
-            disabled={isSubmitting || isRefreshing || isFetching}
-          >
-            Submit
-          </Button>
+          <Flex flexDirection="column" width={'100%'} sx={{ gap: 2 }}>
+            <InputError error={error?.response?.data?.message} />
+            <Button
+              type="submit"
+              fullWidth={false}
+              style={{ width: 120, alignSelf: 'flex-end' }}
+              disabled={isSubmitting || isRefreshing || isFetching}
+            >
+              Submit
+            </Button>
+          </Flex>
         </FormContainer>
       )}
     </Formik>
@@ -208,7 +205,7 @@ export default function Register() {
 
   return (
     <Main>
-      <Flex sx={{ flexDirection: 'column', gap: 4, padding: 4 }}>
+      <Flex sx={{ flexDirection: 'column', gap: 4, padding: 4, flex: 1 }}>
         {isVerification ? (
           <ValidateEmail />
         ) : (
@@ -217,7 +214,6 @@ export default function Register() {
             initialValues={{ fname: '', lname: '', email: '', address: '' }}
             validationSchema={FormikValidation.register}
             onSubmit={(values, { setSubmitting }) => {
-              console.log(values)
               setSubmitting(true)
               callApi(values as any)
               setSubmitting(false)
