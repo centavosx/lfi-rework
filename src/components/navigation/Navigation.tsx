@@ -21,13 +21,11 @@ import { useRouter } from 'next/router'
 
 import { TextModal } from '../modal'
 import { useUser } from 'hooks'
-import { User } from 'entities'
+import { Roles, UserStatus } from 'entities'
 
 export const WebNavigation = memo(() => {
   const { push } = useRouter()
   const { logout, user } = useUser()
-
-  const textLink = '/'
 
   return (
     <>
@@ -43,12 +41,14 @@ export const WebNavigation = memo(() => {
           padding: 0,
         }}
         color={theme.colors.darkestGreen}
-        onClick={() => push(textLink)}
+        onClick={() => push('/')}
         isNotClickable={true}
       >
         Home
       </TextModal>
-      {!!user ? (
+      {!!user &&
+      (user.status === UserStatus.VERIFIED ||
+        user.status === UserStatus.ACTIVE) ? (
         <>
           <TextModal
             width={'auto'}
@@ -62,9 +62,20 @@ export const WebNavigation = memo(() => {
               padding: 0,
             }}
             color={theme.colors.darkestGreen}
-            onClick={() =>
-              push(textLink + 'user', undefined, { shallow: true })
-            }
+            onClick={() => {
+              const link = user?.roles.some(
+                (v) =>
+                  v.name === Roles.ADMIN ||
+                  v.name === Roles.ADMIN_READ ||
+                  v.name === Roles.ADMIN_WRITE ||
+                  v.name === Roles.SUPER
+              )
+                ? '/admin/dashboard'
+                : user?.status === UserStatus.VERIFIED
+                ? '/user/waiting'
+                : '/user'
+              push(link, undefined, { shallow: true })
+            }}
             isNotClickable={true}
           >
             Dashboard
@@ -86,7 +97,7 @@ export const WebNavigation = memo(() => {
                 }}
               >
                 <Text padding={2} as={'h4'}>
-                  Hi! Vincent Lennuel Llanto
+                  Hi! {user.lname}, {user.fname} {user.mname}
                 </Text>
                 <Text
                   sx={{
@@ -119,6 +130,7 @@ export const WebNavigation = memo(() => {
                     cursor: 'pointer',
                   }}
                   onClick={async () => {
+                    logout()
                     close()
                   }}
                 >
@@ -152,7 +164,7 @@ export const WebNavigation = memo(() => {
         <>
           <SecondaryButton
             style={{ textTransform: 'capitalize', fontWeight: 400 }}
-            onClick={() => push(textLink + 'register')}
+            onClick={() => push('/register', undefined, { shallow: true })}
           >
             Sign Up
           </SecondaryButton>
@@ -187,7 +199,7 @@ export const WebNavigation = memo(() => {
                   }}
                   onClick={async () => {
                     await push(
-                      textLink + 'login',
+                      '/login',
                       {
                         query: {
                           who: 'Scholar',
@@ -214,7 +226,7 @@ export const WebNavigation = memo(() => {
                   }}
                   onClick={async () => {
                     await push(
-                      textLink + 'login',
+                      '/login',
                       {
                         query: {
                           who: 'Employee',
@@ -240,9 +252,17 @@ export const WebNavigation = memo(() => {
 
 WebNavigation.displayName = 'WebNav'
 
+const getPages = (status?: UserStatus) => {
+  switch (true) {
+    case status === UserStatus.VERIFIED || status === UserStatus.ACTIVE:
+      return ['Home', 'Dashboard', 'Profile', 'Settings', 'Logout']
+    default:
+      return ['Home', 'Sign Up', 'Login for scholar', 'Login for employee']
+  }
+}
 export const MobileNavigation = memo(() => {
   const { push } = useRouter()
-  const { logout } = useUser()
+  const { logout, user } = useUser()
   const [state, setState] = useState({
     right: false,
   })
@@ -269,52 +289,64 @@ export const MobileNavigation = memo(() => {
         role="presentation"
       >
         <List>
-          {['Home', 'Sign Up', 'Login for scholar', 'Login for employee'].map(
-            (data: string, i) => (
-              <Fragment key={i}>
-                <ListItem disablePadding={true}>
-                  <ListItemButton
-                    onClick={async () => {
-                      switch (data) {
-                        case 'Home':
-                          await push('/')
-                          break
-                        case 'Sign Up':
-                          await push('/register')
-                          break
-                        case 'Login for scholar':
-                          await push('/login', {
-                            query: {
-                              who: 'Scholar',
-                            },
-                          })
-                          break
-                        case 'Login for employee':
-                          await push('/login', {
-                            query: {
-                              who: 'Employee',
-                            },
-                          })
-                          break
-                        case 'Logout':
-                          logout()
-                          break
-                        default:
-                          push('/' + data?.split(' ').join('').toLowerCase())
-                          break
-                      }
-                    }}
-                  >
-                    <ListItemText primary={data} />
-                  </ListItemButton>
-                </ListItem>
-              </Fragment>
-            )
-          )}
+          {getPages(user?.status).map((data: string, i) => (
+            <Fragment key={i}>
+              <ListItem disablePadding={true}>
+                <ListItemButton
+                  onClick={async () => {
+                    switch (data) {
+                      case 'Home':
+                        await push('/')
+                        break
+                      case 'Dashboard':
+                        const link = user?.roles.some(
+                          (v) =>
+                            v.name === Roles.ADMIN ||
+                            v.name === Roles.ADMIN_READ ||
+                            v.name === Roles.ADMIN_WRITE ||
+                            v.name === Roles.SUPER
+                        )
+                          ? '/admin/dashboard'
+                          : user?.status === UserStatus.VERIFIED
+                          ? '/user/waiting'
+                          : '/user'
+                        await push(link)
+                        break
+                      case 'Sign Up':
+                        await push('/register')
+                        break
+                      case 'Login for scholar':
+                        await push('/login', {
+                          query: {
+                            who: 'Scholar',
+                          },
+                        })
+                        break
+                      case 'Login for employee':
+                        await push('/login', {
+                          query: {
+                            who: 'Employee',
+                          },
+                        })
+                        break
+                      case 'Logout':
+                        logout()
+                        break
+                      default:
+                        push('/' + data?.split(' ').join('').toLowerCase())
+                        break
+                    }
+                  }}
+                >
+                  <ListItemText primary={data} />
+                </ListItemButton>
+              </ListItem>
+            </Fragment>
+          ))}
         </List>
       </Box>
     ),
-    []
+    [user?.status, user?.roles]
   )
 
   return (

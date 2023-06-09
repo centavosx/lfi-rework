@@ -4,7 +4,7 @@ const nextConfig = {
     process.env.NODE_ENV === 'production'
       ? 'https://manila-feline.netlify.app'
       : undefined,
-  reactStrictMode: true,
+  reactStrictMode: false,
   swcMinify: true,
   serverRuntimeConfig: {
     PROJECT_ROOT: __dirname,

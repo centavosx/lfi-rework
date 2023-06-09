@@ -15,8 +15,8 @@ import {
   resetPass,
   verifyUser,
 } from 'api'
-import { useApiPost, useUser, useUserNotVerifiedGuard } from 'hooks'
-import { Loading } from 'components/loading'
+import { useApiPost, useUser, useUserGuard } from 'hooks'
+import { Loading, PageLoading } from 'components/loading'
 import { Main } from 'components/main'
 import { Option, Select } from 'components/select'
 import {
@@ -34,6 +34,7 @@ import {
 import { Firebase } from 'firebaseapp'
 import { StorageError, TaskState } from 'firebase/storage'
 import { Label } from 'components/label'
+import { UserStatus } from 'entities'
 
 const SCHOOL_LEVEL: Option<string, Level>[] = [
   {
@@ -182,14 +183,14 @@ const ValidateEmail = () => {
 }
 
 export default function Register() {
-  const { refetch } = useUser()
+  const { refetch, user, logout } = useUser()
 
   const { callApi, isSuccess, isFetching, error } = useApiPost<
     any,
     UserInfo & RequiredFiles
   >(registerUser)
 
-  const isVerification = useUserNotVerifiedGuard()
+  const { isLoading, isReplacing } = useUserGuard()
 
   useEffect(() => {
     if (!!isSuccess) {
@@ -203,88 +204,132 @@ export default function Register() {
     }
   }, [error])
 
-  return (
-    <Main>
-      <Flex sx={{ flexDirection: 'column', gap: 4, padding: 4, flex: 1 }}>
-        {isVerification ? (
-          <ValidateEmail />
-        ) : (
-          <Formik<RegFormType>
-            key={1}
-            initialValues={{ fname: '', lname: '', email: '', address: '' }}
-            validationSchema={FormikValidation.register}
-            onSubmit={(values, { setSubmitting }) => {
-              setSubmitting(true)
-              callApi(values as any)
-              setSubmitting(false)
-            }}
-          >
-            {({ values, isSubmitting, setFieldValue, errors }) => (
-              <FormContainer
-                flex={1}
-                label={`Sign up for scholar`}
-                // image="/assets/logo.png"
-                // imageProps={{ height: 100, width: 100, margin: 'none' }}
-                labelProps={{ sx: { justifyContent: 'left' } }}
-                flexProps={{ sx: { gap: 20, mb: 30 } }}
-              >
-                {(isSubmitting || isFetching) && <Loading />}
+  useEffect(() => {
+    if (!isLoading && !isReplacing) {
+      logout()
+    }
+  }, [isLoading, isReplacing])
 
+  if (isLoading || isReplacing) return <PageLoading />
+
+  return (
+    <Flex sx={{ flexDirection: 'column', gap: 4, padding: 4, flex: 1 }}>
+      {user?.status === UserStatus.PENDING ? (
+        <ValidateEmail />
+      ) : (
+        <Formik<RegFormType>
+          key={1}
+          initialValues={{ fname: '', lname: '', email: '', address: '' }}
+          validationSchema={FormikValidation.register}
+          onSubmit={(values, { setSubmitting }) => {
+            setSubmitting(true)
+            callApi(values as any)
+            setSubmitting(false)
+          }}
+        >
+          {({ values, isSubmitting, setFieldValue, errors }) => (
+            <FormContainer
+              flex={1}
+              label={`Sign up for scholar`}
+              // image="/assets/logo.png"
+              // imageProps={{ height: 100, width: 100, margin: 'none' }}
+              labelProps={{ sx: { justifyContent: 'left' } }}
+              flexProps={{ sx: { gap: 20, mb: 30 } }}
+            >
+              {(isSubmitting || isFetching) && <Loading />}
+
+              <Flex sx={{ flexDirection: ['column', 'column', 'row'], gap: 2 }}>
                 <Flex
-                  sx={{ flexDirection: ['column', 'column', 'row'], gap: 2 }}
+                  sx={{ flexDirection: ['column', 'row', 'row'], gap: 2 }}
+                  flex={2}
                 >
-                  <Flex
-                    sx={{ flexDirection: ['column', 'row', 'row'], gap: 2 }}
-                    flex={2}
-                  >
-                    <FormInput
-                      containerProps={{ flex: 1 }}
-                      name="fname"
-                      type={'text'}
-                      placeholder="First Name"
-                      label={'First Name'}
-                      variant="outlined"
-                    />
-                    <FormInput
-                      containerProps={{ flex: 1 }}
-                      name="mname"
-                      type={'text'}
-                      label={'Middle Name (Optional)'}
-                      placeholder="Middle Name (Optional)"
-                      sx={{ flex: 1 }}
-                    />
-                  </Flex>
                   <FormInput
                     containerProps={{ flex: 1 }}
-                    name="lname"
+                    name="fname"
                     type={'text'}
-                    label={'Last Name'}
-                    placeholder="Last Name"
+                    placeholder="First Name"
+                    label={'First Name'}
+                    variant="outlined"
+                  />
+                  <FormInput
+                    containerProps={{ flex: 1 }}
+                    name="mname"
+                    type={'text'}
+                    label={'Middle Name (Optional)'}
+                    placeholder="Middle Name (Optional)"
                     sx={{ flex: 1 }}
                   />
                 </Flex>
                 <FormInput
                   containerProps={{ flex: 1 }}
-                  name="email"
-                  type={'email'}
-                  placeholder="Email"
-                  label="Email"
+                  name="lname"
+                  type={'text'}
+                  label={'Last Name'}
+                  placeholder="Last Name"
                   sx={{ flex: 1 }}
                 />
+              </Flex>
+              <FormInput
+                containerProps={{ flex: 1 }}
+                name="email"
+                type={'email'}
+                placeholder="Email"
+                label="Email"
+                sx={{ flex: 1 }}
+              />
+              <Flex flexDirection={'column'} sx={{ width: '100%', gap: 2 }}>
+                <Select
+                  isSearchable={true}
+                  name={'level'}
+                  options={SCHOOL_LEVEL}
+                  controlStyle={{
+                    padding: 8,
+                    borderColor: 'black',
+                    backgroundColor: 'white',
+                    cursor: 'pointer',
+                  }}
+                  onChange={(v) => {
+                    setFieldValue('level', (v as any).value)
+                    setFieldValue('program', undefined)
+                  }}
+                  theme={(ct) => ({
+                    ...ct,
+                    colors: {
+                      ...ct.colors,
+                      primary25: theme.colors.green40,
+                      primary: theme.colors.darkerGreen,
+                    },
+                  })}
+                  placeholder="Select School Level"
+                />
+                <InputError error={errors.level} />
+              </Flex>
+
+              {!!values.level && (
                 <Flex flexDirection={'column'} sx={{ width: '100%', gap: 2 }}>
                   <Select
                     isSearchable={true}
-                    name={'level'}
-                    options={SCHOOL_LEVEL}
+                    name="program"
+                    options={[
+                      { label: 'Select Program...', value: undefined },
+                      ...((values.level === Level.SHS
+                        ? SHS_PROGRAMS
+                        : COLLEGE_PROGRAMS) as any[]),
+                    ]}
                     controlStyle={{
                       padding: 8,
                       borderColor: 'black',
                       backgroundColor: 'white',
                       cursor: 'pointer',
                     }}
+                    value={[
+                      { label: 'Select Program...', value: undefined },
+                      ...((values.level === Level.SHS
+                        ? SHS_PROGRAMS
+                        : COLLEGE_PROGRAMS) as any[]),
+                    ].find((v) => v.value === values.program)}
                     onChange={(v) => {
-                      setFieldValue('level', (v as any).value)
-                      setFieldValue('program', undefined)
+                      setFieldValue('program', (v as any).value)
                     }}
                     theme={(ct) => ({
                       ...ct,
@@ -294,142 +339,94 @@ export default function Register() {
                         primary: theme.colors.darkerGreen,
                       },
                     })}
-                    placeholder="Select School Level"
+                    placeholder="Select Time"
                   />
-                  <InputError error={errors.level} />
+                  <InputError error={errors.program} />
                 </Flex>
+              )}
+              <FormInput
+                name="address"
+                label={'Address'}
+                multiline={true}
+                variant="outlined"
+                inputcolor={{
+                  labelColor: 'gray',
+                  backgroundColor: 'white',
+                  borderBottomColor: theme.mainColors.first,
 
-                {!!values.level && (
-                  <Flex flexDirection={'column'} sx={{ width: '100%', gap: 2 }}>
-                    <Select
-                      isSearchable={true}
-                      name="program"
-                      options={[
-                        { label: 'Select Program...', value: undefined },
-                        ...((values.level === Level.SHS
-                          ? SHS_PROGRAMS
-                          : COLLEGE_PROGRAMS) as any[]),
-                      ]}
-                      controlStyle={{
-                        padding: 8,
-                        borderColor: 'black',
-                        backgroundColor: 'white',
-                        cursor: 'pointer',
-                      }}
-                      value={[
-                        { label: 'Select Program...', value: undefined },
-                        ...((values.level === Level.SHS
-                          ? SHS_PROGRAMS
-                          : COLLEGE_PROGRAMS) as any[]),
-                      ].find((v) => v.value === values.program)}
-                      onChange={(v) => {
-                        setFieldValue('program', (v as any).value)
-                      }}
-                      theme={(ct) => ({
-                        ...ct,
-                        colors: {
-                          ...ct.colors,
-                          primary25: theme.colors.green40,
-                          primary: theme.colors.darkerGreen,
-                        },
-                      })}
-                      placeholder="Select Time"
-                    />
-                    <InputError error={errors.program} />
-                  </Flex>
-                )}
-                <FormInput
-                  name="address"
-                  label={'Address'}
-                  multiline={true}
-                  variant="outlined"
-                  inputcolor={{
-                    labelColor: 'gray',
-                    backgroundColor: 'white',
-                    borderBottomColor: theme.mainColors.first,
-
-                    color: 'black',
-                  }}
-                  placeholder={'Address'}
-                  maxRows={2}
-                  padding={20}
-                  paddingBottom={15}
-                  sx={{ color: 'black', width: '100%' }}
-                />
-                {/* <UploadButton>dwa</UploadButton> */}
-                <Flex
-                  flexWrap={'wrap'}
-                  flexDirection={'column'}
-                  sx={{ gap: 2 }}
-                >
-                  {DISPLAY_FILES.map((_, i) => {
-                    if (i % 2 === 0) {
-                      const v = DISPLAY_FILES[i]
-                      const v2 = DISPLAY_FILES[i + 1]
-                      return (
-                        <Flex
-                          width="100%"
-                          key={i}
-                          flexDirection={['column', 'row']}
-                        >
-                          <Flex flex={[1, 0.51, 0.5]} alignItems={'center'}>
+                  color: 'black',
+                }}
+                placeholder={'Address'}
+                maxRows={2}
+                padding={20}
+                paddingBottom={15}
+                sx={{ color: 'black', width: '100%' }}
+              />
+              {/* <UploadButton>dwa</UploadButton> */}
+              <Flex flexWrap={'wrap'} flexDirection={'column'} sx={{ gap: 2 }}>
+                {DISPLAY_FILES.map((_, i) => {
+                  if (i % 2 === 0) {
+                    const v = DISPLAY_FILES[i]
+                    const v2 = DISPLAY_FILES[i + 1]
+                    return (
+                      <Flex
+                        width="100%"
+                        key={i}
+                        flexDirection={['column', 'row']}
+                      >
+                        <Flex flex={[1, 0.51, 0.5]} alignItems={'center'}>
+                          <UploadProcess
+                            name={v.name}
+                            key={v.name}
+                            title={v.title}
+                            textProps={{
+                              fontWeight: 'bold',
+                              justifyContent: 'center',
+                            }}
+                            errorString={errors[v.name as keyof typeof errors]}
+                            width={150}
+                            onChange={(link) => setFieldValue(v.name, link)}
+                          />
+                        </Flex>
+                        {!!v2 && (
+                          <Flex flex={[1, 0.49, 0.5]}>
                             <UploadProcess
-                              name={v.name}
-                              key={v.name}
-                              title={v.title}
+                              name={v2.name}
+                              key={v2.name}
+                              title={v2.title}
                               textProps={{
                                 fontWeight: 'bold',
                                 justifyContent: 'center',
                               }}
                               errorString={
-                                errors[v.name as keyof typeof errors]
+                                errors[v2.name as keyof typeof errors]
                               }
                               width={150}
-                              onChange={(link) => setFieldValue(v.name, link)}
+                              onChange={(link) => setFieldValue(v2.name, link)}
                             />
                           </Flex>
-                          {!!v2 && (
-                            <Flex flex={[1, 0.49, 0.5]}>
-                              <UploadProcess
-                                name={v2.name}
-                                key={v2.name}
-                                title={v2.title}
-                                textProps={{
-                                  fontWeight: 'bold',
-                                  justifyContent: 'center',
-                                }}
-                                errorString={
-                                  errors[v2.name as keyof typeof errors]
-                                }
-                                width={150}
-                                onChange={(link) =>
-                                  setFieldValue(v2.name, link)
-                                }
-                              />
-                            </Flex>
-                          )}
-                        </Flex>
-                      )
-                    }
-                  })}
-                </Flex>
-                <ScrollToError>
-                  {(scroll) => (
-                    <Button
-                      style={{ width: 120, alignSelf: 'flex-end' }}
-                      type="submit"
-                      disabled={isSubmitting}
-                      onClick={() => scroll()}
-                    >
-                      Sign up
-                    </Button>
-                  )}
-                </ScrollToError>
-              </FormContainer>
-            )}
-          </Formik>
-        )}
-      </Flex>
-    </Main>
+                        )}
+                      </Flex>
+                    )
+                  }
+                })}
+              </Flex>
+              <ScrollToError>
+                {(scroll) => (
+                  <Button
+                    style={{ width: 120, alignSelf: 'flex-end' }}
+                    type="submit"
+                    disabled={isSubmitting}
+                    onClick={() => scroll()}
+                  >
+                    Sign up
+                  </Button>
+                )}
+              </ScrollToError>
+            </FormContainer>
+          )}
+        </Formik>
+      )}
+    </Flex>
   )
 }

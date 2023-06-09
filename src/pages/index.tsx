@@ -83,7 +83,7 @@ export default function Home() {
   const { replace } = useRouter()
 
   return (
-    <Main>
+    <>
       <Carousel
         fadeDuration={150}
         carouselContent={['lao2', 'lao3', 'lao4'].map((data, i) => (
@@ -227,6 +227,6 @@ export default function Home() {
           </BoxWithTitle>
         ))}
       </Section>
-    </Main>
+    </>
   )
 }

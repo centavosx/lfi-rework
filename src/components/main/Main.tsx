@@ -88,94 +88,97 @@ export const Main = ({
               flexDirection={['row', 'row-reverse']}
               sx={{ gap: 2, alignItems: 'center' }}
             >
-              {!!user && user.status === UserStatus.ACTIVE && (
-                <Flex
-                  flexDirection={['row', 'row-reverse']}
-                  sx={{ gap: [3, 4, 4], mr: 2 }}
-                >
-                  <NotifButton
-                    src={'/assets/icons/bell.png'}
-                    width={18}
-                    height={18}
-                    minWidth={'auto'}
-                    alt="image"
-                    notifNumber={1232}
-                    modalContainerProps={{
-                      sx: {
-                        right: [-10, 0],
-                      },
-                    }}
-                    displayModal={(close) => {
-                      return (
-                        <Flex
-                          sx={{
-                            width: [200, 250],
-                            maxHeight: 550,
-                            flexDirection: 'column',
-                            gap: 2,
-                            border: '1px solid gray',
-                            borderRadius: 3,
-                            marginTop: 1,
-                            paddingTop: 2,
-                            paddingBottom: 2,
-                            zIndex: 9999,
-                            backgroundColor: theme.colors.white,
-                          }}
-                        >
-                          <Text
+              {!!user &&
+                (user.status === UserStatus.VERIFIED ||
+                  user.status === UserStatus.ACTIVE) && (
+                  <Flex
+                    flexDirection={['row', 'row-reverse']}
+                    sx={{ gap: [3, 4, 4], mr: 2 }}
+                  >
+                    <NotifButton
+                      src={'/assets/icons/bell.png'}
+                      width={18}
+                      height={18}
+                      minWidth={'auto'}
+                      alt="image"
+                      notifNumber={1232}
+                      modalContainerProps={{
+                        sx: {
+                          right: [-10, 0],
+                        },
+                      }}
+                      displayModal={(close) => {
+                        return (
+                          <Flex
                             sx={{
-                              ':hover': {
-                                backgroundColor: theme.colors.green,
-                                color: theme.colors.white,
-                              },
-                              color: theme.colors.black,
-                              width: '100%',
-                              padding: '6px',
-                              cursor: 'pointer',
-                            }}
-                            onClick={async () => {
-                              // await push(textLink + 'login', {
-                              //   query: {
-                              //     who: 'Scholar',
-                              //   },
-                              // })
-                              close()
+                              width: [200, 250],
+                              maxHeight: 550,
+                              flexDirection: 'column',
+                              gap: 2,
+                              border: '1px solid gray',
+                              borderRadius: 3,
+                              marginTop: 1,
+                              paddingTop: 2,
+                              paddingBottom: 2,
+                              zIndex: 9999,
+                              backgroundColor: theme.colors.white,
                             }}
                           >
-                            For Scholar
-                          </Text>
-                        </Flex>
-                      )
-                    }}
-                  />
-                  <CustomModal
-                    modalChild={() => {
-                      return <Chat title="Your messages" />
-                    }}
-                    maxHeight={'80%'}
-                    maxWidth={2250}
-                    isModalOverFlow={false}
-                  >
-                    {({ setOpen }) => (
-                      <Flex
-                        width={18}
-                        height={18}
-                        sx={{
-                          position: 'relative',
-                          justifyContent: 'center',
-                          alignSelf: 'center',
+                            <Text
+                              sx={{
+                                ':hover': {
+                                  backgroundColor: theme.colors.green,
+                                  color: theme.colors.white,
+                                },
+                                color: theme.colors.black,
+                                width: '100%',
+                                padding: '6px',
+                                cursor: 'pointer',
+                              }}
+                              onClick={async () => {
+                                // await push(textLink + 'login', {
+                                //   query: {
+                                //     who: 'Scholar',
+                                //   },
+                                // })
+                                close()
+                              }}
+                            >
+                              For Scholar
+                            </Text>
+                          </Flex>
+                        )
+                      }}
+                    />
+                    {user.status === UserStatus.ACTIVE && (
+                      <CustomModal
+                        modalChild={() => {
+                          return <Chat title="Your messages" />
                         }}
-                        minWidth={'auto'}
+                        maxHeight={'80%'}
+                        maxWidth={2250}
+                        isModalOverFlow={false}
                       >
-                        <Image
-                          src={'/assets/icons/chat.png'}
-                          width={'100%'}
-                          height={'100%'}
-                          alt="image"
-                          style={{ cursor: 'pointer' }}
-                          onClick={() => setOpen((v) => !v)}
-                        />
-                        {/* {!!notifNumber && (
+                        {({ setOpen }) => (
+                          <Flex
+                            width={18}
+                            height={18}
+                            sx={{
+                              position: 'relative',
+                              justifyContent: 'center',
+                              alignSelf: 'center',
+                            }}
+                            minWidth={'auto'}
+                          >
+                            <Image
+                              src={'/assets/icons/chat.png'}
+                              width={'100%'}
+                              height={'100%'}
+                              alt="image"
+                              style={{ cursor: 'pointer' }}
+                              onClick={() => setOpen((v) => !v)}
+                            />
+                            {/* {!!notifNumber && (
                           <Text
                             sx={{
                               top: -10,
@@ -189,11 +192,12 @@ export const Main = ({
                             {notifNumber}
                           </Text>
                         )} */}
-                      </Flex>
+                          </Flex>
+                        )}
+                      </CustomModal>
                     )}
-                  </CustomModal>
-                </Flex>
-              )}
+                  </Flex>
+                )}
               <WebView>
                 <Flex sx={{ gap: 16, padding: 15 }}>
                   <Navigation.WebNavigation />

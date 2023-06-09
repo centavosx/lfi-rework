@@ -5,12 +5,13 @@ import { Section } from '../../../components/sections'
 
 import { CustomTable } from 'components/table'
 import { NextPage } from 'next'
-import { useApi } from 'hooks'
+import { useApi, useUserGuard } from 'hooks'
 import { useRouter } from 'next/router'
 
 import { ConfirmationModal, ModalFlexProps } from 'components/modal'
 import { FormikValidation } from 'helpers'
 import { AdminMain } from 'components/main'
+import { PageLoading } from 'components/loading'
 
 type PageProps = NextPage & {
   limitParams: number
@@ -73,6 +74,10 @@ export default function Services({
   searchParams,
 }: PageProps) {
   const { replace, query, pathname } = useRouter()
+
+  const { isLoading, isReplacing } = useUserGuard()
+
+  if (isLoading || isReplacing) return <PageLoading />
 
   return (
     <AdminMain>

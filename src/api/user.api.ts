@@ -39,19 +39,28 @@ export const reset = async (token: string, password: string) => {
   }
 }
 
-export const loginUser = async ({
-  email,
-  password,
-}: {
-  email: string
-  password: string
-}) => {
+export const loginUser = async (
+  data:
+    | {
+        email: string
+        password: string
+        isUser: boolean
+      }
+    | undefined
+) => {
   try {
-    const response = await API.post('/user/regularLogin', { email, password })
-
+    if (!data) return false
+    const response = await API.post(
+      `/user/${data.isUser ? 'regularLogin' : 'login'}`,
+      {
+        email: data?.email,
+        password: data?.password,
+      }
+    )
     const { accessToken, refreshToken }: TokenDTO = response.data
     localStorage.setItem('accessToken', accessToken)
     Cookies.set('refreshToken', refreshToken)
+    return true
   } catch (e) {
     throw e
   }
@@ -71,7 +80,7 @@ export const verifyUser = async (data: { code: string } | undefined) => {
 }
 export const refreshVerifCode = async () => {
   try {
-    const response = await apiAuth.get('/user/refresh-code')
+    await apiAuth.get('/user/refresh-code')
     return true
   } catch (e) {
     throw e
