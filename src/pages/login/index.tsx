@@ -8,8 +8,8 @@ import { Formik } from 'formik'
 import { FormikValidation } from 'helpers'
 import { Flex, Image, Link, Text } from 'rebass'
 import { useRouter } from 'next/router'
-import { useApiPost, useUser, useUserGuard } from 'hooks'
-import { Roles } from 'entities'
+import { useApiPost, useUser } from 'hooks'
+import { Roles, UserStatus } from 'entities'
 import { loginUser } from 'api'
 
 const ResetPassword = ({ onSubmit }: { onSubmit?: () => void }) => {
@@ -75,10 +75,9 @@ const ResetPassword = ({ onSubmit }: { onSubmit?: () => void }) => {
 type User = 'Scholar' | 'Employee'
 
 export default function Login({ who = 'Scholar' }: { who?: User }) {
-  // const { isReplacing, isLoading } = useUserGuard()
-  const { refetch } = useUser()
+  const { refetch, user } = useUser()
   const [whoUser, setWhoUser] = useState<User>(who)
-  const { asPath, pathname, replace } = useRouter()
+  const { asPath } = useRouter()
   const [isReset, setIsReset] = useState(false)
 
   const { isFetching, isSuccess, error, callApi } = useApiPost(loginUser)
@@ -97,19 +96,20 @@ export default function Login({ who = 'Scholar' }: { who?: User }) {
   }, [asPath])
 
   useEffect(() => {
-    if (isSuccess) refetch()
+    if (isSuccess) refetch(true)
   }, [isSuccess])
 
   useEffect(() => {
     if (!!error) alert(error.response.data.message || 'Invalid user')
   }, [error])
 
-  // if (isLoading || isReplacing) return <PageLoading />
+  if (user?.status === UserStatus.ACTIVE) return <PageLoading />
 
   return (
     <Flex
       sx={{ flexDirection: ['column', 'column', 'column', 'row'], gap: 4 }}
       height="100%"
+      flex={1}
     >
       <Flex flex={1}>
         <Image
@@ -123,7 +123,7 @@ export default function Login({ who = 'Scholar' }: { who?: User }) {
         flex={1}
         sx={{
           width: '100%',
-          height: ['100%'],
+
           alignSelf: 'center',
           justifyContent: 'center',
           alignItems: 'center',

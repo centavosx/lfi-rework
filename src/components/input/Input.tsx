@@ -114,10 +114,15 @@ export const SearchableInput = ({
 }) => {
   const [val, setVal] = useState('')
   const [isSearching, setIsSearching] = useState<boolean>(false)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setIsSearching(true)
+    if (mounted) setIsSearching(true)
   }, [val, setIsSearching])
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     if (isSearching) {

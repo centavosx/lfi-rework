@@ -1,7 +1,8 @@
 import { API, apiAuth } from '../utils'
 import { TokenDTO } from '../dto'
 import Cookies from 'js-cookie'
-import { RequiredFiles, UserInfo } from 'constant'
+import { RequiredFiles, UserInfo, RegisterDto } from 'constant'
+import { Roles, UserStatus } from 'entities'
 
 export const registerUser = async (data?: UserInfo & RequiredFiles) => {
   try {
@@ -9,8 +10,17 @@ export const registerUser = async (data?: UserInfo & RequiredFiles) => {
     const response = await API.post('/user/register', data)
 
     const { accessToken, refreshToken }: TokenDTO = response.data
-    localStorage.setItem('accessToken', accessToken)
+    Cookies.set('accessToken', accessToken)
     Cookies.set('refreshToken', refreshToken)
+    return response.data
+  } catch (e) {
+    throw e
+  }
+}
+
+export const createUser = async (data?: RegisterDto) => {
+  try {
+    const response = await apiAuth.post('/user', data)
     return response.data
   } catch (e) {
     throw e
@@ -58,7 +68,7 @@ export const loginUser = async (
       }
     )
     const { accessToken, refreshToken }: TokenDTO = response.data
-    localStorage.setItem('accessToken', accessToken)
+    Cookies.set('accessToken', accessToken)
     Cookies.set('refreshToken', refreshToken)
     return true
   } catch (e) {
@@ -71,7 +81,7 @@ export const verifyUser = async (data: { code: string } | undefined) => {
     if (!data) return false
     const response = await apiAuth.post('/user/verify', { code: data.code })
     const { accessToken, refreshToken }: TokenDTO = response.data
-    localStorage.setItem('accessToken', accessToken)
+    Cookies.set('accessToken', accessToken)
     Cookies.set('refreshToken', refreshToken)
     return true
   } catch (e) {
@@ -91,6 +101,37 @@ export const resetPass = async (email: string) => {
   const response = await API.get(`/user/forgot-pass`, {
     params: {
       email,
+    },
+  })
+  return response
+}
+
+export type GetAllUserType = {
+  search?: string
+  role?: Roles[]
+  status?: UserStatus
+  sort?: 'ASC' | 'DESC'
+  id?: string
+}
+
+export const getAllUser = async (
+  data:
+    | {
+        page: number
+        limit: number
+        other: GetAllUserType
+      }
+    | undefined
+) => {
+  if (!data) return null
+
+  const { page, limit, other } = data
+
+  const response = await apiAuth.get('/user', {
+    params: {
+      page,
+      limit,
+      ...other,
     },
   })
   return response

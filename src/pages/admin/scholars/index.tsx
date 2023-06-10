@@ -75,115 +75,113 @@ export default function Services({
   const { replace, query, pathname } = useRouter()
 
   return (
-    <AdminMain>
-      <Flex flexDirection={'column'} alignItems="center" width={'100%'}>
-        <Section title="Services" textProps={{ textAlign: 'start' }}>
-          <CustomTable
-            isCheckboxEnabled={true}
-            dataCols={[
-              { field: 'id', name: 'ID' },
-              {
-                field: 'name',
-                name: 'Name',
+    <Flex flexDirection={'column'} alignItems="center" width={'100%'}>
+      <Section title="Services" textProps={{ textAlign: 'start' }}>
+        <CustomTable
+          isCheckboxEnabled={true}
+          dataCols={[
+            { field: 'id', name: 'ID' },
+            {
+              field: 'name',
+              name: 'Name',
+            },
+            {
+              field: 'description',
+              name: 'Description',
+            },
+          ]}
+          dataRow={[{ id: '', name: '', description: '' }]}
+          page={pageParams}
+          pageSize={limitParams}
+          total={0}
+          rowIdentifierField={'id'}
+          handleChangePage={(_, p) => {
+            replace({
+              pathname,
+              query: {
+                ...query,
+                page: p,
               },
-              {
-                field: 'description',
-                name: 'Description',
+            })
+          }}
+          onSearch={(v) => {
+            replace({
+              pathname,
+              query: {
+                ...query,
+                page: 0,
+                search: v,
               },
-            ]}
-            dataRow={[{ id: '', name: '', description: '' }]}
-            page={pageParams}
-            pageSize={limitParams}
-            total={0}
-            rowIdentifierField={'id'}
-            handleChangePage={(_, p) => {
-              replace({
-                pathname,
-                query: {
-                  ...query,
-                  page: p,
+            })
+          }}
+          handleChangeRowsPerPage={(e) =>
+            replace({
+              pathname,
+              query: {
+                ...query,
+                page: 0,
+                limit: parseInt(e.target.value),
+              },
+            })
+          }
+        >
+          {(selected, setSelected) => (
+            <ConfirmationModal
+              modalText="Assign Admin"
+              selected={selected}
+              setSelected={setSelected}
+              refetch={() => {}}
+              modalCreate={modalInitial}
+              onRemove={async () => {
+                // await deleteService({ ids: selected })
+              }}
+              modalEdit={{
+                onSubmit: async (v, { setSubmitting }) => {
+                  setSubmitting(true)
+                  try {
+                    // await updateService(v)
+                    alert('Success')
+                  } catch (v: any) {
+                    alert(v?.response?.data?.message || 'Error')
+                  } finally {
+                    setSubmitting(false)
+                  }
                 },
-              })
-            }}
-            onSearch={(v) => {
-              replace({
-                pathname,
-                query: {
-                  ...query,
-                  page: 0,
-                  search: v,
-                },
-              })
-            }}
-            handleChangeRowsPerPage={(e) =>
-              replace({
-                pathname,
-                query: {
-                  ...query,
-                  page: 0,
-                  limit: parseInt(e.target.value),
-                },
-              })
-            }
-          >
-            {(selected, setSelected) => (
-              <ConfirmationModal
-                modalText="Assign Admin"
-                selected={selected}
-                setSelected={setSelected}
-                refetch={() => {}}
-                modalCreate={modalInitial}
-                onRemove={async () => {
-                  // await deleteService({ ids: selected })
-                }}
-                modalEdit={{
-                  onSubmit: async (v, { setSubmitting }) => {
-                    setSubmitting(true)
-                    try {
-                      // await updateService(v)
-                      alert('Success')
-                    } catch (v: any) {
-                      alert(v?.response?.data?.message || 'Error')
-                    } finally {
-                      setSubmitting(false)
-                    }
-                  },
-                  data: [],
-                  // data: data?.data
-                  //   .filter((v) => selected.includes(v.id))
-                  //   .map((v) => {
-                  //     return {
-                  //       title: v.id,
-                  //       initial: {
-                  //         id: v.id,
-                  //         name: v.name,
-                  //         description: v.description,
-                  //       },
-                  //       data: [
-                  //         {
-                  //           type: 'text',
-                  //           field: 'name',
-                  //           disabled: false,
-                  //           label: 'Name',
-                  //           placeHolder: 'Type name',
-                  //         },
-                  //         {
-                  //           type: 'text',
-                  //           field: 'description',
-                  //           disabled: false,
-                  //           label: 'Desccription',
-                  //           placeHolder: 'Type description',
-                  //         },
-                  //       ],
-                  //     }
-                  //   }),
-                }}
-              />
-            )}
-          </CustomTable>
-        </Section>
-      </Flex>
-    </AdminMain>
+                data: [],
+                // data: data?.data
+                //   .filter((v) => selected.includes(v.id))
+                //   .map((v) => {
+                //     return {
+                //       title: v.id,
+                //       initial: {
+                //         id: v.id,
+                //         name: v.name,
+                //         description: v.description,
+                //       },
+                //       data: [
+                //         {
+                //           type: 'text',
+                //           field: 'name',
+                //           disabled: false,
+                //           label: 'Name',
+                //           placeHolder: 'Type name',
+                //         },
+                //         {
+                //           type: 'text',
+                //           field: 'description',
+                //           disabled: false,
+                //           label: 'Desccription',
+                //           placeHolder: 'Type description',
+                //         },
+                //       ],
+                //     }
+                //   }),
+              }}
+            />
+          )}
+        </CustomTable>
+      </Section>
+    </Flex>
   )
 }
 export async function getServerSideProps(context: any) {

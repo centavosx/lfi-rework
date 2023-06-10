@@ -1,15 +1,22 @@
-import { PageLoading } from 'components/loading'
-import { useUser, useUserGuard } from 'hooks'
+import { useUser } from 'hooks'
 import { Flex, Text } from 'rebass'
 
 export default function Waiting() {
   const { user } = useUser()
-  const { isLoading, isReplacing, isUser } = useUserGuard()
-
-  if (isLoading || isReplacing || !isUser) return <PageLoading />
 
   return (
-    <Flex flexDirection={'column'} sx={{ width: '100%' }}>
+    <Flex
+      flexDirection={'column'}
+      sx={{
+        width: '100%',
+        height: '100%',
+        padding: 3,
+        gap: 3,
+
+        alignItems: 'center',
+      }}
+    >
+      <Text as={'h1'}>Thank you for signing up!</Text>
       <Text>
         Hi!{' '}
         <b>

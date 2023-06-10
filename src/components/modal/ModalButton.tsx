@@ -95,17 +95,17 @@ export const ButtonModal = memo(
               width: width ?? ['80%', '80%'],
               maxWidth: maxWidth,
               height: height ?? 'auto',
-              maxHeight: maxHeight ?? ['80%', 'unset'],
+              maxHeight: maxHeight ?? '80%',
               backgroundColor: 'white',
               border: '1px solid gray',
               borderRadius: '10px',
               boxShadow: 24,
               overflow: 'auto',
-              p: 4,
+
               flexDirection: 'column',
             }}
           >
-            <Flex sx={{ mb: 2 }} flex={1}>
+            <Flex sx={{ mb: 3, pt: 3, pl: 4, pr: 4 }} width={'100%'}>
               <Text flex={1} {...titleProps}>
                 {title}
               </Text>
@@ -114,14 +114,25 @@ export const ButtonModal = memo(
                 onClick={() => setOpen(false)}
               />
             </Flex>
-            {open &&
-              (typeof modalChild === 'function'
-                ? modalChild({
-                    onSubmit: onSubmitSuccess,
-                    isOpen: open,
-                    setOpen,
-                  })
-                : modalChild)}
+            <Flex
+              flexDirection={'column'}
+              flex={1}
+              height={'100%'}
+              width={'100%'}
+              overflow={'auto'}
+              pb={4}
+              pl={4}
+              pr={4}
+            >
+              {open &&
+                (typeof modalChild === 'function'
+                  ? modalChild({
+                      onSubmit: onSubmitSuccess,
+                      isOpen: open,
+                      setOpen,
+                    })
+                  : modalChild)}
+            </Flex>
           </Flex>
         </Modal>
       </>

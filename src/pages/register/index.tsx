@@ -1,12 +1,10 @@
-import { Flex, Image, Link, Text, TextProps } from 'rebass'
-import Wave from 'react-wavify'
+import { Flex, Text } from 'rebass'
 import { theme } from 'utils/theme'
-
-import { useState, useEffect, useCallback, memo, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Formik } from 'formik'
 import { FormContainer, ScrollToError } from 'components/forms'
 import { FormInput, InputError } from 'components/input'
-import { Button, UploadButton, UploadProcess } from 'components/button'
+import { Button, UploadProcess } from 'components/button'
 import { FormikValidation } from 'helpers'
 import {
   loginUser,
@@ -15,7 +13,7 @@ import {
   resetPass,
   verifyUser,
 } from 'api'
-import { useApiPost, useUser, useUserGuard } from 'hooks'
+import { useApiPost, useUser } from 'hooks'
 import { Loading, PageLoading } from 'components/loading'
 import { Main } from 'components/main'
 import { Option, Select } from 'components/select'
@@ -91,7 +89,7 @@ const ValidateEmail = () => {
   }, [setTime, time])
 
   useEffect(() => {
-    if (isSuccess) refetch()
+    if (isSuccess) refetch(true)
   }, [isSuccess])
 
   useEffect(() => {
@@ -190,8 +188,6 @@ export default function Register() {
     UserInfo & RequiredFiles
   >(registerUser)
 
-  const { isLoading, isReplacing } = useUserGuard()
-
   useEffect(() => {
     if (!!isSuccess) {
       refetch()
@@ -205,12 +201,10 @@ export default function Register() {
   }, [error])
 
   useEffect(() => {
-    if (!isLoading && !isReplacing) {
-      logout()
-    }
-  }, [isLoading, isReplacing])
+    logout()
+  }, [])
 
-  if (isLoading || isReplacing) return <PageLoading />
+  if (user?.status === UserStatus.VERIFIED) return <PageLoading />
 
   return (
     <Flex sx={{ flexDirection: 'column', gap: 4, padding: 4, flex: 1 }}>

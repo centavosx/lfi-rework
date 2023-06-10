@@ -2,7 +2,7 @@ import { AxiosResponse } from 'axios'
 import { useState, useEffect } from 'react'
 
 export function useApi<T extends any = any, O extends any = any>(
-  api: (options?: O) => Promise<AxiosResponse>,
+  api: (options?: O) => Promise<AxiosResponse | null>,
   noRefetchOnMount?: boolean,
   initialOptionData?: O
 ) {

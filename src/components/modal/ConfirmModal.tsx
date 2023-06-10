@@ -10,14 +10,15 @@ import { FormContainer } from 'components/forms'
 import { FormInput, SearchableInput } from 'components/input'
 import { Text } from 'components/text'
 
-import { Formik, FormikHelpers, FormikValues } from 'formik'
+import { Formik, FormikErrors, FormikHelpers, FormikValues } from 'formik'
 import { Flex } from 'rebass'
 import { theme } from 'utils/theme'
 import { ButtonModal } from './ModalButton'
 import { Loading } from 'components/loading'
+import { useApiPost } from 'hooks'
 
 type InputFieldProp<T extends object = object> = {
-  field: keyof T
+  field?: keyof T
   type?: string
   label?: string
   placeHolder?: string
@@ -25,21 +26,41 @@ type InputFieldProp<T extends object = object> = {
     onSearch: (val: string) => Promise<any>
   }
   custom?: {
-    Jsx: React.FC<any>
+    Jsx: (d: {
+      onChange: (v: string) => void
+      error?: any
+      onAnyChange: (key: keyof T, value: any) => void
+      fields: T
+    }) => ReactNode
   }
 }
 
-export type ModalFlexProps<T extends object = any> = {
-  onSubmit: (values: T, formikHelpers: FormikHelpers<T>) => void | Promise<any>
+export type ModalFlexProps<
+  T extends object = any,
+  A extends object = any,
+  AO extends object = any
+> = {
+  onSubmit: (
+    values: T,
+    formikHelpers: FormikHelpers<T>,
+    fetch: (v: A) => void
+  ) => void | Promise<any>
   modalText?: string
   fields?: InputFieldProp<T>[]
   initial: T
   availableText?: string
   validationSchema?: any
   isError?: boolean
+  api: (o?: A) => Promise<AO>
+  onSuccess?: (v?: AO) => void
+  onError?: (v: any) => void
 }
 
-export function CreateModalFlex<T extends object = object>({
+export function CreateModalFlex<
+  T extends object = object,
+  A extends object = any,
+  AO extends object = any
+>({
   onSubmit,
   validationSchema,
   modalText,
@@ -47,9 +68,16 @@ export function CreateModalFlex<T extends object = object>({
   initial,
   availableText,
   isError,
-}: ModalFlexProps<T>) {
+  api,
+  onSuccess,
+  onError,
+}: ModalFlexProps<T, A, AO>) {
   const [isAvailable, setIsAvailable] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
+
+  const { isFetching, isSuccess, data, error, callApi } = useApiPost<AO, A>(
+    api!
+  )
 
   const onSearch =
     (onChangeValue?: (val: string) => Promise<any>) => async (val?: string) => {
@@ -62,10 +90,20 @@ export function CreateModalFlex<T extends object = object>({
       }
     }
 
+  useEffect(() => {
+    if (!!isSuccess) onSuccess?.(data)
+  }, [isSuccess])
+
+  useEffect(() => {
+    if (!!error) onError?.(error)
+  }, [error])
+
   return (
     <Formik<T>
       initialValues={initial}
-      onSubmit={onSubmit}
+      onSubmit={async (v, helpers) => {
+        await onSubmit(v, helpers, (v) => callApi(v))
+      }}
       validationSchema={validationSchema}
       validateOnMount
       validateOnChange
@@ -84,6 +122,7 @@ export function CreateModalFlex<T extends object = object>({
         <FormContainer
           label={modalText}
           flexProps={{
+            flex: 1,
             sx: { gap: 10 },
             justifyContent: 'center',
             alignItems: 'center',
@@ -93,7 +132,7 @@ export function CreateModalFlex<T extends object = object>({
             height: '100%',
           }}
         >
-          {isSubmitting && <Loading />}
+          {(isSubmitting || isFetching) && <Loading />}
           <Flex
             sx={{
               gap: [10],
@@ -105,7 +144,8 @@ export function CreateModalFlex<T extends object = object>({
           >
             {[fields?.find((d) => !!d.important)].map(
               (d, key) =>
-                !!d && (
+                !!d &&
+                !!d.field && (
                   <SearchableInput
                     key={key}
                     label={d?.label!}
@@ -129,29 +169,32 @@ export function CreateModalFlex<T extends object = object>({
                 {fields
                   ?.filter((d) => !d.important)
                   .map((d, i) =>
-                    !!d.custom ? (
-                      <d.custom.Jsx
-                        key={i}
-                        onChange={handleChange(d.field)}
-                        error={errors[d.field]}
-                      />
-                    ) : (
-                      <FormInput
-                        key={i}
-                        type={d.type}
-                        name={d.field as string}
-                        label={d.label}
-                        placeholder={d.placeHolder}
-                        variant="filled"
-                        inputcolor={{
-                          labelColor: 'gray',
-                          backgroundColor: 'white',
-                          borderBottomColor: theme.mainColors.first,
-                          color: 'black',
-                        }}
-                        sx={{ color: 'black', width: '100%' }}
-                      />
-                    )
+                    !!d.custom
+                      ? d.custom.Jsx({
+                          onChange: (v) => setFieldValue(d.field as string, v),
+                          error: errors[d.field],
+                          onAnyChange: (k, v) => {
+                            setFieldValue(k as string, v)
+                          },
+                          fields: values,
+                        })
+                      : !!d.field && (
+                          <FormInput
+                            key={i}
+                            type={d.type}
+                            name={d.field as string}
+                            label={d.label}
+                            placeholder={d.placeHolder}
+                            inputcolor={{
+                              labelColor: 'gray',
+                              backgroundColor: 'white',
+                              borderBottomColor: theme.colors.darkGreen,
+                              color: 'black',
+                            }}
+                            variant="filled"
+                            sx={{ color: 'black', width: '100%' }}
+                          />
+                        )
                   )}
               </>
             ) : (
@@ -161,7 +204,12 @@ export function CreateModalFlex<T extends object = object>({
             )}
           </Flex>
 
-          <Flex width={'100%'} justifyContent={'center'} mt={[10, 20, 30]}>
+          <Flex
+            width={'100%'}
+            justifyContent={'center'}
+            mt={[10, 20, 30]}
+            flex={1}
+          >
             <ButtonModal
               disabled={
                 Object.keys(errors)?.some((v) =>
@@ -186,9 +234,13 @@ export function CreateModalFlex<T extends object = object>({
               }}
               onSubmit={async () => {
                 if (isAvailable)
-                  return await onSubmit(values, {
-                    ...(other as unknown as FormikHelpers<any>),
-                  })
+                  return await onSubmit(
+                    values,
+                    {
+                      ...(other as unknown as FormikHelpers<any>),
+                    },
+                    callApi
+                  )
                 return await submitForm()
               }}
             >
@@ -378,7 +430,11 @@ function UserUpdate<T extends FormikValues>({
   )
 }
 
-export function ConfirmationModal<K extends object = object>({
+export function ConfirmationModal<
+  K extends object = object,
+  A extends object = any,
+  AO extends object = any
+>({
   refetch,
   selected,
   setSelected,
@@ -386,32 +442,37 @@ export function ConfirmationModal<K extends object = object>({
   onRemove,
   modalEdit,
 }: Props & {
-  modalCreate?: ModalFlexProps<K>
+  modalCreate?: ModalFlexProps<K, A, AO>
   onRemove: () => Promise<void>
   modalEdit?: ModalEdit<K>
 }) {
   const {
     onSubmit: modalSubmit,
     initial,
+    api,
     ...others
   } = modalCreate ?? {
     onSubmit: undefined,
+    onSuccess: undefined,
   }
   return (
     <Flex p={10} alignItems={'end'} width={'100%'} sx={{ gap: 10 }}>
       {!!modalCreate && (
         <ButtonModal
-          style={{ alignSelf: 'end' }}
-          height={'90%'}
+          height={'auto'}
           modalChild={({ onSubmit }) => {
             return (
-              <CreateModalFlex<K>
+              <CreateModalFlex<K, A, AO>
+                api={api as any}
                 initial={initial!}
-                onSubmit={async (values, helpers) => {
-                  await modalSubmit?.(values, helpers)
-                  onSubmit()
+                onSubmit={async (values, helpers, fetch) => {
+                  await modalSubmit?.(values, helpers, fetch)
                 }}
                 {...others}
+                onSuccess={(v) => {
+                  onSubmit()
+                  others?.onSuccess?.(v)
+                }}
               />
             )
           }}
@@ -430,12 +491,7 @@ export function ConfirmationModal<K extends object = object>({
           }}
           width={'85%'}
           height={'90%'}
-          backgroundcolor={theme.colors.white}
-          textcolor={'black'}
-          hovercolor={'#e0e0e0'}
-          hovertextcolor={'black'}
-          activetextcolor={'black'}
-          activecolor={'#d6d6d6'}
+          isSecondary={true}
           modalChild={() => {
             return (
               <Flex flexDirection={'column'} sx={{ gap: 2 }}>

@@ -1,3 +1,5 @@
+import { Roles, UserStatus } from 'entities'
+
 export enum Level {
   SHS = 'SHS',
   COLLEGE = 'College',
@@ -30,13 +32,22 @@ export type RequiredFiles = {
   enrollmentBill?: string
 }
 
-export type UserInfo = {
+export type UserDetails = {
   fname: string
   mname?: string
   lname: string
-  level: string
-  address: string
   email: string
+  address: string
+}
+
+export type RegisterDto = UserDetails & {
+  status: UserStatus
+  role: Roles[]
+}
+
+export type UserInfo = UserDetails & {
+  level: string
+
   program: string
 }
 
@@ -135,4 +146,12 @@ export enum CollegeEnum {
   BSMetE = 'BS Metallurgical Engineering',
   BSMinEng = 'BS Mining Engineering',
   BSPetE = 'BS Petroleum Engineering',
+}
+
+export type EventDto<T extends any = Date> = {
+  name: string
+  description: string
+  startDate: T
+  endDate: T
+  color?: string
 }

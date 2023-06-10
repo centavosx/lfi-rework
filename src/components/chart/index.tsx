@@ -1,11 +1,4 @@
-import React, {
-  useEffect,
-  useState,
-  memo,
-  useMemo,
-  useRef,
-  useLayoutEffect,
-} from 'react'
+import React, { useEffect, useState, memo, useMemo, useRef } from 'react'
 import {
   motion,
   animate,
@@ -64,7 +57,7 @@ export function BarGraph<T extends string | number = number>({
   const ref = useRef<HTMLDivElement>(null)
   const ui = useResize()
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (ref.current)
       setLayout({
         height: ref.current.clientHeight,

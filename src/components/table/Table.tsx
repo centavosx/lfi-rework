@@ -116,11 +116,12 @@ function TablePaginationActions(props: TablePaginationActionsProps) {
 type TableProps<T extends object = any> = {
   dataRow: T[]
   dataCols: {
-    field: keyof T
+    field?: keyof T
     sub?: string
     name: string
     isNumber?: boolean
     items?: { itemValues: string[]; onChange: (v: string) => void }
+    custom?: (data: T, i: number) => ReactNode
   }[]
   isCheckboxEnabled?: boolean
   rowIdentifierField: keyof T
@@ -149,7 +150,6 @@ const SearchInputField = ({ onSearch }: { onSearch?: (v: string) => void }) => {
     <Flex
       p={10}
       alignItems={'end'}
-      width={'100%'}
       sx={{ gap: 10, alignItems: 'center', justifyContent: 'center' }}
     >
       <SearchableInput
@@ -310,25 +310,27 @@ export function CustomTable<T extends object = any>({
                   component="th"
                   scope="row"
                   onClick={() => onRowClick?.(row)}
-                  sx={{ width: d.field === 'id' ? 320 : undefined }}
+                  sx={{ width: d?.field === 'id' ? 320 : undefined }}
                 >
-                  {!!d.sub
-                    ? d.sub === 'date'
-                      ? !!(row[d.field] as any)?.[d.sub]
+                  {!!d.field
+                    ? !!d.sub
+                      ? d.sub === 'date'
+                        ? !!(row[d.field] as any)?.[d.sub]
+                          ? format(
+                              new Date((row[d.field] as any)?.[d.sub]),
+                              'cccc LLLL d, yyyy'
+                            )
+                          : null
+                        : (row[d.field] as any)?.[d.sub]
+                      : d.field === 'date'
+                      ? !!row[d.field]
                         ? format(
-                            new Date((row[d.field] as any)?.[d.sub]),
+                            new Date(row[d.field] as any),
                             'cccc LLLL d, yyyy'
                           )
                         : null
-                      : (row[d.field] as any)?.[d.sub]
-                    : d.field === 'date'
-                    ? !!row[d.field]
-                      ? format(
-                          new Date(row[d.field] as any),
-                          'cccc LLLL d, yyyy'
-                        )
-                      : null
-                    : row[d.field]}
+                      : row[d.field]
+                    : d?.custom?.(dataRow[i], i)}
                 </TableCell>
               ))}
             </TableRow>

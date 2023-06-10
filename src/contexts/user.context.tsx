@@ -1,13 +1,22 @@
-import React, { createContext, useCallback, useState, useEffect } from 'react'
-import { User } from '../entities'
+import React, {
+  createContext,
+  useCallback,
+  useState,
+  useEffect,
+  ReactNode,
+} from 'react'
+import { User, UserStatus } from '../entities'
 import jwt_decode from 'jwt-decode'
 import Cookies from 'js-cookie'
+import { useRouter } from 'next/navigation'
+
 import { me } from '../api'
+import { checkRoles } from 'hooks'
 
 type DataType = {
   user: User | undefined
   setUser: React.Dispatch<React.SetStateAction<User | undefined>>
-  refetch: () => Promise<unknown>
+  refetch: (reload?: boolean) => Promise<unknown>
   logout: () => void
 }
 
@@ -16,18 +25,21 @@ export const DataContext = createContext<DataType>({} as DataType)
 export const DataProvider = ({
   children,
 }: {
-  children: JSX.Element | JSX.Element[]
+  children: (status?: ReturnType<typeof checkRoles>) => ReactNode
 }) => {
-  const token =
-    typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
-
+  const { refresh } = useRouter()
+  const token = Cookies.get('accessToken')
   const [user, setUser] = useState<User | undefined>(
     !!token ? jwt_decode(token) : undefined
   )
 
-  const getMe = useCallback(async () => {
-    setUser(await me())
-  }, [setUser])
+  const getMe = useCallback(
+    async (reload?: boolean) => {
+      setUser(await me())
+      if (reload) refresh()
+    },
+    [setUser]
+  )
 
   useEffect(() => {
     getMe()
@@ -35,8 +47,9 @@ export const DataProvider = ({
 
   const logout = useCallback(() => {
     Cookies.remove('refreshToken')
-    localStorage.clear()
+    Cookies.remove('accessToken')
     setUser(undefined)
+    refresh()
   }, [setUser])
 
   const provider: DataType = {
@@ -47,6 +60,8 @@ export const DataProvider = ({
   }
 
   return (
-    <DataContext.Provider value={provider}>{children}</DataContext.Provider>
+    <DataContext.Provider value={provider}>
+      {children(checkRoles(user?.roles))}
+    </DataContext.Provider>
   )
 }

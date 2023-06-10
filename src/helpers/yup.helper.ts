@@ -20,24 +20,22 @@ export const FormikValidation = {
       .required('Required'),
   }),
 
-  createAppointment: Yup.object().shape({
-    email: Yup.string()
-      .email('Please enter a valid email')
-      .required('Required'),
-    time: Yup.string().required('Required'),
-    serviceId: Yup.string().required('Required'),
-    name: Yup.string()
-      .min(1, 'Too Short!')
-      .max(5000, 'Too Long!')
-      .required('Required'),
-    message: Yup.string().min(1, 'Too Short!').max(5000, 'Too Long!'),
-    petName: Yup.string().required('Required'),
-
-    birthDate: Yup.string().required('Required'),
-
-    age: Yup.number().min(0).required('Required'),
-
-    gender: Yup.string().required('Required'),
+  createEvent: Yup.object().shape({
+    name: Yup.string().required('Required'),
+    description: Yup.string().required('Required'),
+    startDate: Yup.number()
+      .typeError('Enter correct start date')
+      .integer('Enter start date')
+      .lessThan(
+        Yup.ref('endDate'),
+        'Start date should be earlier than end date'
+      )
+      .required('Please select date'),
+    endDate: Yup.number()
+      .typeError('Enter correct end date')
+      .integer('Enter end date')
+      .moreThan(Yup.ref('startDate'), 'End date must be higher than start date')
+      .required('Please select date'),
   }),
 
   verify: Yup.object().shape({
@@ -72,6 +70,7 @@ export const FormikValidation = {
       return { ...prev, [curr.name]: Yup.string().required('Required') }
     }, {} as any),
   }),
+
   code: Yup.object().shape({
     code: Yup.string().required('Required'),
   }),

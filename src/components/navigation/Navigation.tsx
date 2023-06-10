@@ -17,7 +17,7 @@ import {
   CustomDropdown,
   SecondaryButton,
 } from '../button'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 
 import { TextModal } from '../modal'
 import { useUser } from 'hooks'
@@ -74,7 +74,7 @@ export const WebNavigation = memo(() => {
                 : user?.status === UserStatus.VERIFIED
                 ? '/user/waiting'
                 : '/user'
-              push(link, undefined, { shallow: true })
+              push(link)
             }}
             isNotClickable={true}
           >
@@ -99,24 +99,26 @@ export const WebNavigation = memo(() => {
                 <Text padding={2} as={'h4'}>
                   Hi! {user.lname}, {user.fname} {user.mname}
                 </Text>
-                <Text
-                  sx={{
-                    ':hover': {
-                      backgroundColor: theme.colors.green,
-                      color: theme.colors.white,
-                    },
-                    color: theme.colors.black,
-                    width: '100%',
-                    padding: '4px',
-                    textAlign: 'center',
-                    cursor: 'pointer',
-                  }}
-                  onClick={async () => {
-                    close()
-                  }}
-                >
-                  Settings
-                </Text>
+                {user.status !== UserStatus.VERIFIED && (
+                  <Text
+                    sx={{
+                      ':hover': {
+                        backgroundColor: theme.colors.green,
+                        color: theme.colors.white,
+                      },
+                      color: theme.colors.black,
+                      width: '100%',
+                      padding: '4px',
+                      textAlign: 'center',
+                      cursor: 'pointer',
+                    }}
+                    onClick={async () => {
+                      close()
+                    }}
+                  >
+                    Settings
+                  </Text>
+                )}
                 <Text
                   sx={{
                     ':hover': {
@@ -164,7 +166,7 @@ export const WebNavigation = memo(() => {
         <>
           <SecondaryButton
             style={{ textTransform: 'capitalize', fontWeight: 400 }}
-            onClick={() => push('/register', undefined, { shallow: true })}
+            onClick={() => push('/register')}
           >
             Sign Up
           </SecondaryButton>
@@ -197,16 +199,8 @@ export const WebNavigation = memo(() => {
                     textAlign: 'center',
                     cursor: 'pointer',
                   }}
-                  onClick={async () => {
-                    await push(
-                      '/login',
-                      {
-                        query: {
-                          who: 'Scholar',
-                        },
-                      },
-                      { shallow: true }
-                    )
+                  onClick={() => {
+                    push('/login?who=Scholar')
                     close()
                   }}
                 >
@@ -224,16 +218,8 @@ export const WebNavigation = memo(() => {
                     textAlign: 'center',
                     cursor: 'pointer',
                   }}
-                  onClick={async () => {
-                    await push(
-                      '/login',
-                      {
-                        query: {
-                          who: 'Employee',
-                        },
-                      },
-                      { shallow: true }
-                    )
+                  onClick={() => {
+                    push('/login?who=Employee')
                     close()
                   }}
                 >
@@ -254,8 +240,10 @@ WebNavigation.displayName = 'WebNav'
 
 const getPages = (status?: UserStatus) => {
   switch (true) {
-    case status === UserStatus.VERIFIED || status === UserStatus.ACTIVE:
+    case status === UserStatus.ACTIVE:
       return ['Home', 'Dashboard', 'Profile', 'Settings', 'Logout']
+    case status === UserStatus.VERIFIED:
+      return ['Home', 'Dashboard', 'Logout']
     default:
       return ['Home', 'Sign Up', 'Login for scholar', 'Login for employee']
   }
@@ -293,10 +281,10 @@ export const MobileNavigation = memo(() => {
             <Fragment key={i}>
               <ListItem disablePadding={true}>
                 <ListItemButton
-                  onClick={async () => {
+                  onClick={() => {
                     switch (data) {
                       case 'Home':
-                        await push('/')
+                        push('/')
                         break
                       case 'Dashboard':
                         const link = user?.roles.some(
@@ -310,24 +298,16 @@ export const MobileNavigation = memo(() => {
                           : user?.status === UserStatus.VERIFIED
                           ? '/user/waiting'
                           : '/user'
-                        await push(link)
+                        push(link)
                         break
                       case 'Sign Up':
-                        await push('/register')
+                        push('/register')
                         break
                       case 'Login for scholar':
-                        await push('/login', {
-                          query: {
-                            who: 'Scholar',
-                          },
-                        })
+                        push('/login?who=Scholar')
                         break
                       case 'Login for employee':
-                        await push('/login', {
-                          query: {
-                            who: 'Employee',
-                          },
-                        })
+                        push('/login?who=Employee')
                         break
                       case 'Logout':
                         logout()

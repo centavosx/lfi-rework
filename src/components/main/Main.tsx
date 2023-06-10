@@ -221,10 +221,11 @@ export const Main = ({
           maxWidth={2250}
           alignSelf="center"
         >
-          {children}
+          <Flex flex={1} flexDirection={'column'}>
+            {children}
+          </Flex>
           <Flex
             sx={{
-              height: 'auto',
               width: '100%',
               flexDirection: 'column',
               backgroundColor: theme.colors.darkestGreen,

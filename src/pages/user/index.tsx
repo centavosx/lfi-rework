@@ -8,15 +8,11 @@ import { ButtonModal, CustomModal } from 'components/modal'
 
 import { ListContainer, ListItem } from 'components/ul'
 import { AreYouSure } from 'components/are-you-sure'
-import { useUser, useUserGuard } from 'hooks'
+import { useUser } from 'hooks'
 import { Loading, PageLoading } from 'components/loading'
 
 export default function User() {
-  const { isLoading, isReplacing, isUser } = useUserGuard()
-
   const [selectedDate, setSelectedDate] = useState(new Date())
-
-  if (isLoading || isReplacing || !isUser) return <PageLoading />
 
   return (
     <Flex
