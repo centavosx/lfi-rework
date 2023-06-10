@@ -7,7 +7,7 @@ import { DataContext } from '../contexts'
 export const useUser = () => {
   const { user, logout, refetch } = useContext(DataContext)
 
-  return { user: user, logout, refetch }
+  return { user: user, logout, refetch, roles: checkRoles(user?.roles) }
 }
 
 export const checkRoles = (roles?: Role[]) => {

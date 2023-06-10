@@ -335,7 +335,7 @@ export const MobileNavigation = memo(() => {
         <FiMenu size={30} color={theme.colors.white} />
       </Button>
 
-      <Drawer open={state.right} anchor={'right'} onClose={toggleDrawer(false)}>
+      <Drawer open={state.right} anchor={'left'} onClose={toggleDrawer(false)}>
         {list()}
       </Drawer>
     </>

@@ -9,6 +9,7 @@ import { useRouter } from 'next/router'
 const theme = createTheme()
 export default function App({ Component, pageProps }: AppProps) {
   const { pathname } = useRouter()
+
   return (
     <ThemeProvider theme={theme}>
       <DataProvider>

@@ -144,7 +144,7 @@ export const AdminMobileNavigation = memo(() => {
           <ListItem key={i} disablePadding={true}>
             <ListItemButton
               onClick={() =>
-                replace('/' + data?.split(' ').join('').toLowerCase())
+                replace('/admin/' + data?.split(' ').join('').toLowerCase())
               }
             >
               <ListItemText primary={data} />
@@ -159,7 +159,11 @@ export const AdminMobileNavigation = memo(() => {
       <Button onClick={toggleDrawer(true)} sx={{ minWidth: 34 }}>
         <FiMenu size={30} />
       </Button>
-      <Drawer open={state.left} anchor={'left'} onClose={toggleDrawer(false)}>
+      <Drawer
+        open={state.left}
+        anchor={window.innerWidth <= 639 ? 'right' : 'left'}
+        onClose={toggleDrawer(false)}
+      >
         {list()}
       </Drawer>
     </>

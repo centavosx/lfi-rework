@@ -16,7 +16,7 @@ export const Section = ({
 } & FlexProps) => {
   return (
     <Flex
-      padding={50}
+      padding={[10, 30]}
       alignItems={'center'}
       flexDirection="column"
       width={'100%'}

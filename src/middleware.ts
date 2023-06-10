@@ -72,7 +72,7 @@ export const config = {
     '/',
     '/admin',
     '/admin/dashboard',
-    '/admin/calendar',
+    '/admin/calendar/',
     '/admin/admins',
     '/register',
     '/login',

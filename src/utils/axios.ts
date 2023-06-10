@@ -77,7 +77,7 @@ apiAuth.interceptors.response.use(
 
     // clear out all tokens if we get unauthorized error and force user to login
     if (error?.response?.status === 401) {
-      localStorage.clear()
+      Cookies.remove('accessToken')
       Cookies.remove('refreshToken')
     }
 

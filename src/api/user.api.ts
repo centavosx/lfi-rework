@@ -114,15 +114,11 @@ export type GetAllUserType = {
   id?: string
 }
 
-export const getAllUser = async (
-  data:
-    | {
-        page: number
-        limit: number
-        other: GetAllUserType
-      }
-    | undefined
-) => {
+export const getAllUser = async (data?: {
+  page: number
+  limit: number
+  other: GetAllUserType
+}) => {
   if (!data) return null
 
   const { page, limit, other } = data

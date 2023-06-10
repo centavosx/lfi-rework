@@ -3,12 +3,15 @@ import { theme } from '../../utils/theme'
 
 import { Header } from '../header'
 import { Text } from '../text'
-import { MobileView, WebView } from '../views'
+import { AdminWebView, DesktopView, MobileView, WebView } from '../views'
 import { BaseHead } from '../basehead'
 import { useRouter } from 'next/router'
-import { AdminWebNavigation } from 'components/navigation/admin'
+import {
+  AdminMobileNavigation,
+  AdminWebNavigation,
+} from 'components/navigation/admin'
 
-const SideNav = () => {
+const SideNav = ({ isWeb }: { isWeb?: boolean }) => {
   return (
     <Header
       sx={{
@@ -19,46 +22,49 @@ const SideNav = () => {
         borderRightWidth: 2,
         borderRightColor: 'black',
         borderRightStyle: 'solid',
+        justifyContent: ['space-between', 'normal', 'normal', 'normal'],
       }}
-      flexDirection="column"
-      pt={30}
-      width={250}
-      height={'100vh'}
+      flexDirection={['row', 'column', 'column', 'column']}
+      pt={[15, 30, 30, 30]}
+      width={isWeb ? 250 : ['100%', 100, 100, 100]}
+      height={['100%', '100vh', '100vh', '100vh']}
     >
       <Flex
         sx={{
           justifyContent: 'flex-start',
           alignItems: 'flex-start',
-          width: '100%',
+          width: ['auto', '100%', '100%', '100%'],
         }}
       >
         <Anchor href="/admin">
-          <Flex alignItems={'center'} sx={{ gap: 2 }}>
+          <Flex alignItems={'center'} sx={{ gap: 2 }} width={'100%'}>
             <Image
               src={'/assets/logo-white.png'}
               width={60}
               height={60}
               minWidth={'auto'}
+              ml={isWeb ? undefined : 2}
               alt="image"
             />
-
-            <Text
-              sx={{
-                fontSize: [14, 18],
-                fontWeight: 350,
-                color: theme.colors.white80,
-              }}
-            >
-              <span
-                style={{
-                  fontWeight: 700,
-                  color: theme.colors.white,
+            {isWeb && (
+              <Text
+                sx={{
+                  fontSize: [14, 18],
+                  fontWeight: 350,
+                  color: theme.colors.white80,
                 }}
               >
-                LAO
-              </span>
-              FOUNDATION
-            </Text>
+                <span
+                  style={{
+                    fontWeight: 700,
+                    color: theme.colors.white,
+                  }}
+                >
+                  LAO
+                </span>
+                FOUNDATION
+              </Text>
+            )}
           </Flex>
         </Anchor>
       </Flex>
@@ -68,10 +74,10 @@ const SideNav = () => {
           pt: 15,
           flexDirection: 'column',
           alignSelf: 'start',
-          width: '100%',
+          width: ['auto', '100%', '100%', '100%'],
         }}
       >
-        <AdminWebNavigation />
+        {isWeb ? <AdminWebNavigation /> : <AdminMobileNavigation />}
       </Flex>
     </Header>
   )
@@ -96,19 +102,26 @@ export const AdminMain = ({
         height={'100vh'}
       >
         <Flex
-          flexDirection={'row'}
+          flexDirection={['column', 'row', 'row', 'row']}
           sx={{
             position: 'relative',
           }}
           alignSelf="start"
           justifyContent={'start'}
           width={'100vw'}
+          overflow={'auto'}
+          height={'100vh'}
           backgroundColor={theme.colors.green}
         >
-          <SideNav />
+          <AdminWebView>
+            <SideNav isWeb={true} />
+          </AdminWebView>
+          <DesktopView>
+            <SideNav />
+          </DesktopView>
           <Flex
             flex={1}
-            height={'100vh'}
+            height={['100%', '100vh', '100vh', '100vh']}
             width={'100%'}
             overflow={'auto'}
             flexDirection={'column'}

@@ -5,7 +5,7 @@ import { Section } from '../../../components/sections'
 
 import { CustomTable } from 'components/table'
 import { NextPage } from 'next'
-import { useApi } from 'hooks'
+import { useApi, useUser } from 'hooks'
 import { useRouter } from 'next/navigation'
 import { useRouter as useNav } from 'next/router'
 
@@ -146,6 +146,7 @@ export default function Services({
   pageParams,
   searchParams,
 }: PageProps) {
+  const { roles } = useUser()
   const { replace } = useRouter()
   const { query, pathname } = useNav()
   const { refetch, data } = useApi<
@@ -175,7 +176,7 @@ export default function Services({
     <Flex flexDirection={'column'} alignItems="center" width={'100%'}>
       <Section title="Admins" textProps={{ textAlign: 'start' }}>
         <CustomTable
-          isCheckboxEnabled={true}
+          isCheckboxEnabled={roles.isAdminWrite || roles.isSuper}
           dataCols={[
             { field: 'id', name: 'ID' },
             {
@@ -260,7 +261,9 @@ export default function Services({
               refetch={() => {
                 replace(pathname)
               }}
-              modalCreate={modalInitial}
+              modalCreate={
+                roles.isAdmin || roles.isSuper ? modalInitial : undefined
+              }
               onRemove={async () => {
                 // await deleteService({ ids: selected })
               }}

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Event, EventCalendar } from 'components/calendar'
 import { Main } from 'components/main'
 import { Flex, Text } from 'rebass'
@@ -10,9 +10,48 @@ import { ListContainer, ListItem } from 'components/ul'
 import { AreYouSure } from 'components/are-you-sure'
 import { useUser } from 'hooks'
 import { Loading, PageLoading } from 'components/loading'
+import { getMonthlyEvents } from 'api'
+import { useApi } from '../../hooks'
 
 export default function User() {
   const [selectedDate, setSelectedDate] = useState(new Date())
+  const { data, refetch } = useApi<
+    {
+      day: number
+      start_date: string
+      name: string
+      description: string
+      id: string
+      color: string
+    }[],
+    { startDate: Date; endDate: Date }
+  >(getMonthlyEvents, true)
+
+  const mappedValues = useMemo(() => {
+    const mv = new Map<
+      number,
+      {
+        start_date: string
+        name: string
+        description: string
+        id: string
+        color: string
+      }
+    >()
+    if (!data) return mv
+
+    data.forEach((v) => {
+      mv.set(v.day, {
+        color: v.color,
+        description: v.description,
+        id: v.id,
+        name: v.name,
+        start_date: v.start_date,
+      })
+    })
+
+    return mv
+  }, [data])
 
   return (
     <Flex
@@ -113,6 +152,7 @@ export default function User() {
               setSelectedDate={setSelectedDate}
               setOpen={setOpen}
               isOpen={isOpen}
+              data={mappedValues}
             />
           </Flex>
         )}
