@@ -5,6 +5,9 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 First, run the development server:
 
 ```bash
+.env 
+  REACT_APP_API_URL=http://localhost:3002/
+
 npm run dev
 # or
 yarn dev
