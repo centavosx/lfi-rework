@@ -1,4 +1,5 @@
 import { Level, ShsTrackAndStrandsEnum, CollegeEnum } from './types'
+import { Option } from 'components/select'
 
 export const Levels = {
   [Level.SHS]: 'Senior High School',
@@ -153,6 +154,36 @@ export const DISPLAY_FILES = [
   { name: 'electricBill', title: 'Electric Bill' },
   { name: 'wifiBill', title: 'Wifi Bill' },
   { name: 'enrollmentBill', title: 'Enrollment Bill' },
+]
+
+export const SCHOOL_LEVEL: Option<string, Level>[] = [
+  {
+    label: Levels[Level.SHS],
+    value: Level.SHS,
+  },
+  {
+    label: Levels[Level.COLLEGE],
+    value: Level.COLLEGE,
+  },
+]
+
+export const SHS_PROGRAMS: Option<string, ShsTrackAndStrandsEnum | null>[] = [
+  ...Object.keys(ShsTrackAndStrands).map((v) => {
+    return {
+      label: ShsTrackAndStrands[v as keyof typeof ShsTrackAndStrands],
+      value: v as ShsTrackAndStrandsEnum,
+    }
+  }),
+  { label: 'Others', value: null },
+]
+
+export const COLLEGE_PROGRAMS: Option<string, CollegeEnum | null>[] = [
+  ...Object.keys(CollegeCourses).map((v) => {
+    return {
+      label: CollegeCourses[v as keyof typeof CollegeCourses],
+      value: v as CollegeEnum,
+    }
+  }),
 ]
 
 export * from './types'

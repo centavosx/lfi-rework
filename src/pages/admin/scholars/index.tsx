@@ -15,9 +15,20 @@ import { AdminMain } from 'components/main'
 import { PageLoading } from 'components/loading'
 import { GetAllUserType, createUser, getAllUser } from 'api'
 import { Roles, User, UserStatus } from 'entities'
-import { Input } from 'components/input'
+import { Input, InputError } from 'components/input'
 import { Checkbox, FormControlLabel } from '@mui/material'
-import { RegisterDto } from 'constant'
+import {
+  COLLEGE_PROGRAMS,
+  DISPLAY_FILES,
+  Level,
+  RegFormType,
+  RegisterDto,
+  SCHOOL_LEVEL,
+  SHS_PROGRAMS,
+} from 'constant'
+import { UploadProcess } from 'components/button'
+import { Select } from 'components/select'
+import { theme } from 'utils/theme'
 
 type PageProps = NextPage & {
   limitParams: number
@@ -26,21 +37,12 @@ type PageProps = NextPage & {
   statusParams?: string
 }
 
-type NewAdminProp = {
-  fname: string
-  mname?: string
-  lname: string
-  address: string
-  email: string
-  status: UserStatus
-  role: Roles[]
-}
-
-const modalInitial: ModalFlexProps<NewAdminProp, RegisterDto> = {
+const modalInitial: ModalFlexProps<
+  RegFormType & { status: UserStatus; role: Roles[] },
+  RegisterDto
+> = {
   api: createUser,
-  isError: true,
-  modalText: 'Add new admin',
-  availableText: 'This service is already available',
+  modalText: 'Add new scholar',
   initial: {
     fname: '',
     mname: '',
@@ -48,7 +50,7 @@ const modalInitial: ModalFlexProps<NewAdminProp, RegisterDto> = {
     address: '',
     email: '',
     status: UserStatus.ACTIVE,
-    role: [Roles.ADMIN, Roles.ADMIN_READ],
+    role: [Roles.USER],
   },
   fields: [
     {
@@ -77,48 +79,92 @@ const modalInitial: ModalFlexProps<NewAdminProp, RegisterDto> = {
       label: 'Address',
       placeHolder: 'Please type address',
     },
+
     {
       custom: {
-        Jsx: ({ onAnyChange, fields }) => {
+        Jsx: ({ onAnyChange, fields, errors }) => {
           return (
             <Flex flexDirection={'column'} mt={2} sx={{ gap: 3 }}>
-              <Text as={'h3'} onClick={() => onAnyChange?.('email', 'dwad')}>
-                Access?
-              </Text>
-              <Flex flexDirection={'column'} sx={{ gap: 2 }}>
-                <FormControlLabel
-                  label="Read"
-                  control={
-                    <Checkbox
-                      checked={fields.role.includes(Roles.ADMIN_READ)}
-                      onChange={(_, checked) => {
-                        onAnyChange(
-                          'role',
-                          checked
-                            ? [...fields.role, Roles.ADMIN_READ]
-                            : fields.role.filter((v) => v !== Roles.ADMIN_READ)
-                        )
-                      }}
-                    />
-                  }
+              <Flex flexDirection={'column'} sx={{ width: '100%', gap: 2 }}>
+                <Select
+                  isSearchable={true}
+                  name={'level'}
+                  options={SCHOOL_LEVEL}
+                  controlStyle={{
+                    padding: 8,
+                    borderColor: 'black',
+                    backgroundColor: 'white',
+                    cursor: 'pointer',
+                  }}
+                  onChange={(v) => {
+                    onAnyChange('level', (v as any).value)
+                    onAnyChange('program', undefined)
+                  }}
+                  theme={(ct) => ({
+                    ...ct,
+                    colors: {
+                      ...ct.colors,
+                      primary25: theme.colors.green40,
+                      primary: theme.colors.darkerGreen,
+                    },
+                  })}
+                  placeholder="Select School Level"
                 />
-                <FormControlLabel
-                  label="Write"
-                  control={
-                    <Checkbox
-                      checked={fields.role.includes(Roles.ADMIN_WRITE)}
-                      onChange={(_, checked) => {
-                        onAnyChange(
-                          'role',
-                          checked
-                            ? [...fields.role, Roles.ADMIN_WRITE]
-                            : fields.role.filter((v) => v !== Roles.ADMIN_WRITE)
-                        )
-                      }}
-                    />
-                  }
-                />
+                <InputError error={errors.level} />
               </Flex>
+
+              {!!fields.level && (
+                <Flex flexDirection={'column'} sx={{ width: '100%', gap: 2 }}>
+                  <Select
+                    isSearchable={true}
+                    name="program"
+                    options={[
+                      { label: 'Select Program...', value: undefined },
+                      ...((fields.level === Level.SHS
+                        ? SHS_PROGRAMS
+                        : COLLEGE_PROGRAMS) as any[]),
+                    ]}
+                    controlStyle={{
+                      padding: 8,
+                      borderColor: 'black',
+                      backgroundColor: 'white',
+                      cursor: 'pointer',
+                    }}
+                    value={[
+                      { label: 'Select Program...', value: undefined },
+                      ...((fields.level === Level.SHS
+                        ? SHS_PROGRAMS
+                        : COLLEGE_PROGRAMS) as any[]),
+                    ].find((v) => v.value === fields.program)}
+                    onChange={(v) => {
+                      onAnyChange('program', (v as any).value)
+                    }}
+                    theme={(ct) => ({
+                      ...ct,
+                      colors: {
+                        ...ct.colors,
+                        primary25: theme.colors.green40,
+                        primary: theme.colors.darkerGreen,
+                      },
+                    })}
+                    placeholder="Select Time"
+                  />
+                  <InputError error={errors.program} />
+                </Flex>
+              )}
+              {DISPLAY_FILES.map((v, i) => {
+                return (
+                  <UploadProcess
+                    title={v.title}
+                    key={i}
+                    name={v.name}
+                    onChange={(link) =>
+                      onAnyChange(v.name as keyof RegFormType, link)
+                    }
+                    errorString={errors[v.name as keyof RegFormType]}
+                  />
+                )
+              })}
             </Flex>
           )
         },
@@ -288,7 +334,20 @@ export default function Services({
               selected={selected}
               setSelected={setSelected}
               refetch={() => {
-                replace(pathname)
+                if (pathname !== '/admin/scholars/') replace(pathname)
+                else
+                  refetch({
+                    page: 0,
+                    limit: 20,
+                    other: {
+                      role: [
+                        Roles.ADMIN,
+                        Roles.SUPER,
+                        Roles.ADMIN_READ,
+                        Roles.ADMIN_WRITE,
+                      ],
+                    },
+                  })
               }}
               modalCreate={
                 roles.isAdmin || roles.isSuper ? modalInitial : undefined

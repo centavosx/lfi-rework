@@ -6,63 +6,23 @@ import { FormContainer, ScrollToError } from 'components/forms'
 import { FormInput, InputError } from 'components/input'
 import { Button, UploadProcess } from 'components/button'
 import { FormikValidation } from 'helpers'
-import {
-  loginUser,
-  refreshVerifCode,
-  registerUser,
-  resetPass,
-  verifyUser,
-} from 'api'
+import { refreshVerifCode, registerUser, verifyUser } from 'api'
 import { useApiPost, useUser } from 'hooks'
 import { Loading, PageLoading } from 'components/loading'
-import { Main } from 'components/main'
-import { Option, Select } from 'components/select'
+
+import { Select } from 'components/select'
 import {
   Level,
-  Levels,
-  ShsTrackAndStrandsEnum,
-  ShsTrackAndStrands,
-  CollegeEnum,
-  CollegeCourses,
   RegFormType,
   DISPLAY_FILES,
   UserInfo,
   RequiredFiles,
+  SCHOOL_LEVEL,
+  SHS_PROGRAMS,
+  COLLEGE_PROGRAMS,
 } from 'constant'
-import { Firebase } from 'firebaseapp'
-import { StorageError, TaskState } from 'firebase/storage'
-import { Label } from 'components/label'
+
 import { UserStatus } from 'entities'
-
-const SCHOOL_LEVEL: Option<string, Level>[] = [
-  {
-    label: Levels[Level.SHS],
-    value: Level.SHS,
-  },
-  {
-    label: Levels[Level.COLLEGE],
-    value: Level.COLLEGE,
-  },
-]
-
-const SHS_PROGRAMS: Option<string, ShsTrackAndStrandsEnum | null>[] = [
-  ...Object.keys(ShsTrackAndStrands).map((v) => {
-    return {
-      label: ShsTrackAndStrands[v as keyof typeof ShsTrackAndStrands],
-      value: v as ShsTrackAndStrandsEnum,
-    }
-  }),
-  { label: 'Others', value: null },
-]
-
-const COLLEGE_PROGRAMS: Option<string, CollegeEnum | null>[] = [
-  ...Object.keys(CollegeCourses).map((v) => {
-    return {
-      label: CollegeCourses[v as keyof typeof CollegeCourses],
-      value: v as CollegeEnum,
-    }
-  }),
-]
 
 const ValidateEmail = () => {
   const { user, refetch } = useUser()

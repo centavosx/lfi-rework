@@ -31,6 +31,7 @@ type InputFieldProp<T extends object = object> = {
       error?: any
       onAnyChange: (key: keyof T, value: any) => void
       fields: T
+      errors: FormikErrors<T>
     }) => ReactNode
   }
 }
@@ -177,6 +178,7 @@ export function CreateModalFlex<
                             setFieldValue(k as string, v)
                           },
                           fields: values,
+                          errors: errors,
                         })
                       : !!d.field && (
                           <FormInput

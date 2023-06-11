@@ -46,11 +46,13 @@ export const DataProvider = ({
   }, [getMe, token])
 
   const logout = useCallback(() => {
-    Cookies.remove('refreshToken')
-    Cookies.remove('accessToken')
-    setUser(undefined)
-    refresh()
-  }, [setUser])
+    if (!!user) {
+      Cookies.remove('refreshToken')
+      Cookies.remove('accessToken')
+      setUser(undefined)
+      refresh()
+    }
+  }, [setUser, user])
 
   const provider: DataType = {
     user,

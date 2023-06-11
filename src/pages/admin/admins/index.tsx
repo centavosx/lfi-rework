@@ -37,9 +37,7 @@ type NewAdminProp = {
 
 const modalInitial: ModalFlexProps<NewAdminProp, RegisterDto> = {
   api: createUser,
-  isError: true,
   modalText: 'Add new admin',
-  availableText: 'This service is already available',
   initial: {
     fname: '',
     mname: '',
@@ -141,14 +139,14 @@ type ResponseDto<T> = {
   total: number
 }
 
-export default function Services({
+export default function Admins({
   limitParams,
   pageParams,
   searchParams,
 }: PageProps) {
   const { roles } = useUser()
   const { replace } = useRouter()
-  const { query, pathname } = useNav()
+  const { query, pathname, reload } = useNav()
   const { refetch, data } = useApi<
     ResponseDto<User>,
     {
@@ -259,7 +257,20 @@ export default function Services({
               selected={selected}
               setSelected={setSelected}
               refetch={() => {
-                replace(pathname)
+                if (pathname !== '/admin/admins/') replace(pathname)
+                else
+                  refetch({
+                    page: 0,
+                    limit: 20,
+                    other: {
+                      role: [
+                        Roles.ADMIN,
+                        Roles.SUPER,
+                        Roles.ADMIN_READ,
+                        Roles.ADMIN_WRITE,
+                      ],
+                    },
+                  })
               }}
               modalCreate={
                 roles.isAdmin || roles.isSuper ? modalInitial : undefined
