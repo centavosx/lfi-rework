@@ -13,7 +13,7 @@ import { ConfirmationModal, ModalFlexProps } from 'components/modal'
 import { FormikValidation } from 'helpers'
 import { AdminMain } from 'components/main'
 import { PageLoading } from 'components/loading'
-import { GetAllUserType, createUser, getAllUser } from 'api'
+import { GetAllUserType, createUser, deleteRole, getAllUser } from 'api'
 import { Roles, User, UserStatus } from 'entities'
 import { Input } from 'components/input'
 import { Checkbox, FormControlLabel } from '@mui/material'
@@ -276,7 +276,12 @@ export default function Admins({
                 roles.isAdmin || roles.isSuper ? modalInitial : undefined
               }
               onRemove={async () => {
-                // await deleteService({ ids: selected })
+                await deleteRole({ ids: selected }, [
+                  Roles.ADMIN,
+                  Roles.SUPER,
+                  Roles.ADMIN_READ,
+                  Roles.ADMIN_WRITE,
+                ])
               }}
             />
           )}

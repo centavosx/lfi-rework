@@ -15,7 +15,6 @@ import {
   ChangeEvent,
 } from 'react'
 import { theme } from 'utils/theme'
-import { FormInput } from './FormInput'
 
 export type InputColor = {
   inputcolor?: {

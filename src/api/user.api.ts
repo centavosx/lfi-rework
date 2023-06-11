@@ -132,3 +132,12 @@ export const getAllUser = async (data?: {
   })
   return response
 }
+
+export const deleteRole = async (data: { ids: string[] }, role: Roles[]) => {
+  const response = await apiAuth.patch(`/user/role/delete`, data, {
+    params: {
+      role,
+    },
+  })
+  return response
+}

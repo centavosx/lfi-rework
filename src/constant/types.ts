@@ -43,6 +43,10 @@ export type UserDetails = {
 export type RegisterDto = UserDetails & {
   status: UserStatus
   role: Roles[]
+  userData?: RequiredFiles & {
+    level: Level
+    program: string
+  }
 }
 
 export type UserInfo = UserDetails & {

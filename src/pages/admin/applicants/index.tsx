@@ -194,7 +194,7 @@ const modalInitial: ModalFlexProps<CreateUserType, RegisterDto> = {
     lname: '',
     address: '',
     email: '',
-    status: UserStatus.ACTIVE,
+    status: UserStatus.VERIFIED,
     role: [Roles.USER],
   },
   fields: [
@@ -264,7 +264,7 @@ type ResponseDto<T> = {
   total: number
 }
 
-export default function Scholars({
+export default function Applicants({
   limitParams,
   pageParams,
   searchParams,
@@ -289,11 +289,7 @@ export default function Scholars({
       other: {
         search: searchParams,
         role: [Roles.USER],
-        status:
-          statusParams === UserStatus.ACTIVE ||
-          statusParams === UserStatus.EXPELLED
-            ? (statusParams as any)
-            : UserStatus.ACTIVE,
+        status: UserStatus.VERIFIED,
       },
     })
   }, [limitParams, pageParams, searchParams, statusParams])
@@ -303,7 +299,7 @@ export default function Scholars({
 
   return (
     <Flex flexDirection={'column'} alignItems="center" width={'100%'}>
-      <Section title="Scholars" textProps={{ textAlign: 'start' }}>
+      <Section title="Applicants" textProps={{ textAlign: 'start' }}>
         <CustomTable
           isCheckboxEnabled={roles.isAdminWrite || roles.isSuper}
           dataCols={[
@@ -344,7 +340,7 @@ export default function Scholars({
               },
             },
             {
-              name: 'Expell?',
+              name: 'Action',
               custom: (d, i) => {
                 const isSuper = d.roles.some((v) => v.name === Roles.SUPER)
                 return (

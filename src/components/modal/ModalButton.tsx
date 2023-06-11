@@ -105,7 +105,7 @@ export const ButtonModal = memo(
               flexDirection: 'column',
             }}
           >
-            <Flex sx={{ mb: 3, pt: 3, pl: 4, pr: 4 }} width={'100%'}>
+            <Flex sx={{ mb: 4, pt: 4, pl: 4, pr: 4 }} width={'100%'}>
               <Text flex={1} {...titleProps}>
                 {title}
               </Text>

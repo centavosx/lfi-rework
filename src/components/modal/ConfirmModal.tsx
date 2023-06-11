@@ -121,7 +121,6 @@ export function CreateModalFlex<
         ...other
       }) => (
         <FormContainer
-          label={modalText}
           flexProps={{
             flex: 1,
             sx: { gap: 10 },
@@ -461,6 +460,8 @@ export function ConfirmationModal<
     <Flex p={10} alignItems={'end'} width={'100%'} sx={{ gap: 10 }}>
       {!!modalCreate && (
         <ButtonModal
+          title={(others as any)?.modalText}
+          titleProps={{ as: 'h2' }}
           height={'auto'}
           modalChild={({ onSubmit }) => {
             return (
