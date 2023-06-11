@@ -4,7 +4,8 @@ const breakpoints = [
   ['phone_small', 320],
   ['phone', 376],
   ['phablet', 540],
-  ['tablet', 735],
+  ['tablet', 639.5],
+  ['large_tablet', 830],
   ['desktop', 1070],
   ['desktop_medium', 1280],
   ['desktop_large', 1440],
@@ -17,6 +18,7 @@ type BreakPoints = {
   phone: any
   tablet: any
   phablet: any
+  large_tablet: any
   desktop: any
   desktop_medium: any
   desktop_large: any

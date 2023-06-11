@@ -3,9 +3,9 @@ import SelectComponent, { StylesConfig } from 'react-select'
 import { StateManagerProps } from 'react-select/dist/declarations/src/useStateManager'
 import { StyledProps } from 'styled-components'
 
-export interface Option {
-  readonly value: string
-  readonly label: string
+export interface Option<T extends any = any, V extends any = any> {
+  readonly value: V
+  readonly label: T
 }
 
 const colourStyles: StylesConfig<Option> = {
@@ -17,6 +17,7 @@ const colourStyles: StylesConfig<Option> = {
     '& :focus': {
       border: '1px solid black',
     },
+    zIndex: 9999999,
   }),
   input: (styles) => ({
     ...styles,
@@ -25,6 +26,7 @@ const colourStyles: StylesConfig<Option> = {
     paddingLeft: 5,
     paddingRight: 5,
     color: 'black',
+    zIndex: 99999,
   }),
   placeholder: (styles) => ({
     ...styles,
@@ -32,12 +34,13 @@ const colourStyles: StylesConfig<Option> = {
     paddingBottom: 10,
     paddingLeft: 5,
     paddingRight: 5,
+    zIndex: 999999,
   }),
 
   menuPortal: (styles) => ({
     ...styles,
     background: 'white',
-    zIndex: 1,
+    zIndex: 999999,
   }),
   singleValue: (styles) => ({ ...styles }),
 }
@@ -49,18 +52,18 @@ interface SelectStyles {
   singleValueStyle?: CSSProperties
 }
 
-export const Select = ({
+export function Select<T extends any = any, V extends any = any>({
   controlStyle,
   inputStyle,
   placeholderStyle,
   singleValueStyle,
   ...other
-}: StateManagerProps<Option> & SelectStyles) => {
+}: StateManagerProps<Option<T, V>> & SelectStyles) {
   const [_document, setDocument] = useState<Document | undefined>(undefined)
 
   useEffect(() => {
     setDocument(document)
-  }, [setDocument])
+  }, [document])
 
   return (
     <SelectComponent

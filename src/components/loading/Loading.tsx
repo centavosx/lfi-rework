@@ -19,3 +19,11 @@ export const Loading = () => {
     </Modal>
   )
 }
+
+export const PageLoading = () => {
+  return (
+    <Flex height={'100%'}>
+      <Loading />
+    </Flex>
+  )
+}

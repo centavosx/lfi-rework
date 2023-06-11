@@ -7,7 +7,7 @@ export const refreshToken = async (): Promise<TokenDTO> => {
 
   const { accessToken, refreshToken }: TokenDTO = response.data
 
-  localStorage.setItem('accessToken', accessToken)
+  Cookies.set('accessToken', accessToken)
   Cookies.set('refreshToken', refreshToken)
 
   return { accessToken, refreshToken }

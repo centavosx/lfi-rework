@@ -30,7 +30,7 @@ export const validateToken = (token?: string) => {
 }
 
 const runOnlyWhen = () => {
-  const isTokenValid = validateToken(localStorage.getItem('accessToken') ?? '')
+  const isTokenValid = validateToken(Cookies.get('accessToken') ?? '')
   return isTokenValid
 }
 
@@ -49,7 +49,7 @@ apiAuth.interceptors.request.use(
   async (config) => {
     config.headers = {
       ...config.headers,
-      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+      Authorization: `Bearer ${Cookies.get('accessToken')}`,
     }
     return config
   },
@@ -77,7 +77,7 @@ apiAuth.interceptors.response.use(
 
     // clear out all tokens if we get unauthorized error and force user to login
     if (error?.response?.status === 401) {
-      localStorage.clear()
+      Cookies.remove('accessToken')
       Cookies.remove('refreshToken')
     }
 

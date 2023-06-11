@@ -1,6 +1,8 @@
-import CalendarComponent, { CalendarProps } from 'react-calendar'
+import CalendarComponent from 'react-calendar'
 import styled from '@emotion/styled'
 import { theme } from 'utils/theme'
+
+import 'react-calendar/dist/Calendar.css'
 
 export const Calendar = styled(CalendarComponent)`
   && {
@@ -8,51 +10,73 @@ export const Calendar = styled(CalendarComponent)`
     width: 100%;
     border-radius: 5px;
     border-width: 1px;
+    .react-calendar__tile {
+      padding: 25px;
+      font-size: 16px;
+      font-weight: 400;
+      abbr {
+        color: ${theme.colors.darkestGreen};
+      }
+    }
     button {
-      color: black;
+      color: ${theme.colors.green};
     }
     span {
       font-weight: 600;
       font-size: 18px;
     }
+
     .react-calendar__month-view__weekdays__weekday {
       abbr {
         text-decoration: none;
         font-size: 16px;
-        color: black;
+        color: ${theme.colors.darkestGreen};
       }
     }
     .react-calendar__tile--hasActive {
       button:hover {
-        background: #e54373;
+        background: ${theme.colors.darkGreen};
       }
     }
-    .react-calendar__tile--now {
-      background-color: #e75480;
+    .react-calendar__tile--now,
+    .react-calendar__tile--now:hover {
+      background-color: ${theme.colors.darkGreen};
+      abbr {
+        color: white;
+      }
     }
     .react-calendar__tile--active:enabled:hover,
     .react-calendar__tile--active:enabled:focus {
-      background-color: ${theme.colors.pink};
-      color: white;
+      background-color: ${theme.colors.green60};
+
+      abbr {
+        color: black;
+      }
     }
     .react-calendar__tile--active {
-      background-color: ${theme.colors.pink};
-      color: white;
+      background-color: ${theme.colors.green20};
+      abbr {
+        color: ${theme.colors.darkestGreen};
+      }
     }
-    .react-calendar__tile {
-      padding: 25px;
-      font-size: 16px;
-      font-weight: 400;
+
+    button.react-calendar__tile.holiday {
+      background-color: ${theme.colors.green20};
+      abbr {
+        color: red;
+      }
     }
-    button:disabled {
-      color: grey;
+
+    button.react-calendar__tile.before-date,
+    button.react-calendar__tile.less-than-date {
+      background-color: #f5f5f5;
     }
 
     .react-calendar__navigation {
-      background-color: black;
+      background-color: white;
       button,
       span {
-        color: white;
+        color: ${theme.colors.darkestGreen};
       }
 
       button:active,
@@ -66,7 +90,7 @@ export const Calendar = styled(CalendarComponent)`
     }
 
     .react-calendar__navigation button:disabled {
-      background-color: black;
+      background-color: ${theme.colors.green80};
       color: white;
     }
     @media screen and (max-width: 900px) {
@@ -76,15 +100,15 @@ export const Calendar = styled(CalendarComponent)`
         padding-bottom: 25px;
       }
     }
-    @media screen and (max-width: 540px) {
+    @media screen and (max-width: 639.5px) {
       span {
         font-weight: 600;
         font-size: 14px;
       }
       .react-calendar__tile {
-        padding: 10px;
-        padding-top: 28px;
-        padding-bottom: 28px;
+        padding: 2px;
+        padding-top: 18px;
+        padding-bottom: 18px;
       }
       .react-calendar__month-view__weekdays__weekday {
         abbr {

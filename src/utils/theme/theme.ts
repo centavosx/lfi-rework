@@ -6,7 +6,7 @@ export const theme = {
     lightpink: '#fddde6',
     black: 'black',
     blackgray: '#555555',
-    white: 'white',
+
     background: 'pink',
     primary: 'pink',
     secondary: '#3f3f3f',
@@ -23,6 +23,11 @@ export const theme = {
     darkGreen: '#006d45',
     darkerGreen: '#066d3d',
     darkestGreen: '#004b31',
+    white: '#FFFFFF',
+    white80: '#FFFFFFCC',
+    white60: '#FFFFFF99',
+    white40: '#FFFFFF66',
+    white20: '#FFFFFF33',
   },
   backgroundColors: {
     primary: 'pink',

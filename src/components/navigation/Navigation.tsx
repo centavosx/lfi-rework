@@ -1,7 +1,6 @@
-import React, { useCallback, useState, Fragment, useEffect } from 'react'
-import { Flex, Text, Link as Anchor } from 'rebass'
+import React, { useCallback, useState, Fragment, memo } from 'react'
+import { Flex, Text } from 'rebass'
 import Drawer from '@mui/material/Drawer'
-import { scroller } from 'react-scroll'
 
 import { theme } from '../../utils/theme'
 import { FiMenu } from 'react-icons/fi'
@@ -12,187 +11,250 @@ import {
   ListItemButton,
   ListItemText,
 } from '@mui/material'
-import { Button, ButtonDropdown, SecondaryButton } from '../button'
-import { useRouter } from 'next/router'
+import {
+  Button,
+  ButtonDropdown,
+  CustomDropdown,
+  SecondaryButton,
+} from '../button'
+import { useRouter } from 'next/navigation'
 
 import { TextModal } from '../modal'
-
 import { useUser } from 'hooks'
+import { Roles, UserStatus } from 'entities'
 
-type Services = {
-  name: string
-  src: string
-}
-const navigations = ['Home']
-const services: Services[] = [
-  {
-    name: 'Preventive Care',
-    src: '/assets/services/Preventive Care.png',
-  },
-  {
-    name: 'Wellness',
-    src: '/assets/services/wellness.png',
-  },
-  {
-    name: 'Consultation',
-    src: '/assets/services/Consultation.png',
-  },
-  {
-    name: 'Nutritional Counseling',
-    src: '/assets/services/nutritional counseling.png',
-  },
-  {
-    name: 'Laboratory',
-    src: '/assets/services/laboratory.png',
-  },
-  {
-    name: 'Surgery',
-    src: '/assets/services/surgery.png',
-  },
-  {
-    name: 'Telemedicine',
-    src: '/assets/services/telemedicine.png',
-  },
-  {
-    name: 'Dental Care',
-    src: '/assets/services/dental care.png',
-  },
-  {
-    name: 'Hospitalization',
-    src: '/assets/services/hospitalization.png',
-  },
-  {
-    name: 'After-hour emergency',
-    src: '/assets/services/afrer hour emergency.png',
-  },
-  {
-    name: 'Pet supplies',
-    src: '/assets/services/pet-supplies.png',
-  },
-]
-
-export const ContactUs = () => (
-  <Flex flexDirection={'column'}>
-    <Text as={'h1'} sx={{ fontSize: 24, color: 'black' }}>
-      Contact Us
-    </Text>
-    <Flex
-      flexDirection={'column'}
-      pt={20}
-      pb={20}
-      justifyContent={'center'}
-      sx={{ gap: 1, wordWrap: 'break-word' }}
-    >
-      <Text>0238 SANLY BLDG P TUAZON BLVD SOCORRO, CUBAO QC</Text>
-      <Text>09123456789</Text>
-      <Text>manila.feline.center@gmail.com</Text>
-      <Text as={'h2'} sx={{ fontSize: 18, color: 'black', mt: 3 }}>
-        Links
-      </Text>
-      <Text
-        sx={{
-          textDecoration: 'underline',
-        }}
-      >
-        <Anchor
-          href="https://facebook.com/ManilaFelineCenter"
-          sx={{ wordWrap: 'break-word' }}
-        >
-          https://facebook.com/ManilaFelineCenter
-        </Anchor>
-      </Text>
-      <Text
-        sx={{
-          textDecoration: 'underline',
-        }}
-      >
-        <Anchor
-          href="https://instragram.com/ManilaFelineCenter"
-          sx={{ wordWrap: 'break-word' }}
-        >
-          https://instragram.com/ManilaFelineCenter
-        </Anchor>
-      </Text>
-      <Text as={'h2'} sx={{ fontSize: 18, color: 'black', mt: 3 }}>
-        Opening hours
-      </Text>
-      <Text>9:00 AM to 8:00PM</Text>
-    </Flex>
-  </Flex>
-)
-
-export const WebNavigation = ({ isLink }: { isLink?: boolean }) => {
+export const WebNavigation = memo(() => {
   const { push } = useRouter()
-  const { logout } = useUser()
+  const { logout, user } = useUser()
+
   return (
     <>
-      <SecondaryButton style={{ textTransform: 'capitalize', fontWeight: 400 }}>
-        Sign Up
-      </SecondaryButton>
-      <ButtonDropdown
-        style={{ textTransform: 'capitalize', fontWeight: 400 }}
-        display={
-          <Flex
-            sx={{
-              width: 150,
-              flexDirection: 'column',
-              gap: 2,
-              border: '1px solid gray',
-              borderRadius: 3,
-              marginTop: 1,
-              paddingTop: 2,
-              paddingBottom: 2,
-              zIndex: 9999,
-              backgroundColor: theme.colors.white,
-            }}
-          >
-            <Text
-              sx={{
-                ':hover': {
-                  backgroundColor: theme.colors.green,
-                  color: theme.colors.white,
-                },
-                color: theme.colors.black,
-                width: '100%',
-                padding: '2px',
-                textAlign: 'center',
-                cursor: 'pointer',
-              }}
-            >
-              For Scholar
-            </Text>
-            <Text
-              sx={{
-                ':hover': {
-                  backgroundColor: theme.colors.green,
-                  color: theme.colors.white,
-                },
-                color: theme.colors.black,
-                padding: '2px',
-                width: '100%',
-                textAlign: 'center',
-                cursor: 'pointer',
-              }}
-            >
-              For Employee
-            </Text>
-          </Flex>
-        }
+      <TextModal
+        width={'auto'}
+        fontWeight={'bold'}
+        style={{ cursor: 'pointer', alignSelf: 'center' }}
+        onMouseOver={(e) => (e.currentTarget.style.opacity = '0.7')}
+        onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+        sx={{
+          fontSize: [14, 16],
+          fontFamily: 'Castego',
+          padding: 0,
+        }}
+        color={theme.colors.darkestGreen}
+        onClick={() => push('/')}
+        isNotClickable={true}
       >
-        Login
-      </ButtonDropdown>
+        Home
+      </TextModal>
+      {!!user &&
+      (user.status === UserStatus.VERIFIED ||
+        user.status === UserStatus.ACTIVE) ? (
+        <>
+          <TextModal
+            width={'auto'}
+            fontWeight={'bold'}
+            style={{ cursor: 'pointer', alignSelf: 'center' }}
+            onMouseOver={(e) => (e.currentTarget.style.opacity = '0.7')}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+            sx={{
+              fontSize: [14, 16],
+              fontFamily: 'Castego',
+              padding: 0,
+            }}
+            color={theme.colors.darkestGreen}
+            onClick={() => {
+              const link = user?.roles.some(
+                (v) =>
+                  v.name === Roles.ADMIN ||
+                  v.name === Roles.ADMIN_READ ||
+                  v.name === Roles.ADMIN_WRITE ||
+                  v.name === Roles.SUPER
+              )
+                ? '/admin/dashboard'
+                : user?.status === UserStatus.VERIFIED
+                ? '/user/waiting'
+                : '/user'
+              push(link)
+            }}
+            isNotClickable={true}
+          >
+            Dashboard
+          </TextModal>
+          <CustomDropdown
+            display={(close) => (
+              <Flex
+                sx={{
+                  width: 220,
+                  flexDirection: 'column',
+                  gap: 2,
+                  border: '1px solid gray',
+                  borderRadius: 6,
+                  marginTop: 1,
+                  paddingTop: 2,
+                  paddingBottom: 2,
+                  zIndex: 9999,
+                  backgroundColor: theme.colors.white,
+                }}
+              >
+                <Text padding={2} as={'h4'}>
+                  Hi! {user.lname}, {user.fname} {user.mname}
+                </Text>
+                {user.status !== UserStatus.VERIFIED && (
+                  <Text
+                    sx={{
+                      ':hover': {
+                        backgroundColor: theme.colors.green,
+                        color: theme.colors.white,
+                      },
+                      color: theme.colors.black,
+                      width: '100%',
+                      padding: '4px',
+                      textAlign: 'center',
+                      cursor: 'pointer',
+                    }}
+                    onClick={async () => {
+                      close()
+                    }}
+                  >
+                    Settings
+                  </Text>
+                )}
+                <Text
+                  sx={{
+                    ':hover': {
+                      backgroundColor: theme.colors.green,
+                      color: theme.colors.white,
+                    },
+                    color: theme.colors.black,
+                    padding: '4px',
+                    width: '100%',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                  }}
+                  onClick={async () => {
+                    logout()
+                    close()
+                  }}
+                >
+                  Logout
+                </Text>
+              </Flex>
+            )}
+          >
+            {(open) => (
+              <TextModal
+                width={'auto'}
+                fontWeight={'bold'}
+                style={{ cursor: 'pointer', alignSelf: 'center' }}
+                onMouseOver={(e) => (e.currentTarget.style.opacity = '0.7')}
+                onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+                sx={{
+                  fontSize: [14, 16],
+                  fontFamily: 'Castego',
+                  padding: 0,
+                }}
+                color={theme.colors.darkestGreen}
+                onClick={() => open()}
+                isNotClickable={true}
+              >
+                Profile
+              </TextModal>
+            )}
+          </CustomDropdown>
+        </>
+      ) : (
+        <>
+          <SecondaryButton
+            style={{ textTransform: 'capitalize', fontWeight: 400 }}
+            onClick={() => push('/register')}
+          >
+            Sign Up
+          </SecondaryButton>
+          <ButtonDropdown
+            style={{ textTransform: 'capitalize', fontWeight: 400 }}
+            display={(close) => (
+              <Flex
+                sx={{
+                  width: 150,
+                  flexDirection: 'column',
+                  gap: 2,
+                  border: '1px solid gray',
+                  borderRadius: 3,
+                  marginTop: 1,
+                  paddingTop: 2,
+                  paddingBottom: 2,
+                  zIndex: 9999,
+                  backgroundColor: theme.colors.white,
+                }}
+              >
+                <Text
+                  sx={{
+                    ':hover': {
+                      backgroundColor: theme.colors.green,
+                      color: theme.colors.white,
+                    },
+                    color: theme.colors.black,
+                    width: '100%',
+                    padding: '2px',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => {
+                    push('/login?who=Scholar')
+                    close()
+                  }}
+                >
+                  For Scholar
+                </Text>
+                <Text
+                  sx={{
+                    ':hover': {
+                      backgroundColor: theme.colors.green,
+                      color: theme.colors.white,
+                    },
+                    color: theme.colors.black,
+                    padding: '2px',
+                    width: '100%',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => {
+                    push('/login?who=Employee')
+                    close()
+                  }}
+                >
+                  For Employee
+                </Text>
+              </Flex>
+            )}
+          >
+            Login
+          </ButtonDropdown>
+        </>
+      )}
     </>
   )
-}
+})
 
-export const MobileNavigation = ({ isLink }: { isLink?: boolean }) => {
+WebNavigation.displayName = 'WebNav'
+
+const getPages = (status?: UserStatus) => {
+  switch (true) {
+    case status === UserStatus.ACTIVE:
+      return ['Home', 'Dashboard', 'Profile', 'Settings', 'Logout']
+    case status === UserStatus.VERIFIED:
+      return ['Home', 'Dashboard', 'Logout']
+    default:
+      return ['Home', 'Sign Up', 'Login for scholar', 'Login for employee']
+  }
+}
+export const MobileNavigation = memo(() => {
   const { push } = useRouter()
-  const { logout } = useUser()
+  const { logout, user } = useUser()
   const [state, setState] = useState({
     right: false,
   })
-  const [link, setLink] = useState<string | null>(null)
-  const [open, setOpen] = useState(false)
+
   const toggleDrawer = useCallback(
     (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
       if (
@@ -215,44 +277,57 @@ export const MobileNavigation = ({ isLink }: { isLink?: boolean }) => {
         role="presentation"
       >
         <List>
-          {['Sign Up', 'Login for scholar', 'Login for employee'].map(
-            (data: string, i) => (
-              <Fragment key={i}>
-                <ListItem disablePadding={true}>
-                  <ListItemButton
-                    onClick={() => {
-                      setLink(data)
-                      switch (data) {
-                        case 'Logout':
-                          logout()
-                          break
-                        default:
-                          push(
-                            (isLink ? '/' : '/#') +
-                              data?.split(' ').join('').toLowerCase()
-                          )
-                          break
-                      }
-                    }}
-                  >
-                    <ListItemText primary={data} />
-                  </ListItemButton>
-                </ListItem>
-              </Fragment>
-            )
-          )}
+          {getPages(user?.status).map((data: string, i) => (
+            <Fragment key={i}>
+              <ListItem disablePadding={true}>
+                <ListItemButton
+                  onClick={() => {
+                    switch (data) {
+                      case 'Home':
+                        push('/')
+                        break
+                      case 'Dashboard':
+                        const link = user?.roles.some(
+                          (v) =>
+                            v.name === Roles.ADMIN ||
+                            v.name === Roles.ADMIN_READ ||
+                            v.name === Roles.ADMIN_WRITE ||
+                            v.name === Roles.SUPER
+                        )
+                          ? '/admin/dashboard'
+                          : user?.status === UserStatus.VERIFIED
+                          ? '/user/waiting'
+                          : '/user'
+                        push(link)
+                        break
+                      case 'Sign Up':
+                        push('/register')
+                        break
+                      case 'Login for scholar':
+                        push('/login?who=Scholar')
+                        break
+                      case 'Login for employee':
+                        push('/login?who=Employee')
+                        break
+                      case 'Logout':
+                        logout()
+                        break
+                      default:
+                        push('/' + data?.split(' ').join('').toLowerCase())
+                        break
+                    }
+                  }}
+                >
+                  <ListItemText primary={data} />
+                </ListItemButton>
+              </ListItem>
+            </Fragment>
+          ))}
         </List>
       </Box>
     ),
-    []
+    [user?.status, user?.roles]
   )
-
-  useEffect(() => {
-    if (link !== 'Services') {
-      setState({ right: false })
-      setOpen(false)
-    }
-  }, [link, setState, setOpen])
 
   return (
     <>
@@ -260,9 +335,11 @@ export const MobileNavigation = ({ isLink }: { isLink?: boolean }) => {
         <FiMenu size={30} color={theme.colors.white} />
       </Button>
 
-      <Drawer open={state.right} anchor={'right'} onClose={toggleDrawer(false)}>
+      <Drawer open={state.right} anchor={'left'} onClose={toggleDrawer(false)}>
         {list()}
       </Drawer>
     </>
   )
-}
+})
+
+MobileNavigation.displayName = 'MobileNav'

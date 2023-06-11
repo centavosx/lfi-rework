@@ -5,7 +5,7 @@ import {
   FieldConfig,
   FormikValues,
 } from 'formik'
-import { Flex, SxStyleProp } from 'rebass'
+import { Flex, FlexProps, SxStyleProp } from 'rebass'
 import { Input, InputColor } from './Input'
 import { TextFieldProps } from '@mui/material'
 
@@ -13,11 +13,19 @@ type ErrorProp = { error?: string; sx?: SxStyleProp }
 
 export const FormInput = ({
   errorProp,
+  containerProps,
   ...props
 }: {
   errorProp?: ErrorProp
-} & TextFieldProps & { padding?: number } & InputColor & {
+} & TextFieldProps & {
+    padding?: number
+    paddingTop?: number
+    paddingBottom?: number
+    paddingLeft?: number
+    paddingRight?: number
+  } & InputColor & {
     theme?: undefined
+    containerProps?: FlexProps
   } & Pick<FieldConfig, 'name'>) => {
   return (
     <Field name={props.name}>
@@ -26,7 +34,11 @@ export const FormInput = ({
         form: { touched },
         meta: { error = '' },
       }: FormikFieldProps<any, FormikValues>) => (
-        <Flex flexDirection="column" sx={{ gap: 2, width: '100%' }}>
+        <Flex
+          flexDirection="column"
+          sx={{ gap: 2, width: '100%' }}
+          {...containerProps}
+        >
           <Input
             {...{
               ...props,
