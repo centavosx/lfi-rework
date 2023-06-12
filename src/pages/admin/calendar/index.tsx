@@ -11,7 +11,7 @@ import {
   startOfDay,
 } from 'date-fns'
 import { Flex, Text } from 'rebass'
-import { AreYouSure } from 'components/are-you-sure'
+
 import { AiFillPlusCircle } from 'react-icons/ai'
 import { FormContainer } from 'components/forms'
 import { FormInput } from 'components/input'
@@ -21,7 +21,7 @@ import { Button } from 'components/button'
 import { FormikValidation } from 'helpers'
 import { theme } from 'utils/theme'
 import { EventDto } from 'constant'
-import { useApi, useApiPost } from 'hooks'
+import { useApi, useApiPost, useUser } from 'hooks'
 import { getDailyEvents, getMonthlyEvents, postEvent } from 'api'
 import { Loading } from 'components/loading'
 
@@ -177,6 +177,7 @@ DisplayEvents.displayName = 'DisplayEvents'
 
 export default function Calendar() {
   const today = new Date()
+  const { roles } = useUser()
   const [selectedDate, setSelectedDate] = useState(new Date())
   const { data, refetch } = useApi<
     (EventProp<undefined> & { day: number })[],
@@ -246,13 +247,15 @@ export default function Calendar() {
                     maxHeight={'80%'}
                     modalChild={<CreateEvent />}
                   >
-                    {({ setOpen: setO }) => (
-                      <AiFillPlusCircle
-                        size={24}
-                        cursor={'pointer'}
-                        onClick={() => setO(true)}
-                      />
-                    )}
+                    {({ setOpen: setO }) =>
+                      (roles.isAdminWrite || roles.isSuper) && (
+                        <AiFillPlusCircle
+                          size={24}
+                          cursor={'pointer'}
+                          onClick={() => setO(true)}
+                        />
+                      )
+                    }
                   </CustomModal>
                 </Flex>
                 <hr style={{ width: '100%' }} />

@@ -60,7 +60,7 @@ const navigations = [
   'Applicants',
   'Admins',
   'Chats',
-  'Users',
+
   'Audits',
 ]
 

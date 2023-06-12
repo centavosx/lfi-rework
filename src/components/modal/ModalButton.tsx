@@ -15,7 +15,7 @@ import { Flex, TextProps, Text } from 'rebass'
 
 type ChildProps = {
   isOpen: boolean
-  onSubmit: () => void
+  onSubmit: () => Promise<void>
   setOpen: Dispatch<SetStateAction<boolean>>
 }
 
@@ -37,7 +37,7 @@ export const ButtonModal = memo(
     ...props
   }: ButtonProps & {
     modalChild?: ((props: ChildProps) => ReactNode) | ReactNode
-    onSubmit?: () => void
+    onSubmit?: () => Promise<void> | void
     onClose?: () => void
     height?: string[] | number[] | number | string
     maxHeight?: string[] | number[] | number | string
@@ -48,8 +48,8 @@ export const ButtonModal = memo(
   }) => {
     const [open, setOpen] = useState<boolean>(false)
 
-    const onSubmitSuccess = useCallback(() => {
-      onSubmit?.()
+    const onSubmitSuccess = useCallback(async () => {
+      await onSubmit?.()
       setOpen(false)
     }, [onSubmit, setOpen])
 

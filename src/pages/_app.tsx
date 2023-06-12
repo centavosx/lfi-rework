@@ -14,7 +14,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <ThemeProvider theme={theme}>
       <DataProvider>
         {(status) =>
-          (status?.isAdmin || status?.isSuper) && pathname !== '/' ? (
+          status?.isAdmin || status?.isSuper ? (
             <AdminMain>
               <Component {...pageProps} />
             </AdminMain>

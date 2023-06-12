@@ -21,6 +21,7 @@ type StyleType = {
   container?: SxStyleProp
   lineWidth?: number
   lineColor?: string
+  barContainer?: SxStyleProp
 } & AvgStyle
 
 export type XAndY<T extends string | number = string | number> = {
@@ -93,6 +94,7 @@ export function BarGraph<T extends string | number = number>({
           borderStyle: 'solid',
           flex: 1,
           height: '100%',
+          ...style?.barContainer,
         }}
       >
         {avg !== undefined && !!layout && (
@@ -214,11 +216,12 @@ const AnimAvgLine = ({
     const controls = animate(bottomAnimated, top, {
       duration: 1,
     })
+
     return () => {
       controls.stop()
       bottomAnimated.set(0)
     }
-  }, [bottomAnimated, height])
+  }, [bottomAnimated, height, top])
 
   return (
     <DashLine

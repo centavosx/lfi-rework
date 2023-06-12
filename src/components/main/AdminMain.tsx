@@ -22,8 +22,8 @@ const SideNav = ({ isWeb }: { isWeb?: boolean }) => {
         borderRightWidth: 2,
         borderRightColor: 'black',
         borderRightStyle: 'solid',
-        justifyContent: ['space-between', 'normal', 'normal', 'normal'],
       }}
+      justifyContent={['space-between', 'normal', 'normal', 'normal']}
       flexDirection={['row', 'column', 'column', 'column']}
       pt={[15, 30, 30, 30]}
       width={isWeb ? 250 : ['100%', 100, 100, 100]}
