@@ -1,46 +1,26 @@
-import React, { memo, useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { Flex, Image, Text } from 'rebass'
 
 import { Section } from '../../../components/sections'
 
 import { CustomTable } from 'components/table'
 import { NextPage } from 'next'
-import { useApi, useApiPost, useUser } from 'hooks'
+import { useApi, useUser } from 'hooks'
 import { useRouter } from 'next/navigation'
 import { useRouter as useNav } from 'next/router'
 
 import {
-  AreYouSure,
   ButtonModal,
   ConfirmationModal,
   ModalFlexProps,
 } from 'components/modal'
 import { FormikValidation } from 'helpers'
-import { AdminMain } from 'components/main'
-import { PageLoading } from 'components/loading'
-import {
-  GetAllUserType,
-  createUser,
-  deleteRole,
-  getAllUser,
-  updateUser,
-} from 'api'
+
+import { GetAllUserType, createUser, deleteRole, getAllUser } from 'api'
 import { Roles, User, UserStatus } from 'entities'
-import { FormInput, Input, InputError } from 'components/input'
-import { Checkbox, FormControlLabel } from '@mui/material'
-import {
-  COLLEGE_PROGRAMS,
-  DISPLAY_FILES,
-  Level,
-  RegFormType,
-  RegisterDto,
-  SCHOOL_LEVEL,
-  SHS_PROGRAMS,
-} from 'constant'
-import { UploadProcess } from 'components/button'
-import { Select } from 'components/select'
-import { theme } from 'utils/theme'
-import { FormikErrors } from 'formik'
+
+import { RegisterDto } from 'constant'
+
 import {
   CreateUserType,
   UserInformation,
@@ -142,7 +122,7 @@ export default function Applicants({
   const { roles } = useUser()
   const { replace } = useRouter()
   const { query, pathname, asPath } = useNav()
-  const { refetch, data } = useApi<
+  const { refetch, data, isFetching } = useApi<
     ResponseDto<User>,
     {
       page: number
@@ -269,6 +249,7 @@ export default function Applicants({
               modalText="Assign Admin"
               selected={selected}
               setSelected={setSelected}
+              isFetchingData={isFetching}
               refetch={() => {
                 if (pathname !== '/admin/scholars/') replace(pathname)
                 else
