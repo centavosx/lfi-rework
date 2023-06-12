@@ -4,7 +4,7 @@ import { theme } from 'utils/theme'
 
 import 'react-calendar/dist/Calendar.css'
 
-export const Calendar = styled(CalendarComponent)`
+export const Calendar = styled(CalendarComponent as any)`
   && {
     padding: 5px;
     width: 100%;

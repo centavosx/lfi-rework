@@ -87,15 +87,17 @@ export function BarGraph<T extends string | number = number>({
         flexDirection={'column'}
         width={'100%'}
         ref={ref}
-        style={{
-          position: 'relative',
-          borderColor: style?.lineColor ?? 'black',
-          borderWidth: style?.lineWidth ?? 1,
-          borderStyle: 'solid',
-          flex: 1,
-          height: '100%',
-          ...style?.barContainer,
-        }}
+        style={
+          {
+            position: 'relative',
+            borderColor: style?.lineColor ?? 'black',
+            borderWidth: style?.lineWidth ?? 1,
+            borderStyle: 'solid',
+            flex: 1,
+            height: '100%',
+            ...style?.barContainer,
+          } as unknown as any
+        }
       >
         {avg !== undefined && !!layout && (
           <Flex
