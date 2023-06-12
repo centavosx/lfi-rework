@@ -304,7 +304,13 @@ export const AreYouSure = ({
         >
           {cancelText}
         </Button>
-        <Button style={{ padding: 12 }} onClick={onSubmit}>
+        <Button
+          style={{ padding: 12 }}
+          onClick={() => {
+            onSubmit()
+            setOpen(false)
+          }}
+        >
           {confirmText}
         </Button>
       </Flex>
@@ -400,6 +406,7 @@ function UserUpdate<T extends FormikValues>({
           </Flex>
           <Flex width={'100%'} justifyContent={'right'} mt={[10, 20, 30]}>
             <ButtonModal
+              title="Remove"
               disabled={
                 Object.keys(errors)?.some((v) =>
                   v === 'password' ? false : !!v
@@ -519,6 +526,7 @@ export function ConfirmationModal<
       )}
       {selected.length > 0 && (
         <ButtonModal
+          title="Remove"
           backgroundcolor="red"
           textcolor="white"
           hovercolor="#B22222"

@@ -18,6 +18,7 @@ export const UploadButton = ({
   multiple,
   accept = ['*'],
   onFileChange,
+  disabled,
   ...rest
 }: ButtonProps & {
   multiple?: boolean
@@ -56,7 +57,7 @@ export const UploadButton = ({
   }
 
   return (
-    <Button style={{ position: 'relative' }} {...rest}>
+    <Button style={{ position: 'relative' }} disabled={disabled} {...rest}>
       <input
         ref={ref}
         type="file"
@@ -67,6 +68,7 @@ export const UploadButton = ({
           position: 'absolute',
           cursor: 'pointer',
         }}
+        disabled={disabled}
         onChange={(e) => {
           onFileChange?.(selectFile(e))
         }}
@@ -87,6 +89,9 @@ export const UploadProcess = memo(
     children = 'Upload',
     errorString,
     name,
+    isNew,
+    disabled,
+    newChildren,
   }: {
     title?: string
     width?: number | string
@@ -94,7 +99,10 @@ export const UploadProcess = memo(
     textProps?: TextProps
     children?: ReactNode
     errorString?: string
+    isNew?: boolean
     name?: string
+    disabled?: boolean
+    newChildren?: (deleteFile: () => void) => ReactNode
   }) => {
     let fb = useRef<Firebase>(new Firebase('userFolders')).current
 
@@ -103,9 +111,9 @@ export const UploadProcess = memo(
         progress: number
         state?: TaskState
         uploadedName?: string
-        link?: string
+        link?: string | null
         err?: StorageError
-      }>({ state: undefined, progress: 0 })
+      }>({ state: undefined, progress: 0, link: null })
 
     useEffect(() => {
       if (!!uploadedName) {
@@ -119,102 +127,128 @@ export const UploadProcess = memo(
     }, [uploadedName])
 
     useEffect(() => {
-      onChange?.(link)
+      if (link !== null) onChange?.(link)
     }, [link])
+
+    const deleteFile = () => {
+      fb.deleteUploadedFile().finally(() => {
+        fb.uploadControls().stop()
+        setUploadState({
+          state: undefined,
+          progress: 0,
+          uploadedName: undefined,
+          link: null,
+        })
+      })
+    }
 
     return (
       <Flex name={name} width={'auto'} flexDirection={'column'} sx={{ gap: 2 }}>
         {!!title && <Text {...textProps}>{title}</Text>}
         <InputError error={errorString} />
-        <Flex flexDirection={'row'} sx={{ gap: 2 }}>
-          <Flex flexDirection={'column'}>
-            <UploadButton
-              style={{
-                width,
-              }}
-              onFileChange={async (f) => {
-                if (f.length > 0) {
-                  fb.uploadControls().stop?.()
-                  if (!!uploadedName)
-                    try {
-                      await fb.deleteUploadedFile?.()
-                    } catch {}
-                  fb.uploadFile(f[0])
-                  setUploadState({
-                    progress: 0,
-                    uploadedName: f[0].name,
-                  })
-                }
-              }}
-              accept={['*']}
-            >
-              <span
+        {isNew ? (
+          newChildren?.(() => {
+            fb.uploadControls().stop?.()
+            deleteFile()
+          })
+        ) : (
+          <Flex flexDirection={'row'} sx={{ gap: 2 }}>
+            <Flex flexDirection={'column'}>
+              <UploadButton
                 style={{
-                  display: '-webkit-box',
-                  color: theme.colors.white,
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                  textOverflow: 'ellipsis',
+                  width,
                 }}
-              >
-                {uploadedName ?? children}
-              </span>
-            </UploadButton>
-            {!!uploadedName && !!state && !err && (
-              <Flex
-                backgroundColor={theme.colors.darkestGreen}
-                width={progress + '%'}
-                sx={{ padding: '2px', borderRadius: 8, mt: 1 }}
-              />
-            )}
-          </Flex>
-          {!!uploadedName &&
-            !!state &&
-            (state === 'paused' || state === 'running') &&
-            !err &&
-            progress < 100 && (
-              <>
-                <Button
-                  onClick={() =>
-                    state === 'paused'
-                      ? fb.uploadControls().resume()
-                      : fb.uploadControls().pause()
+                disabled={disabled}
+                onFileChange={async (f) => {
+                  if (f.length > 0) {
+                    fb.uploadControls().stop?.()
+                    if (!!uploadedName)
+                      try {
+                        await fb.deleteUploadedFile?.()
+                      } catch {}
+                    fb.uploadFile(f[0])
+                    setUploadState({
+                      progress: 0,
+                      uploadedName: f[0].name,
+                    })
                   }
-                  style={{ minWidth: 0, fontSize: 10 }}
-                >
-                  {state === 'paused' ? 'Play' : 'Pause'}
-                </Button>
-                <SecondaryButton
-                  onClick={() => {
-                    fb.uploadControls().stop()
-                    setUploadState({ state: undefined, progress: 0 })
+                }}
+                accept={[
+                  'image/jpg',
+                  'image/jpeg',
+                  'image/png',
+                  'application/pdf',
+                  'application/doc',
+                  'application/docx',
+                ]}
+              >
+                <span
+                  style={{
+                    display: '-webkit-box',
+                    color: theme.colors.white,
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                    textOverflow: 'ellipsis',
                   }}
-                  style={{ minWidth: 0, fontSize: 10 }}
                 >
-                  Stop
-                </SecondaryButton>
-              </>
+                  {uploadedName ?? children}
+                </span>
+              </UploadButton>
+              {!!uploadedName && !!state && !err && (
+                <Flex
+                  backgroundColor={theme.colors.darkestGreen}
+                  width={progress + '%'}
+                  sx={{ padding: '2px', borderRadius: 8, mt: 1 }}
+                />
+              )}
+            </Flex>
+            {!!uploadedName &&
+              !!state &&
+              (state === 'paused' || state === 'running') &&
+              !err &&
+              progress < 100 && (
+                <>
+                  <Button
+                    onClick={() =>
+                      state === 'paused'
+                        ? fb.uploadControls().resume()
+                        : fb.uploadControls().pause()
+                    }
+                    style={{ minWidth: 0, fontSize: 10 }}
+                  >
+                    {state === 'paused' ? 'Play' : 'Pause'}
+                  </Button>
+                  <SecondaryButton
+                    onClick={() => {
+                      fb.uploadControls().stop()
+                      setUploadState({ state: undefined, progress: 0 })
+                    }}
+                    style={{ minWidth: 0, fontSize: 10 }}
+                  >
+                    Stop
+                  </SecondaryButton>
+                </>
+              )}
+            {!!state && (state === 'success' || progress === 100) && (
+              <SecondaryButton
+                onClick={() => {
+                  deleteFile()
+                }}
+                style={{ minWidth: 0, fontSize: 10 }}
+              >
+                Delete
+              </SecondaryButton>
             )}
-          {!!state && (state === 'success' || progress === 100) && (
-            <SecondaryButton
-              onClick={() => {
-                fb.deleteUploadedFile().finally(() => {
-                  fb.uploadControls().stop()
-                  setUploadState({
-                    state: undefined,
-                    progress: 0,
-                    uploadedName: undefined,
-                  })
-                })
-              }}
-              style={{ minWidth: 0, fontSize: 10 }}
-            >
-              Delete
-            </SecondaryButton>
-          )}
-        </Flex>
+            {newChildren?.(() => {
+              fb.uploadControls().stop?.()
+              deleteFile()
+            })}
+          </Flex>
+        )}
 
-        {!!err?.message && !!uploadedName && <InputError error={err.message} />}
+        {!!err?.message && !isNew && !!uploadedName && (
+          <InputError error={err.message} />
+        )}
       </Flex>
     )
   }

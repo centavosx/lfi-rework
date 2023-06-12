@@ -47,7 +47,7 @@ export const FormInput = ({
               onChange: props.onChange ?? onChange,
             }}
           />
-          <InputError error={error} {...errorProp} />
+          {!props.disabled && <InputError error={error} {...errorProp} />}
         </Flex>
       )}
     </Field>

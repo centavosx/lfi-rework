@@ -52,9 +52,10 @@ export function useApiPost<T extends any = any, O extends any = any>(
 ) {
   const [data, setData] = useState<T>()
 
-  const [{ loading, isFetching }, setFetching] = useState<{
+  const [{ loading, isFetching, isSuccess }, setFetching] = useState<{
     loading: boolean
     isFetching: boolean
+    isSuccess?: boolean
     options?: O
   }>({
     loading: false,
@@ -63,13 +64,15 @@ export function useApiPost<T extends any = any, O extends any = any>(
   const [error, setError] = useState<any | undefined>(undefined)
 
   const call = async (options?: O) => {
+    let isSuccess = false
     try {
       const response = await api(options)
+      isSuccess = true
       setData(response)
     } catch (e) {
       setError(e)
     } finally {
-      setFetching((d) => ({ ...d, isFetching: false }))
+      setFetching((d) => ({ ...d, isFetching: false, isSuccess }))
     }
   }
 
@@ -92,6 +95,6 @@ export function useApiPost<T extends any = any, O extends any = any>(
     isFetching,
     callApi,
     error,
-    isSuccess: data === undefined ? null : !!data,
+    isSuccess,
   }
 }

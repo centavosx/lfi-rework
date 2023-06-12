@@ -18,6 +18,39 @@ export const registerUser = async (data?: UserInfo & RequiredFiles) => {
   }
 }
 
+export const updateMe = async (
+  data?: Partial<UserInfo & RequiredFiles & { old: string; password: string }>
+) => {
+  try {
+    if (!data) return null
+    const response = await apiAuth.patch('/user/me', data)
+
+    return response.data
+  } catch (e) {
+    throw e
+  }
+}
+
+export const updateUser = async (
+  data?: Partial<UserInfo & RequiredFiles & { status: UserStatus }> & {
+    id: string
+  }
+) => {
+  try {
+    if (!data) return null
+    const values = structuredClone<Partial<typeof data>>(data)
+    const uid = data.id
+
+    delete values.id
+
+    const response = await apiAuth.patch('/user/' + uid, values)
+
+    return response.data
+  } catch (e) {
+    throw e
+  }
+}
+
 export const createUser = async (data?: RegisterDto) => {
   try {
     const response = await apiAuth.post('/user', data)
@@ -33,6 +66,15 @@ export const me = async () => {
     return response.data
   } catch {
     return undefined
+  }
+}
+
+export const getUserInfo = async (id?: string) => {
+  try {
+    const response = await apiAuth.get('/user/' + id)
+    return response
+  } catch (e) {
+    throw e
   }
 }
 
@@ -76,7 +118,7 @@ export const loginUser = async (
   }
 }
 
-export const verifyUser = async (data: { code: string } | undefined) => {
+export const verifyUser = async (data?: { code: string }) => {
   try {
     if (!data) return false
     const response = await apiAuth.post('/user/verify', { code: data.code })
@@ -109,7 +151,7 @@ export const resetPass = async (email: string) => {
 export type GetAllUserType = {
   search?: string
   role?: Roles[]
-  status?: UserStatus
+  status?: UserStatus[]
   sort?: 'ASC' | 'DESC'
   id?: string
 }
@@ -140,4 +182,14 @@ export const deleteRole = async (data: { ids: string[] }, role: Roles[]) => {
     },
   })
   return response
+}
+
+export const updateRole = async (data?: { id: string; role: Roles[] }) => {
+  try {
+    if (!data) return false
+    const response = await apiAuth.patch('/user/role', data)
+    return true
+  } catch (e) {
+    throw e
+  }
 }

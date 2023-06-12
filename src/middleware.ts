@@ -74,6 +74,7 @@ export const config = {
     '/admin/dashboard',
     '/admin/calendar/',
     '/admin/admins',
+    '/admin/scholars',
     '/register',
     '/login',
     '/user/waiting',
