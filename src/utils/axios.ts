@@ -39,7 +39,7 @@ apiRefreshAuth.interceptors.request.use(
     config.headers = {
       ...config.headers,
       Authorization: `Bearer ${Cookies.get('refreshToken')}`,
-    }
+    } as any
     return config
   },
   (error) => Promise.reject(error)
@@ -50,7 +50,7 @@ apiAuth.interceptors.request.use(
     config.headers = {
       ...config.headers,
       Authorization: `Bearer ${Cookies.get('accessToken')}`,
-    }
+    } as any
     return config
   },
   (error) => Promise.reject(error),
