@@ -62,8 +62,8 @@ export function Select<T extends any = any, V extends any = any>({
   const [_document, setDocument] = useState<Document | undefined>(undefined)
 
   useEffect(() => {
-    setDocument(document)
-  }, [document])
+    if (!!document) setDocument(document)
+  }, [typeof window !== 'undefined' ? document : undefined])
 
   return (
     <SelectComponent

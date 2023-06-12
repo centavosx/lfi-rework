@@ -23,6 +23,7 @@ import {
 } from 'constant'
 
 import { UserStatus } from 'entities'
+import { useRouter } from 'next/router'
 
 const ValidateEmail = () => {
   const { user, refetch } = useUser()
@@ -140,9 +141,9 @@ const ValidateEmail = () => {
   )
 }
 
-export default function Register() {
+export default function RegisterUser() {
   const { refetch, user, logout } = useUser()
-
+  const { isFallback } = useRouter()
   const { callApi, isSuccess, isFetching, error } = useApiPost<
     any,
     UserInfo & RequiredFiles
@@ -164,7 +165,7 @@ export default function Register() {
     logout()
   }, [])
 
-  if (user?.status === UserStatus.VERIFIED) return <PageLoading />
+  if (user?.status === UserStatus.VERIFIED || isFallback) return <PageLoading />
 
   return (
     <Flex sx={{ flexDirection: 'column', gap: 4, padding: 4, flex: 1 }}>
