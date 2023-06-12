@@ -24,6 +24,7 @@ import { EventDto } from 'constant'
 import { useApi, useApiPost, useUser } from 'hooks'
 import { getDailyEvents, getMonthlyEvents, postEvent } from 'api'
 import { Loading } from 'components/loading'
+import { getAnnouncements } from 'api/announcement.api'
 
 const CreateEvent = memo(({ onSuccess }: { onSuccess?: () => void }) => {
   const { isFetching, isSuccess, callApi } = useApiPost(postEvent)
@@ -180,7 +181,7 @@ export default function Calendar() {
   const { roles } = useUser()
   const [selectedDate, setSelectedDate] = useState(new Date())
   const { data, refetch, isFetching } = useApi<
-    (EventProp<undefined> & { day: number })[],
+    (EventProp & { day: number })[],
     { startDate: Date; endDate: Date }
   >(getMonthlyEvents, true)
 
@@ -190,6 +191,21 @@ export default function Calendar() {
   >(getDailyEvents, false, {
     startDate: startOfDay(today),
     endDate: endOfDay(today),
+  })
+
+  const { data: announcements, isFetching: isAnnouncementLoading } = useApi<
+    { data: { name: string; description: string }[]; total: number },
+    {
+      page: number
+      limit: number
+      other: any
+    }
+  >(getAnnouncements, false, {
+    page: 0,
+    limit: 5,
+    other: {
+      sort: 'desc',
+    },
   })
 
   const mappedValues = useMemo(() => {
@@ -296,6 +312,21 @@ export default function Calendar() {
                     No Events Today
                   </Text>
                 )}
+                <hr style={{ width: '100%' }} />
+                <Flex sx={{ gap: 2 }} mt={2} alignItems={'center'}>
+                  <Text as={'h3'}>Announcements</Text>
+                  <Button
+                    onClick={() => {
+                      setSelectedDate(today)
+                      setOpen(true)
+                    }}
+                  >
+                    View All
+                  </Button>
+                </Flex>
+                {announcements?.data.map((v, i) => (
+                  <Text key={i}>{v.name}</Text>
+                ))}
               </Flex>
             </Flex>
             <EventCalendar

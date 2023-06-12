@@ -5,6 +5,7 @@ import React, {
   SetStateAction,
   ReactNode,
 } from 'react'
+import { CircularProgress } from '@mui/material'
 import { Button } from 'components/button'
 import { FormContainer } from 'components/forms'
 import { FormInput, SearchableInput } from 'components/input'
@@ -449,7 +450,9 @@ export function ConfirmationModal<
   modalCreate,
   onRemove,
   modalEdit,
+  isFetchingData,
 }: Props & {
+  isFetchingData?: boolean
   modalCreate?: ModalFlexProps<K, A, AO>
   onRemove: () => Promise<void>
   modalEdit?: ModalEdit<K>
@@ -552,6 +555,11 @@ export function ConfirmationModal<
         >
           Remove
         </ButtonModal>
+      )}
+      {isFetchingData && (
+        <Flex flex={1} alignSelf={'center'} justifyContent={'flex-end'}>
+          <CircularProgress size={25} style={{ justifyContent: 'flex-end' }} />
+        </Flex>
       )}
     </Flex>
   )

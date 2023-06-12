@@ -19,6 +19,7 @@ import { Loading, PageLoading } from 'components/loading'
 import { getDailyEvents, getMonthlyEvents } from 'api'
 import { useApi } from '../../hooks'
 import { DisplayEvents } from 'pages/admin/calendar'
+import { getAnnouncements } from 'api/announcement.api'
 
 type EventProp = {
   start_date: string
@@ -44,12 +45,28 @@ export default function User() {
     }[],
     { startDate: Date; endDate: Date }
   >(getMonthlyEvents, true)
+
   const { data: dailies, isFetching: isLoading } = useApi<
     EventProp[],
     { startDate: Date; endDate: Date }
   >(getDailyEvents, false, {
     startDate: startOfDay(today),
     endDate: endOfDay(today),
+  })
+
+  const { data: announcements, isFetching: isAnnouncementLoading } = useApi<
+    { data: { name: string; description: string }[]; total: number },
+    {
+      page: number
+      limit: number
+      other: any
+    }
+  >(getAnnouncements, false, {
+    page: 0,
+    limit: 5,
+    other: {
+      sort: 'desc',
+    },
   })
 
   const mappedValues = useMemo(() => {
@@ -118,10 +135,12 @@ export default function User() {
             <Flex flex={0.2} flexDirection={'column'} sx={{ gap: 3 }}>
               <Flex flex={1} flexDirection={'column'}>
                 <Text as={'h4'} width={'100%'}>
-                  Announcements
+                  Announcements ({announcements?.data.length ?? 0})
                 </Text>
                 <hr style={{ width: '100%' }} />
-                <Text>dwadwad dawd awdad </Text>
+                {announcements?.data.map((v, i) => (
+                  <Text key={i}>{v.name}</Text>
+                ))}
               </Flex>
               <Flex flex={1} flexDirection={'column'}>
                 <Text as={'h4'} width={'100%'}>

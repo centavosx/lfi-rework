@@ -158,7 +158,11 @@ export default function Admins({
   const { roles } = useUser()
   const { replace } = useRouter()
   const { query, pathname, asPath } = useNav()
-  const { refetch, data } = useApi<
+  const {
+    refetch,
+    data,
+    isFetching: isFetchingData,
+  } = useApi<
     ResponseDto<User>,
     {
       page: number
@@ -386,6 +390,7 @@ export default function Admins({
         >
           {(selected, setSelected) => (
             <ConfirmationModal
+              isFetchingData={isFetchingData}
               modalText="Assign Admin"
               selected={selected}
               setSelected={setSelected}

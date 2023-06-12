@@ -1,5 +1,5 @@
-import React, { memo, useEffect, useState } from 'react'
-import { Flex, Image, Text } from 'rebass'
+import React, { useEffect } from 'react'
+import { Flex, Text } from 'rebass'
 
 import { Section } from '../../../components/sections'
 
@@ -16,8 +16,7 @@ import {
   ModalFlexProps,
 } from 'components/modal'
 import { FormikValidation } from 'helpers'
-import { AdminMain } from 'components/main'
-import { PageLoading } from 'components/loading'
+
 import {
   GetAllUserType,
   createUser,
@@ -26,21 +25,9 @@ import {
   updateUser,
 } from 'api'
 import { Roles, User, UserStatus } from 'entities'
-import { FormInput, Input, InputError } from 'components/input'
-import { Checkbox, FormControlLabel } from '@mui/material'
-import {
-  COLLEGE_PROGRAMS,
-  DISPLAY_FILES,
-  Level,
-  RegFormType,
-  RegisterDto,
-  SCHOOL_LEVEL,
-  SHS_PROGRAMS,
-} from 'constant'
-import { SecondaryButton, UploadProcess, Button } from 'components/button'
-import { Select } from 'components/select'
-import { theme } from 'utils/theme'
-import { FormikErrors } from 'formik'
+
+import { RegisterDto } from 'constant'
+
 import { CreateUserType, UserRequiredFields } from 'components/user-admin-comps'
 import { UserInformation } from 'components/user-admin-comps/user-information'
 
@@ -142,7 +129,11 @@ export default function Scholars({
   const { query, pathname, asPath } = useNav()
   const { isSuccess, isFetching: isUpdating, callApi } = useApiPost(updateUser)
 
-  const { refetch, data } = useApi<
+  const {
+    refetch,
+    data,
+    isFetching: isFetchingData,
+  } = useApi<
     ResponseDto<User>,
     {
       page: number
@@ -350,6 +341,7 @@ export default function Scholars({
           {(selected, setSelected) => (
             <ConfirmationModal
               modalText="Add new Scholar"
+              isFetchingData={isFetchingData}
               selected={selected}
               setSelected={setSelected}
               refetch={() => {
