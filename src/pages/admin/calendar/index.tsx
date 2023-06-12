@@ -95,7 +95,7 @@ const CreateEvent = memo(({ onSuccess }: { onSuccess?: () => void }) => {
 
 CreateEvent.displayName = 'CreateEvent'
 
-type EventProp<T extends any = string> = {
+type EventProp = {
   start_date: string
   end_date: string
   name: string
@@ -104,7 +104,7 @@ type EventProp<T extends any = string> = {
   color: string
 }
 
-const DisplayEvents = memo(({ date }: { date: Date }) => {
+export const DisplayEvents = memo(({ date }: { date: Date }) => {
   const { data: dailies } = useApi<
     EventProp[],
     { startDate: Date; endDate: Date }
@@ -179,7 +179,7 @@ export default function Calendar() {
   const today = new Date()
   const { roles } = useUser()
   const [selectedDate, setSelectedDate] = useState(new Date())
-  const { data, refetch } = useApi<
+  const { data, refetch, isFetching } = useApi<
     (EventProp<undefined> & { day: number })[],
     { startDate: Date; endDate: Date }
   >(getMonthlyEvents, true)
@@ -228,7 +228,7 @@ export default function Calendar() {
       }}
     >
       <CustomModal
-        title={format(selectedDate, 'cccc LLLL d')}
+        title={format(selectedDate, 'cccc LLLL d, yyyy')}
         titleProps={{ as: 'h3' }}
         maxHeight={'80%'}
         modalChild={<DisplayEvents date={selectedDate} />}
