@@ -23,8 +23,8 @@ export default function Waiting() {
           {user?.lname}, {user?.fname} {user?.mname}
         </b>
         , thank you for signing up to our scholarship program but we need to
-        process your account before you can proceed, we'll email or notify you
-        once you got accepted. Thank you so much!
+        process your account before you can proceed, {"we'll"} email or notify
+        you once you got accepted. Thank you so much!
       </Text>
     </Flex>
   )
