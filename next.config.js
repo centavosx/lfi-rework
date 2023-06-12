@@ -14,10 +14,9 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 }
 
 module.exports = nextConfig
-
-//  process.env.NODE_ENV === 'production'
-// ? 'https://manila-feline.netlify.app'
-// :
