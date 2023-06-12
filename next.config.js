@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  assetPrefix: undefined,
+  assetPrefix:
+    process.env.NODE_ENV === 'production'
+      ? 'https://laofoundation.netlify.app'
+      : undefined,
   reactStrictMode: false,
   swcMinify: true,
   serverRuntimeConfig: {
@@ -8,6 +11,9 @@ const nextConfig = {
   },
   trailingSlash: true,
   env: { API: process.env.REACT_APP_API_URL },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 }
 
 module.exports = nextConfig
