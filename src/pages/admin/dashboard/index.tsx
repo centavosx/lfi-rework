@@ -1,14 +1,15 @@
 import { ReactNode, useMemo } from 'react'
 import { Flex, SxStyleProp, Text } from 'rebass'
 import { BarGraph, XAndY } from 'components/chart'
-import { AdminMain } from 'components/main'
 import { theme } from 'utils/theme'
-import { ListContainer, ListItem } from 'components/ul'
-import { useApi } from 'hooks'
+import { ListContainer } from 'components/ul'
+import { useApi, useUser } from 'hooks'
 import { getDashboard } from 'api/dashboard.api'
 import { Loading } from 'components/loading'
 import { format } from 'date-fns'
 import { Event } from 'components/calendar'
+import { NextPage } from 'next'
+import { UserStatus } from 'entities'
 
 const ColoredContainer = ({
   color,
@@ -66,8 +67,17 @@ const getMaximum = (max: number) => {
   return maximum
 }
 
-export default function Dashboard() {
-  const { data, isFetching } = useApi<DashboardProps>(getDashboard)
+export default function Dashboard({
+  statusParams,
+}: NextPage & { statusParams?: UserStatus }) {
+  const { user } = useUser()
+  const { data, isFetching } = useApi<DashboardProps>(
+    getDashboard,
+    false,
+    statusParams === UserStatus.EXPELLED || statusParams === UserStatus.ACTIVE
+      ? statusParams
+      : UserStatus.ACTIVE
+  )
   const max = getMaximum(
     Number(
       data?.graphValues?.sort((a, b) => Number(b.y) - Number(a.y))?.[0]?.y ?? 0
@@ -113,7 +123,7 @@ export default function Dashboard() {
       >
         <Flex flex={[1, 0.35]} flexDirection={'column'} sx={{ gap: 2 }}>
           <Text as={'h2'} mb={4}>
-            Welcome Vincent
+            Welcome {user?.mname}
           </Text>
           <Flex flex={1} flexDirection={'column'}>
             <Text as={'h4'} width={'100%'}>
@@ -221,4 +231,12 @@ export default function Dashboard() {
       </Flex>
     </Flex>
   )
+}
+
+export async function getServerSideProps(context: any) {
+  let statusParams: string = context.query.status || ''
+
+  return {
+    props: { statusParams },
+  }
 }
