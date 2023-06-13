@@ -10,11 +10,26 @@ import { useEffect } from 'react'
 const theme = createTheme()
 
 const userLinks = ['/', '/user/', '/register/', '/login/']
+const adminLinks = [
+  '/admin',
+  '/admin/dashboard/',
+  '/admin/admins/',
+  '/admin/applicants/',
+  '/admin/calendar/',
+  '/admin/dashboard/',
+  '/admin/scholars/',
+]
 
 export default function App({ Component, pageProps }: AppProps) {
   const { prefetch, pathname } = useRouter()
 
   useEffect(() => {
+    if (pathname.startsWith('/admin')) {
+      adminLinks.forEach(async (v) => {
+        if (pathname !== v) await prefetch(v)
+      })
+      return
+    }
     userLinks.forEach(async (v) => {
       if (pathname !== v) await prefetch(v)
     })
