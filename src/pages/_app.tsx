@@ -5,10 +5,20 @@ import { createTheme } from '@mui/material'
 import { DataProvider } from '../contexts'
 import { AdminMain, Main } from 'components/main'
 import { useRouter } from 'next/router'
+import { useEffect } from 'react'
 
 const theme = createTheme()
+
+const userLinks = ['/', '/user/', '/register/', '/login/']
+
 export default function App({ Component, pageProps }: AppProps) {
-  const { pathname } = useRouter()
+  const { prefetch, pathname } = useRouter()
+
+  useEffect(() => {
+    userLinks.forEach(async (v) => {
+      if (pathname !== v) await prefetch(v)
+    })
+  }, [])
 
   return (
     <ThemeProvider theme={theme}>
