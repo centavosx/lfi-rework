@@ -10,8 +10,10 @@ import { Button } from 'components/button'
 import { FormikValidation } from 'helpers'
 import { reset } from 'api'
 import { Loading } from 'components/loading'
+import { useRouter } from 'next/navigation'
 
 export default function Reset({ token }: { token: string }) {
+  const { replace } = useRouter()
   return (
     <Flex
       sx={{
@@ -28,6 +30,7 @@ export default function Reset({ token }: { token: string }) {
           try {
             await reset(token, values.password)
           } finally {
+            replace('/login/')
             setSubmitting(false)
           }
         }}

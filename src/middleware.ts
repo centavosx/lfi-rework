@@ -79,5 +79,6 @@ export const config = {
     '/register',
     '/login',
     '/user/waiting',
+    '/user/settings',
   ],
 }

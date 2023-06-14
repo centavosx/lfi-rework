@@ -81,7 +81,7 @@ export default function Audits() {
     <Flex flexDirection={'column'} alignItems="center" width={'100%'}>
       <Section title="Audit Logs" textProps={{ textAlign: 'start' }}>
         <Table
-          sx={{ minWidth: 500, position: 'relative' }}
+          sx={{ position: 'relative' }}
           aria-label="custom pagination table"
           stickyHeader={true}
         >
