@@ -20,6 +20,7 @@ import { getDailyEvents, getMonthlyEvents } from 'api'
 import { useApi } from '../../hooks'
 import { DisplayEvents } from 'pages/admin/calendar'
 import { getAnnouncements } from 'api/announcement.api'
+import { CircularProgress } from '@mui/material'
 
 type EventProp = {
   start_date: string
@@ -115,6 +116,11 @@ export default function User() {
         >
           Logout
         </ButtonModal>
+        {(isLoading || isAnnouncementLoading) && (
+          <Flex flex={1} justifyContent={'flex-end'}>
+            <CircularProgress size={24} style={{ alignSelf: 'center' }} />
+          </Flex>
+        )}
       </Flex>
       <CustomModal
         title={format(selectedDate, 'cccc LLLL d, yyyy')}

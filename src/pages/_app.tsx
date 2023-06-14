@@ -18,6 +18,8 @@ const adminLinks = [
   '/admin/calendar/',
   '/admin/dashboard/',
   '/admin/scholars/',
+  '/admin/audits/',
+  '/admin/chats/',
 ]
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -31,7 +33,13 @@ export default function App({ Component, pageProps }: AppProps) {
       return
     }
     userLinks.forEach(async (v) => {
-      if (pathname !== v) await prefetch(v)
+      if (pathname !== v) {
+        let link = v
+        if (link === '/login/') {
+          await prefetch(link, link + '?who=Employee')
+        }
+        await prefetch(link, link + '?who=Scholar')
+      }
     })
   }, [])
 

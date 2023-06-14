@@ -1,13 +1,12 @@
 import { memo, useEffect, useRef, useState } from 'react'
-import { Flex, Text } from 'rebass'
+import { Flex, Text, Image } from 'rebass'
 import { theme } from 'utils/theme'
 import { format } from 'date-fns'
 import { Input } from 'components/input'
 import { Button } from 'components/button'
-import { useUser } from 'hooks'
 import { FirebaseRealtimeMessaging } from 'firebaseapp'
 
-export const ChatMessages = ({ id }: { id: string }) => {
+export const ChatMessages = ({ id, from }: { id: string; from: string }) => {
   const [data, setData] = useState<
     {
       created: number
@@ -52,7 +51,7 @@ export const ChatMessages = ({ id }: { id: string }) => {
   }, [])
 
   useEffect(() => {
-    fb.readData(id)
+    fb.readData(from)
   }, [data])
 
   return (
@@ -67,7 +66,7 @@ export const ChatMessages = ({ id }: { id: string }) => {
           <UserMessage
             message={v.message}
             key={i}
-            isUser={v.user === id}
+            isUser={v.from === from}
             date={new Date(v.created)}
           />
         )
@@ -136,7 +135,7 @@ export const UserMessage = ({
   )
 }
 
-const ChatInput = memo(({ id }: { id: string }) => {
+const ChatInput = memo(({ id, from }: { id: string; from: string }) => {
   const [message, setMessage] = useState('')
   const fb = useRef(
     new FirebaseRealtimeMessaging<{ message: string; from: string }>(id)
@@ -164,7 +163,7 @@ const ChatInput = memo(({ id }: { id: string }) => {
       <Button
         style={{ width: 50, height: 40 }}
         onClick={() => {
-          fb.sendData({ message, from: id })
+          fb.sendData({ message, from })
           setMessage('')
         }}
       >
@@ -176,15 +175,25 @@ const ChatInput = memo(({ id }: { id: string }) => {
 
 ChatInput.displayName = 'ChatInput'
 
-export const Chat = ({ title }: { title: string }) => {
-  const { user } = useUser()
-  return user ? (
+export const Chat = ({
+  title,
+  id,
+  from,
+  img = '/assets/logo.png',
+}: {
+  title: string
+  id: string
+  from?: string
+  img?: string
+}) => {
+  return (
     <Flex sx={{ flexDirection: 'column', gap: 2, overflow: 'auto' }} flex={1}>
-      <Text as={'h2'}>{title}</Text>
-      <ChatMessages id={user.id} />
-      <ChatInput id={user.id} />
+      <Flex sx={{ gap: 2, alignItems: 'center' }} mb={2}>
+        <Image src={img} size={64} sx={{ borderRadius: '100%' }} alt="logo" />
+        <Text as={'h2'}>{title}</Text>
+      </Flex>
+      <ChatMessages id={id} from={from ?? id} />
+      <ChatInput id={id} from={from ?? id} />
     </Flex>
-  ) : (
-    <></>
   )
 }

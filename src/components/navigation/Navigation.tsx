@@ -113,6 +113,7 @@ export const WebNavigation = memo(() => {
                       cursor: 'pointer',
                     }}
                     onClick={async () => {
+                      push('/user/settings')
                       close()
                     }}
                   >
@@ -286,6 +287,9 @@ export const MobileNavigation = memo(() => {
                       case 'Home':
                         push('/')
                         break
+                      case 'Settings':
+                        push('/user/settings')
+                        break
                       case 'Dashboard':
                         const link = user?.roles.some(
                           (v) =>
@@ -335,7 +339,7 @@ export const MobileNavigation = memo(() => {
         <FiMenu size={30} color={theme.colors.white} />
       </Button>
 
-      <Drawer open={state.right} anchor={'left'} onClose={toggleDrawer(false)}>
+      <Drawer open={state.right} anchor={'right'} onClose={toggleDrawer(false)}>
         {list()}
       </Drawer>
     </>

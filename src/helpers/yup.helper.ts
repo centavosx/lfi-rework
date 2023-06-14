@@ -54,7 +54,7 @@ export const FormikValidation = {
     fname: Yup.string().required('Required'),
     lname: Yup.string().required('Required'),
     level: Yup.string().required('Required'),
-    program: Yup.string().required('Required'),
+    program: Yup.string().nullable().required('Required'),
     address: Yup.string().required('Required'),
     email: Yup.string()
       .email('Please enter a valid email')
@@ -67,7 +67,10 @@ export const FormikValidation = {
         curr.name === 'enrollmentBill'
       )
         return prev
-      return { ...prev, [curr.name]: Yup.string().required('Required') }
+      return {
+        ...prev,
+        [curr.name]: Yup.string().required('Required'),
+      }
     }, {} as any),
   }),
 

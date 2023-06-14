@@ -2,15 +2,14 @@ import { useState, useEffect } from 'react'
 import { Button } from 'components/button'
 import { FormContainer } from 'components/forms'
 import { FormInput } from 'components/input'
-import { Loading, PageLoading } from 'components/loading'
-import { Main } from 'components/main'
+import { Loading } from 'components/loading'
+
 import { Formik } from 'formik'
 import { FormikValidation } from 'helpers'
-import { Flex, Image, Link, Text } from 'rebass'
+import { Flex, Image, Link } from 'rebass'
 import { useRouter } from 'next/router'
 import { useApiPost, useUser } from 'hooks'
-import { Roles, UserStatus } from 'entities'
-import { loginUser } from 'api'
+import { loginUser, resetPass } from 'api'
 
 const ResetPassword = ({ onSubmit }: { onSubmit?: () => void }) => {
   return (
@@ -19,14 +18,14 @@ const ResetPassword = ({ onSubmit }: { onSubmit?: () => void }) => {
       initialValues={{ email: '' }}
       onSubmit={(values, { setSubmitting }) => {
         setSubmitting(true)
-        // resetPass(values.email)
-        //   .then(() => {
-        //     alert('Reset password link has been sent.')
-        //     onSubmit?.()
-        //   })
-        //   .finally(() => {
-        //     setSubmitting(false)
-        //   })
+        resetPass(values.email)
+          .then(() => {
+            alert('Reset password link has been sent.')
+            onSubmit?.()
+          })
+          .finally(() => {
+            setSubmitting(false)
+          })
       }}
       validationSchema={FormikValidation.forgot}
     >
@@ -102,8 +101,6 @@ export default function Login({ who = 'Scholar' }: { who?: User }) {
   useEffect(() => {
     if (!!error) alert(error.response.data.message || 'Invalid user')
   }, [error])
-
-  if (user?.status === UserStatus.ACTIVE) return <PageLoading />
 
   return (
     <Flex

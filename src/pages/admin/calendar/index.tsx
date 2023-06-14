@@ -25,6 +25,7 @@ import { useApi, useApiPost, useUser } from 'hooks'
 import { getDailyEvents, getMonthlyEvents, postEvent } from 'api'
 import { Loading } from 'components/loading'
 import { getAnnouncements } from 'api/announcement.api'
+import { CircularProgress } from '@mui/material'
 
 const CreateEvent = memo(({ onSuccess }: { onSuccess?: () => void }) => {
   const { isFetching, isSuccess, callApi } = useApiPost(postEvent)
@@ -55,39 +56,45 @@ const CreateEvent = memo(({ onSuccess }: { onSuccess?: () => void }) => {
     >
       {({ setFieldValue, isSubmitting }) => (
         <FormContainer marginTop={20} flexProps={{ sx: { gap: 3 } }}>
-          {(isSubmitting || isFetching) && <Loading />}
-          <FormInput
-            name="name"
-            label="Event Name"
-            placeholder="Type event name"
-          />
-          <FormInput
-            name="description"
-            label="Event Description"
-            placeholder="Type event description"
-            multiline={true}
-            variant="outlined"
-            inputcolor={{
-              labelColor: 'gray',
-              backgroundColor: 'white',
-              borderBottomColor: theme.mainColors.first,
+          {isSubmitting && <Loading />}
+          {isFetching ? (
+            <CircularProgress style={{ margin: 'auto' }} />
+          ) : (
+            <>
+              <FormInput
+                name="name"
+                label="Event Name"
+                placeholder="Type event name"
+              />
+              <FormInput
+                name="description"
+                label="Event Description"
+                placeholder="Type event description"
+                multiline={true}
+                variant="outlined"
+                inputcolor={{
+                  labelColor: 'gray',
+                  backgroundColor: 'white',
+                  borderBottomColor: theme.mainColors.first,
 
-              color: 'black',
-            }}
-            maxRows={7}
-            padding={20}
-            paddingBottom={14}
-            sx={{ color: 'black', width: '100%' }}
-          />
-          <StartAndEnd
-            onChangeDate={(d) => {
-              setFieldValue('startDate', d.start.getTime())
-              setFieldValue('endDate', d.end.getTime())
-            }}
-          />
-          <Button type="submit" style={{ width: 150 }}>
-            Submit
-          </Button>
+                  color: 'black',
+                }}
+                maxRows={7}
+                padding={20}
+                paddingBottom={14}
+                sx={{ color: 'black', width: '100%' }}
+              />
+              <StartAndEnd
+                onChangeDate={(d) => {
+                  setFieldValue('startDate', d.start.getTime())
+                  setFieldValue('endDate', d.end.getTime())
+                }}
+              />
+              <Button type="submit" style={{ width: 150 }}>
+                Submit
+              </Button>
+            </>
+          )}
         </FormContainer>
       )}
     </Formik>
@@ -106,7 +113,7 @@ type EventProp = {
 }
 
 export const DisplayEvents = memo(({ date }: { date: Date }) => {
-  const { data: dailies } = useApi<
+  const { data: dailies, isFetching } = useApi<
     EventProp[],
     { startDate: Date; endDate: Date }
   >(getDailyEvents, false, {
@@ -132,44 +139,50 @@ export const DisplayEvents = memo(({ date }: { date: Date }) => {
 
   return (
     <Flex flexDirection={'column'} sx={{ gap: 4, mt: 3 }}>
-      <Flex flexDirection={'column'} sx={{ gap: 2 }}>
-        <Text as={'h4'}>Earliest Event</Text>
-        <ListContainer>
-          {events.length > 0 ? (
-            <Event
-              eventName={events[0].name}
-              from={format(events[0].start_date, `LLLL d'@'hh:mm a`)}
-              to={format(events[0].end_date, `LLLL d'@'hh:mm a`)}
-              description={events[0].description}
-            />
-          ) : (
-            <Text as={'h4'}>{'No items'}</Text>
-          )}
-        </ListContainer>
-      </Flex>
-      <Flex flexDirection={'column'} sx={{ gap: 2 }}>
-        <Text as={'h4'}>Next Events</Text>
-        <ListContainer>
-          {events
-            .filter((v, i) => i > 0)
-            .map((v) => {
-              const startDate = new Date(v.start_date)
-              const endDate = new Date(v.end_date)
-
-              const start = format(startDate, `LLLL d'@'hh:mm a`)
-              const end = format(endDate, `LLLL d'@'hh:mm a`)
-              return (
+      {isFetching ? (
+        <CircularProgress style={{ margin: 'auto' }} />
+      ) : (
+        <>
+          <Flex flexDirection={'column'} sx={{ gap: 2 }}>
+            <Text as={'h4'}>Earliest Event</Text>
+            <ListContainer>
+              {events.length > 0 ? (
                 <Event
-                  key={v.id}
-                  eventName={v.name}
-                  from={start}
-                  to={end}
-                  description={v.description}
+                  eventName={events[0].name}
+                  from={format(events[0].start_date, `LLLL d'@'hh:mm a`)}
+                  to={format(events[0].end_date, `LLLL d'@'hh:mm a`)}
+                  description={events[0].description}
                 />
-              )
-            })}
-        </ListContainer>
-      </Flex>
+              ) : (
+                <Text as={'h4'}>{'No items'}</Text>
+              )}
+            </ListContainer>
+          </Flex>
+          <Flex flexDirection={'column'} sx={{ gap: 2 }}>
+            <Text as={'h4'}>Next Events</Text>
+            <ListContainer>
+              {events
+                .filter((_, i) => i > 0)
+                .map((v) => {
+                  const startDate = new Date(v.start_date)
+                  const endDate = new Date(v.end_date)
+
+                  const start = format(startDate, `LLLL d'@'hh:mm a`)
+                  const end = format(endDate, `LLLL d'@'hh:mm a`)
+                  return (
+                    <Event
+                      key={v.id}
+                      eventName={v.name}
+                      from={start}
+                      to={end}
+                      description={v.description}
+                    />
+                  )
+                })}
+            </ListContainer>
+          </Flex>
+        </>
+      )}
     </Flex>
   )
 })
@@ -257,22 +270,31 @@ export default function Calendar() {
                   <Text as={'h1'} width={'100%'}>
                     Events
                   </Text>
-                  <CustomModal
-                    title={format(selectedDate, 'cccc LLLL d')}
-                    titleProps={{ as: 'h3' }}
-                    maxHeight={'80%'}
-                    modalChild={<CreateEvent />}
-                  >
-                    {({ setOpen: setO }) =>
-                      (roles.isAdminWrite || roles.isSuper) && (
-                        <AiFillPlusCircle
-                          size={24}
-                          cursor={'pointer'}
-                          onClick={() => setO(true)}
-                        />
-                      )
-                    }
-                  </CustomModal>
+                  {isLoading || isAnnouncementLoading ? (
+                    <Flex flex={1} justifyContent={'flex-end'}>
+                      <CircularProgress
+                        size={24}
+                        style={{ alignSelf: 'center' }}
+                      />
+                    </Flex>
+                  ) : (
+                    <CustomModal
+                      title={format(selectedDate, 'cccc LLLL d')}
+                      titleProps={{ as: 'h3' }}
+                      maxHeight={'80%'}
+                      modalChild={<CreateEvent />}
+                    >
+                      {({ setOpen: setO }) =>
+                        (roles.isAdminWrite || roles.isSuper) && (
+                          <AiFillPlusCircle
+                            size={24}
+                            cursor={'pointer'}
+                            onClick={() => setO(true)}
+                          />
+                        )
+                      }
+                    </CustomModal>
+                  )}
                 </Flex>
                 <hr style={{ width: '100%' }} />
                 <Flex sx={{ gap: 2 }} alignItems={'center'}>

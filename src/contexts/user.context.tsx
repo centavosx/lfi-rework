@@ -62,7 +62,6 @@ export const DataProvider = ({
     if (!!user) {
       Cookies.remove('refreshToken')
       Cookies.remove('accessToken')
-      setUser(undefined)
       refresh()
     }
   }, [setUser, user, device])

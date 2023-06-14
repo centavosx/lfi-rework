@@ -330,20 +330,19 @@ export const Main = ({
                     sx={{ gap: [3, 4, 4], mr: 2 }}
                   >
                     <NotifClick />
-                    {user.status === UserStatus.ACTIVE && (
-                      <CustomModal
-                        modalChild={() => {
-                          return <Chat title="Your messages" />
-                        }}
-                        maxHeight={'80%'}
-                        maxWidth={2250}
-                        isModalOverFlow={false}
-                      >
-                        {({ setOpen }) => (
-                          <ChatClick setOpen={() => setOpen((v) => !v)} />
-                        )}
-                      </CustomModal>
-                    )}
+
+                    <CustomModal
+                      modalChild={() => {
+                        return <Chat title="Your messages" id={user.id} />
+                      }}
+                      maxHeight={'80%'}
+                      maxWidth={2250}
+                      isModalOverFlow={false}
+                    >
+                      {({ setOpen }) => (
+                        <ChatClick setOpen={() => setOpen((v) => !v)} />
+                      )}
+                    </CustomModal>
                   </Flex>
                 )}
               <WebView>

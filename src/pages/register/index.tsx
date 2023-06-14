@@ -8,7 +8,7 @@ import { Button, UploadProcess } from 'components/button'
 import { FormikValidation } from 'helpers'
 import { refreshVerifCode, registerUser, verifyUser } from 'api'
 import { useApiPost, useUser } from 'hooks'
-import { Loading, PageLoading } from 'components/loading'
+import { Loading } from 'components/loading'
 
 import { Select } from 'components/select'
 import {
@@ -23,7 +23,7 @@ import {
 } from 'constant'
 
 import { UserStatus } from 'entities'
-import { useRouter } from 'next/router'
+import { UserRequiredFields } from 'components/user-admin-comps'
 
 const ValidateEmail = () => {
   const { user, refetch } = useUser()
@@ -143,7 +143,6 @@ const ValidateEmail = () => {
 
 export default function RegisterUser() {
   const { refetch, user, logout } = useUser()
-  const { isFallback } = useRouter()
   const { callApi, isSuccess, isFetching, error } = useApiPost<
     any,
     UserInfo & RequiredFiles
@@ -164,8 +163,6 @@ export default function RegisterUser() {
   useEffect(() => {
     logout()
   }, [])
-
-  if (user?.status === UserStatus.VERIFIED || isFallback) return <PageLoading />
 
   return (
     <Flex sx={{ flexDirection: 'column', gap: 4, padding: 4, flex: 1 }}>
@@ -232,73 +229,7 @@ export default function RegisterUser() {
                 label="Email"
                 sx={{ flex: 1 }}
               />
-              <Flex flexDirection={'column'} sx={{ width: '100%', gap: 2 }}>
-                <Select
-                  isSearchable={true}
-                  name={'level'}
-                  options={SCHOOL_LEVEL}
-                  controlStyle={{
-                    padding: 8,
-                    borderColor: 'black',
-                    backgroundColor: 'white',
-                    cursor: 'pointer',
-                  }}
-                  onChange={(v) => {
-                    setFieldValue('level', (v as any).value)
-                    setFieldValue('program', undefined)
-                  }}
-                  theme={(ct) => ({
-                    ...ct,
-                    colors: {
-                      ...ct.colors,
-                      primary25: theme.colors.green40,
-                      primary: theme.colors.darkerGreen,
-                    },
-                  })}
-                  placeholder="Select School Level"
-                />
-                <InputError error={errors.level} />
-              </Flex>
 
-              {!!values.level && (
-                <Flex flexDirection={'column'} sx={{ width: '100%', gap: 2 }}>
-                  <Select
-                    isSearchable={true}
-                    name="program"
-                    options={[
-                      { label: 'Select Program...', value: undefined },
-                      ...((values.level === Level.SHS
-                        ? SHS_PROGRAMS
-                        : COLLEGE_PROGRAMS) as any[]),
-                    ]}
-                    controlStyle={{
-                      padding: 8,
-                      borderColor: 'black',
-                      backgroundColor: 'white',
-                      cursor: 'pointer',
-                    }}
-                    value={[
-                      { label: 'Select Program...', value: undefined },
-                      ...((values.level === Level.SHS
-                        ? SHS_PROGRAMS
-                        : COLLEGE_PROGRAMS) as any[]),
-                    ].find((v) => v.value === values.program)}
-                    onChange={(v) => {
-                      setFieldValue('program', (v as any).value)
-                    }}
-                    theme={(ct) => ({
-                      ...ct,
-                      colors: {
-                        ...ct.colors,
-                        primary25: theme.colors.green40,
-                        primary: theme.colors.darkerGreen,
-                      },
-                    })}
-                    placeholder="Select Time"
-                  />
-                  <InputError error={errors.program} />
-                </Flex>
-              )}
               <FormInput
                 name="address"
                 label={'Address'}
@@ -317,55 +248,11 @@ export default function RegisterUser() {
                 paddingBottom={15}
                 sx={{ color: 'black', width: '100%' }}
               />
-              {/* <UploadButton>dwa</UploadButton> */}
-              <Flex flexWrap={'wrap'} flexDirection={'column'} sx={{ gap: 2 }}>
-                {DISPLAY_FILES.map((_, i) => {
-                  if (i % 2 === 0) {
-                    const v = DISPLAY_FILES[i]
-                    const v2 = DISPLAY_FILES[i + 1]
-                    return (
-                      <Flex
-                        width="100%"
-                        key={i}
-                        flexDirection={['column', 'row']}
-                      >
-                        <Flex flex={[1, 0.51, 0.5]} alignItems={'center'}>
-                          <UploadProcess
-                            name={v.name}
-                            key={v.name}
-                            title={v.title}
-                            textProps={{
-                              fontWeight: 'bold',
-                              justifyContent: 'center',
-                            }}
-                            errorString={errors[v.name as keyof typeof errors]}
-                            width={150}
-                            onChange={(link) => setFieldValue(v.name, link)}
-                          />
-                        </Flex>
-                        {!!v2 && (
-                          <Flex flex={[1, 0.49, 0.5]}>
-                            <UploadProcess
-                              name={v2.name}
-                              key={v2.name}
-                              title={v2.title}
-                              textProps={{
-                                fontWeight: 'bold',
-                                justifyContent: 'center',
-                              }}
-                              errorString={
-                                errors[v2.name as keyof typeof errors]
-                              }
-                              width={150}
-                              onChange={(link) => setFieldValue(v2.name, link)}
-                            />
-                          </Flex>
-                        )}
-                      </Flex>
-                    )
-                  }
-                })}
-              </Flex>
+              <UserRequiredFields
+                onAnyChange={setFieldValue}
+                fields={values as any}
+                errors={errors}
+              />
               <ScrollToError>
                 {(scroll) => (
                   <Button
