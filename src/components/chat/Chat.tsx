@@ -95,12 +95,13 @@ export const UserMessage = ({
     <Flex
       ref={ref}
       width={'45%'}
+      maxWidth={'45%'}
       alignSelf={isUser ? 'flex-end' : 'flex-start'}
       justifyContent={isUser ? 'flex-end' : undefined}
       flexDirection={'column'}
       alignItems={isUser ? 'flex-end' : 'flex-start'}
     >
-      <Flex>
+      <Flex width={'100%'} justifyContent={isUser ? 'end' : 'start'}>
         <Text
           width={'auto'}
           alignItems={isUser ? 'flex-end' : 'flex-start'}
@@ -119,6 +120,8 @@ export const UserMessage = ({
                   justifyContent: 'flex-end',
                 }
               : {}),
+            wordBreak: 'break-all',
+            wordWrap: 'break-word',
           }}
         >
           {message}
