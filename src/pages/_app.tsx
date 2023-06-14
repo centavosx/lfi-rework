@@ -2,7 +2,7 @@ import '../styles/globals.css'
 import type { AppProps } from 'next/app'
 import { ThemeProvider } from 'styled-components'
 import { createTheme } from '@mui/material'
-import { DataProvider } from '../contexts'
+import { DataProvider, IPAndDeviceProvider } from '../contexts'
 import { AdminMain, Main } from 'components/main'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
@@ -37,19 +37,21 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <ThemeProvider theme={theme}>
-      <DataProvider>
-        {(status) =>
-          status?.isAdmin || status?.isSuper ? (
-            <AdminMain>
-              <Component {...pageProps} />
-            </AdminMain>
-          ) : (
-            <Main>
-              <Component {...pageProps} />
-            </Main>
-          )
-        }
-      </DataProvider>
+      <IPAndDeviceProvider>
+        <DataProvider>
+          {(status) =>
+            status?.isAdmin || status?.isSuper ? (
+              <AdminMain>
+                <Component {...pageProps} />
+              </AdminMain>
+            ) : (
+              <Main>
+                <Component {...pageProps} />
+              </Main>
+            )
+          }
+        </DataProvider>
+      </IPAndDeviceProvider>
     </ThemeProvider>
   )
 }

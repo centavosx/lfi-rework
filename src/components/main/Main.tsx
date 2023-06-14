@@ -1,3 +1,4 @@
+import { Fragment, useContext, useEffect, useRef, useState } from 'react'
 import { Flex, Image, Link as Anchor, FlexProps } from 'rebass'
 import Navigation from '../navigation'
 
@@ -10,14 +11,247 @@ import { BaseHead } from '../basehead'
 import { useUser } from 'hooks'
 import { NotifButton } from 'components/button'
 import { CustomModal } from 'components/modal'
-import { Chat, ChatMessages } from 'components/chat'
+import { Chat } from 'components/chat'
 import { UserStatus } from 'entities'
+import {
+  FirebaseReadListen,
+  FirebaseRealtimeMessaging,
+  FirebaseRealtimeNotifications,
+  Logs,
+  LogsEvents,
+} from 'firebaseapp'
+import { useRouter } from 'next/router'
+import { IPAndDeviceContext } from 'contexts'
+import { format } from 'date-fns'
+
+const ChatClick = ({ setOpen }: { setOpen: () => void }) => {
+  const { user } = useUser()
+  const [number, setNumber] = useState(0)
+  const ref = useRef(new FirebaseRealtimeMessaging(user?.id ?? '')).current
+
+  useEffect(() => {
+    const sub = ref.listen(() => {
+      if (!!user?.id)
+        ref.getUnreadCount(user.id).then((v) => {
+          setNumber(v)
+        })
+    })
+
+    return () => {
+      sub()
+    }
+  }, [user?.id])
+
+  return (
+    <Flex
+      width={18}
+      height={18}
+      sx={{
+        position: 'relative',
+        justifyContent: 'center',
+        alignSelf: 'center',
+      }}
+      minWidth={'auto'}
+    >
+      <Image
+        src={'/assets/icons/chat.png'}
+        width={'100%'}
+        height={'100%'}
+        alt="image"
+        style={{ cursor: 'pointer' }}
+        onClick={() => {
+          if (!!user?.id) ref.readData(user.id)
+          setOpen()
+        }}
+      />
+      {!!number && (
+        <Text
+          sx={{
+            top: -10,
+            position: 'absolute',
+            right: -20,
+            fontSize: 12,
+            color: theme.colors.darkestGreen,
+            fontWeight: 600,
+          }}
+        >
+          {number}
+        </Text>
+      )}
+    </Flex>
+  )
+}
+
+const NotifDataListen = ({ close, id }: { close?: () => void; id: string }) => {
+  const [data, setData] = useState<
+    {
+      refId: string
+      title: string
+      description: string
+      created: string
+    }[]
+  >([])
+  const ref = useRef(new FirebaseRealtimeNotifications(id)).current
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    if (!!isMounted) {
+      const sub = ref.listen((v, t) => {
+        setData((value) => {
+          if (t === 'removed') {
+            return value.filter((rem) => rem.refId !== v.refId)
+          } else if (t === 'added') {
+            return [...value, v as any]
+          } else {
+            return value.map((up) =>
+              up.refId === v.refId ? { ...up, ...(v as any) } : up
+            )
+          }
+        })
+      })
+
+      return () => {
+        sub()
+      }
+    }
+  }, [id, isMounted])
+
+  useEffect(() => {
+    ref
+      .getData(20)
+      .then((v) => setData((val) => [...val, ...(v as any).reverse()]))
+      .finally(() => {
+        setIsMounted(true)
+      })
+  }, [])
+
+  useEffect(() => {
+    ref.readData()
+  }, [data])
+
+  return (
+    <Flex
+      sx={{
+        minWidth: [200, 250],
+        maxWidth: [300, 350],
+        width: 'auto',
+        maxHeight: 550,
+        flexDirection: 'column',
+        gap: 2,
+        border: '1px solid gray',
+        borderRadius: 3,
+        marginTop: 1,
+        paddingTop: 2,
+        paddingBottom: 2,
+        zIndex: 9999,
+        backgroundColor: theme.colors.white,
+      }}
+    >
+      {data.map((v, i) => {
+        return (
+          <Flex
+            key={i}
+            flexDirection={'column'}
+            sx={{
+              gap: 2,
+              ':hover': {
+                backgroundColor: theme.colors.green,
+                color: theme.colors.white,
+              },
+              color: theme.colors.black,
+
+              padding: '6px',
+              cursor: 'pointer',
+            }}
+            onClick={async () => {
+              close?.()
+            }}
+          >
+            <Text as={'h4'} color={'black'}>
+              {v.title}
+            </Text>
+            <Text as={'h6'} color={'gray'}>
+              {format(new Date(v.created), 'cccc LLLL d, yyyy hh:mm a')}
+            </Text>
+            <Text color={'black'}>{v.description}</Text>
+          </Flex>
+        )
+      })}
+    </Flex>
+  )
+}
+
+const NotifClick = () => {
+  const { user } = useUser()
+  const [number, setNumber] = useState(0)
+  const ref = useRef(new FirebaseRealtimeNotifications(user?.id ?? '')).current
+  const ref2 = useRef(new FirebaseReadListen(user?.id ?? '')).current
+
+  useEffect(() => {
+    if (!!user?.id) {
+      const sub = ref.listen(() => {
+        console.log('hey')
+        ref.getUnreadCount().then((v) => {
+          setNumber(v)
+        })
+      })
+      const sub2 = ref2.listen(() => {
+        ref.getUnreadCount().then((v) => {
+          setNumber(v)
+        })
+      })
+
+      return () => {
+        sub()
+        sub2()
+      }
+    }
+  }, [user?.id])
+
+  return (
+    <NotifButton
+      src={'/assets/icons/bell.png'}
+      width={18}
+      height={18}
+      minWidth={'auto'}
+      alt="image"
+      notifNumber={number}
+      modalContainerProps={{
+        sx: {
+          right: [-10, 0],
+        },
+      }}
+      displayModal={(close) => {
+        return !!user?.id ? (
+          <NotifDataListen close={close} id={user.id} />
+        ) : (
+          <></>
+        )
+      }}
+    />
+  )
+}
 
 export const Main = ({
   pageTitle,
   children,
 }: { pageTitle?: string } & FlexProps) => {
+  const device = useContext(IPAndDeviceContext)
   const { user } = useUser()
+  const { asPath } = useRouter()
+
+  useEffect(() => {
+    if (!!device.ip) {
+      new Logs({
+        user: !!user ? user.id : 'anonymous',
+        ip: device.ip,
+        event: LogsEvents.navigate,
+        browser: device?.browser?.name + ' v' + device?.browser?.version,
+        device: device?.os?.name + ' v' + device?.os?.version,
+        other: asPath,
+      })
+    }
+  }, [asPath, device])
 
   return (
     <>
@@ -95,61 +329,7 @@ export const Main = ({
                     flexDirection={['row', 'row-reverse']}
                     sx={{ gap: [3, 4, 4], mr: 2 }}
                   >
-                    <NotifButton
-                      src={'/assets/icons/bell.png'}
-                      width={18}
-                      height={18}
-                      minWidth={'auto'}
-                      alt="image"
-                      notifNumber={1232}
-                      modalContainerProps={{
-                        sx: {
-                          right: [-10, 0],
-                        },
-                      }}
-                      displayModal={(close) => {
-                        return (
-                          <Flex
-                            sx={{
-                              width: [200, 250],
-                              maxHeight: 550,
-                              flexDirection: 'column',
-                              gap: 2,
-                              border: '1px solid gray',
-                              borderRadius: 3,
-                              marginTop: 1,
-                              paddingTop: 2,
-                              paddingBottom: 2,
-                              zIndex: 9999,
-                              backgroundColor: theme.colors.white,
-                            }}
-                          >
-                            <Text
-                              sx={{
-                                ':hover': {
-                                  backgroundColor: theme.colors.green,
-                                  color: theme.colors.white,
-                                },
-                                color: theme.colors.black,
-                                width: '100%',
-                                padding: '6px',
-                                cursor: 'pointer',
-                              }}
-                              onClick={async () => {
-                                // await push(textLink + 'login', {
-                                //   query: {
-                                //     who: 'Scholar',
-                                //   },
-                                // })
-                                close()
-                              }}
-                            >
-                              For Scholar
-                            </Text>
-                          </Flex>
-                        )
-                      }}
-                    />
+                    <NotifClick />
                     {user.status === UserStatus.ACTIVE && (
                       <CustomModal
                         modalChild={() => {
@@ -160,39 +340,7 @@ export const Main = ({
                         isModalOverFlow={false}
                       >
                         {({ setOpen }) => (
-                          <Flex
-                            width={18}
-                            height={18}
-                            sx={{
-                              position: 'relative',
-                              justifyContent: 'center',
-                              alignSelf: 'center',
-                            }}
-                            minWidth={'auto'}
-                          >
-                            <Image
-                              src={'/assets/icons/chat.png'}
-                              width={'100%'}
-                              height={'100%'}
-                              alt="image"
-                              style={{ cursor: 'pointer' }}
-                              onClick={() => setOpen((v) => !v)}
-                            />
-                            {/* {!!notifNumber && (
-                          <Text
-                            sx={{
-                              top: -10,
-                              position: 'absolute',
-                              right: -10,
-                              fontSize: 12,
-                              color: theme.colors.darkestGreen,
-                              fontWeight: 600,
-                            }}
-                          >
-                            {notifNumber}
-                          </Text>
-                        )} */}
-                          </Flex>
+                          <ChatClick setOpen={() => setOpen((v) => !v)} />
                         )}
                       </CustomModal>
                     )}

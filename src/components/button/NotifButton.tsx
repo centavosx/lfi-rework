@@ -42,7 +42,7 @@ export const NotifButton = memo(
             {...rest}
             onClick={() => setIsComponentVisible((v) => !v)}
           />
-          {!!notifNumber && (
+          {
             <Text
               sx={{
                 top: -10,
@@ -55,7 +55,7 @@ export const NotifButton = memo(
             >
               {notifNumber}
             </Text>
-          )}
+          }
         </Flex>
         <Flex
           {...modalContainerProps}
