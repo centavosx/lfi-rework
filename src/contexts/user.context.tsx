@@ -4,6 +4,7 @@ import React, {
   useState,
   useEffect,
   ReactNode,
+  useContext,
 } from 'react'
 import { User, UserStatus } from '../entities'
 import jwt_decode from 'jwt-decode'
@@ -12,6 +13,8 @@ import { useRouter } from 'next/navigation'
 
 import { me } from '../api'
 import { checkRoles } from 'hooks'
+import { IPAndDeviceContext } from './ip-and-device.context'
+import { Logs, LogsEvents } from 'firebaseapp'
 
 type DataType = {
   user: User | undefined
@@ -32,6 +35,7 @@ export const DataProvider = ({
   const [user, setUser] = useState<User | undefined>(
     !!token ? jwt_decode(token) : undefined
   )
+  const device = useContext(IPAndDeviceContext)
 
   const getMe = useCallback(
     async (reload?: boolean) => {
@@ -46,13 +50,22 @@ export const DataProvider = ({
   }, [getMe, token])
 
   const logout = useCallback(() => {
+    if (!!device.ip) {
+      new Logs({
+        user: !!user ? user.id : 'anonymous',
+        ip: device.ip,
+        event: LogsEvents.logout,
+        browser: device?.browser?.name + ' v' + device?.browser?.version,
+        device: device?.os?.name + ' v' + device?.os?.version,
+      })
+    }
     if (!!user) {
       Cookies.remove('refreshToken')
       Cookies.remove('accessToken')
       setUser(undefined)
       refresh()
     }
-  }, [setUser, user])
+  }, [setUser, user, device])
 
   const provider: DataType = {
     user,

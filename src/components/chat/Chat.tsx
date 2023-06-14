@@ -18,39 +18,55 @@ export const ChatMessages = ({ id }: { id: string }) => {
     }[]
   >([])
   const fb = useRef(
-    new FirebaseRealtimeMessaging<{ message: string }>(id, 'chat')
+    new FirebaseRealtimeMessaging<{ message: string }>(id)
   ).current
 
+  const [isMounted, setIsMounted] = useState(false)
+
   useEffect(() => {
-    const sub = fb.listen((v) => {
-      setData((val) => [...val, ...(v as unknown as typeof val)])
-    })
+    if (isMounted) {
+      const sub = fb.listen((v, t) => {
+        if (t === 'added') {
+          setData((val) =>
+            !val.some((check) => {
+              return check.refId === v.refId
+            })
+              ? [...val, v as any]
+              : val
+          )
+        }
+      })
 
-    fb.getData(20).then((v) =>
-      setData((val) => [...val, ...(v as any).reverse()])
-    )
-
-    return () => {
-      sub()
+      return () => {
+        sub()
+      }
     }
-  }, [id])
+  }, [id, isMounted])
 
   useEffect(() => {
-    fb.readData()
+    fb.getData(20)
+      .then((v) => setData((val) => [...val, ...(v as any).reverse()]))
+      .finally(() => {
+        setIsMounted(true)
+      })
+  }, [])
+
+  useEffect(() => {
+    fb.readData(id)
   }, [data])
 
   return (
     <Flex
       flexDirection="column"
       padding={2}
-      sx={{ borderRadius: 8, overflowY: 'scroll' }}
+      sx={{ borderRadius: 8, overflowY: 'scroll', gap: 2 }}
       flex={1}
     >
       {data.map((v, i) => {
         return (
           <UserMessage
             message={v.message}
-            key={v.refId}
+            key={i}
             isUser={v.user === id}
             date={new Date(v.created)}
           />
@@ -70,9 +86,11 @@ export const UserMessage = ({
   isUser?: boolean
 }) => {
   const ref = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
     ref.current?.scrollIntoView({ behavior: 'smooth' })
   }, [message])
+
   return (
     <Flex
       ref={ref}
@@ -118,7 +136,7 @@ export const UserMessage = ({
 const ChatInput = memo(({ id }: { id: string }) => {
   const [message, setMessage] = useState('')
   const fb = useRef(
-    new FirebaseRealtimeMessaging<{ message: string; from: string }>(id, 'chat')
+    new FirebaseRealtimeMessaging<{ message: string; from: string }>(id)
   ).current
   return (
     <Flex flexDirection={['column', 'row']} sx={{ gap: 2 }}>
@@ -142,7 +160,10 @@ const ChatInput = memo(({ id }: { id: string }) => {
       />
       <Button
         style={{ width: 50, height: 40 }}
-        onClick={() => fb.sendData({ message, from: id })}
+        onClick={() => {
+          fb.sendData({ message, from: id })
+          setMessage('')
+        }}
       >
         Send
       </Button>
@@ -154,13 +175,13 @@ ChatInput.displayName = 'ChatInput'
 
 export const Chat = ({ title }: { title: string }) => {
   const { user } = useUser()
-  return (
-    user && (
-      <Flex sx={{ flexDirection: 'column', gap: 2, overflow: 'auto' }} flex={1}>
-        <Text as={'h2'}>{title}</Text>
-        <ChatMessages id={user.id} />
-        <ChatInput id={user.id} />
-      </Flex>
-    )
+  return user ? (
+    <Flex sx={{ flexDirection: 'column', gap: 2, overflow: 'auto' }} flex={1}>
+      <Text as={'h2'}>{title}</Text>
+      <ChatMessages id={user.id} />
+      <ChatInput id={user.id} />
+    </Flex>
+  ) : (
+    <></>
   )
 }

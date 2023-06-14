@@ -1,9 +1,7 @@
-import { FirebaseApp, initializeApp } from 'firebase/app'
+import { initializeApp } from 'firebase/app'
 import {
   getFirestore,
   doc,
-  setDoc,
-  arrayUnion,
   onSnapshot,
   query,
   collection,
@@ -17,13 +15,16 @@ import {
   DocumentData,
   addDoc,
   writeBatch,
+  Unsubscribe,
+  QueryFieldFilterConstraint,
+  QueryOrderByConstraint,
+  documentId,
+  DocumentChangeType,
 } from 'firebase/firestore'
 import {
-  FirebaseStorage,
   getStorage,
   uploadBytesResumable,
   ref,
-  StorageReference,
   getDownloadURL,
   UploadTask,
   TaskState,
@@ -102,23 +103,29 @@ export class Firebase {
 type DateAndRef = {
   created: number
   modified?: number
-  read?: boolean
   refId: string
-  user: string
 }
 
-export class FirebaseRealtimeMessaging<
-  T extends Record<string, any> = Record<string, any>
+abstract class FirebaseBody<
+  T extends Record<string, any> = Record<string, any>,
+  V extends Record<string, any> = Record<string, any>
 > {
-  private id: string = ''
-  private db: string = ''
-  private lastPage: QuerySnapshot<DocumentData> | undefined
-  constructor(id: string, db: 'chat' | 'notif') {
+  public id: string = ''
+  public db: string
+  public querySearch: [QueryFieldFilterConstraint, QueryOrderByConstraint]
+  public lastPage: QuerySnapshot<DocumentData> | undefined
+
+  constructor(
+    id: string,
+    db: string,
+    query: [QueryFieldFilterConstraint, QueryOrderByConstraint]
+  ) {
     this.id = id
     this.db = db
+    this.querySearch = query
   }
 
-  public async sendData(data: T) {
+  public async sendData(data: T): Promise<void> {
     try {
       await addDoc(collection(db, this.db), {
         user: this.id,
@@ -131,66 +138,34 @@ export class FirebaseRealtimeMessaging<
     }
   }
 
-  public listen<V extends Record<string, any> = Record<string, any>>(
-    cb: (value: (V & DateAndRef)[]) => void,
-    cbModified?: (value: (V & DateAndRef)[]) => void,
-    cbDeleted?: (value: (V & DateAndRef)[]) => void
-  ) {
-    const q = query(
-      collection(db, this.db),
-      where('user', '==', this.id),
-      orderBy('created', 'desc')
-    )
+  public listen(
+    cb: (value: V & DateAndRef, type: DocumentChangeType) => void
+  ): Unsubscribe {
+    const q = query(collection(db, this.db), ...this.querySearch, limit(1))
 
     return onSnapshot(q, (snapshot) => {
-      const added: (V & DateAndRef)[] = []
-      const deleted: (V & DateAndRef)[] = []
-      const modified: (V & DateAndRef)[] = []
       snapshot.docChanges().forEach((change) => {
-        if (change.type === 'added') {
-          added.push({ ...(change.doc.data() as any), refId: change.doc.id })
-        }
-        if (change.type === 'removed') {
-          deleted.push({ ...(change.doc.data() as any), refId: change.doc.id })
-        }
-
-        if (change.type === 'modified') {
-          modified.push({ ...(change.doc.data() as any), refId: change.doc.id })
-        }
+        cb({ ...(change.doc.data() as any), refId: change.doc.id }, change.type)
       })
-      let timeout = 100
-      cb(added)
-      if (!!cbModified) {
-        setTimeout(() => cbModified(modified), timeout)
-        timeout += 100
-      }
-      if (!!cbDeleted) {
-        setTimeout(() => cbDeleted(deleted), timeout)
-      }
     })
   }
 
-  public async getData<V extends Record<string, any> = Record<string, any>>(
-    lim: number | undefined = 20
-  ) {
+  public async getData(lim: number | undefined = 20) {
     try {
       const l = lim ?? 20
       let q = !this.lastPage
-        ? query(
-            collection(db, this.db),
-            where('user', '==', this.id),
-            orderBy('created', 'desc'),
-            limit(l)
-          )
+        ? query(collection(db, this.db), ...this.querySearch, limit(l))
         : query(
             collection(db, this.db),
-            where('user', '==', this.id),
-            orderBy('created', 'desc'),
+            ...this.querySearch,
             startAfter(this.lastPage.docs[this.lastPage.docs.length - 1]),
             limit(l)
           )
 
       const snapshot = await getDocs(q)
+
+      this.lastPage = snapshot
+
       const value: (V & DateAndRef)[] = []
       snapshot.forEach((v) => {
         value.push({ ...(v.data() as any), refId: v.id })
@@ -202,12 +177,25 @@ export class FirebaseRealtimeMessaging<
     }
   }
 
-  public async readData() {
+  abstract readData(id?: string): Promise<void>
+
+  abstract getUnreadCount(id?: string): Promise<number>
+}
+
+export class FirebaseRealtimeMessaging<
+  T extends Record<string, any> = Record<string, any>,
+  V extends Record<string, any> = Record<string, any>
+> extends FirebaseBody<T, V> {
+  constructor(id: string) {
+    super(id, 'chat', [where('user', '==', id), orderBy('created', 'desc')])
+  }
+
+  public async readData(id: string) {
     const batch = writeBatch(db)
     const q = query(
       collection(db, this.db),
-      where('user', '==', this.id),
-      where('from', '!=', this.id),
+      this.querySearch[0],
+      where('from', '!=', id),
       where('read', '==', false)
     )
 
@@ -221,15 +209,159 @@ export class FirebaseRealtimeMessaging<
     await batch.commit()
   }
 
-  public async getUnreadCount() {
+  public async getUnreadCount(id: string) {
     const q = query(
       collection(db, this.db),
-      where('user', '==', this.id),
-      where('from', '!=', this.id),
+      this.querySearch[0],
+      where('from', '!=', id),
       where('read', '==', false)
     )
     const snap = await getDocs(q)
 
     return snap.size
+  }
+}
+
+export class FirebaseRealtimeNotifications<
+  T extends Record<string, any> = Record<string, any>,
+  V extends Record<string, any> = Record<string, any>
+> extends FirebaseBody<T, V> {
+  constructor(id: string) {
+    super(id, 'notifications', [
+      where('user', 'in', [id, 'all']),
+      orderBy('created', 'desc'),
+    ])
+  }
+
+  public async readData() {
+    await addDoc(collection(db, 'read'), {
+      user: this.id,
+      created: Timestamp.now().toMillis(),
+    })
+  }
+
+  public async getUnreadCount() {
+    const q = query(
+      collection(db, 'read'),
+      where('user', '==', this.id),
+      orderBy('created', 'desc'),
+      limit(1)
+    )
+
+    let dateInNum: number = 0
+    const snap = await getDocs(q)
+
+    snap.forEach((v) => {
+      dateInNum = v.data().created
+    })
+
+    // if (dateInNum === 0) return 0
+
+    const q2 = query(
+      collection(db, this.db),
+      this.querySearch[0],
+      where('created', '>', dateInNum)
+    )
+
+    const snap2 = await getDocs(q2)
+
+    return snap2.size
+  }
+}
+
+export class FirebaseReadListen {
+  private id: string
+  constructor(id: string) {
+    this.id = id
+  }
+
+  public listen(cb: () => void): Unsubscribe {
+    const q = query(
+      collection(db, 'read'),
+      where('user', '==', this.id),
+      limit(1)
+    )
+
+    return onSnapshot(q, (snapshot) => {
+      snapshot.docChanges().forEach(() => {
+        cb()
+      })
+    })
+  }
+}
+
+export enum LogsEvents {
+  signed = 'SIGNED IN',
+  logout = 'LOGOUT',
+  register = 'REGISTER',
+  navigate = 'PAGE NAVIGATE',
+  chat = 'CHAT',
+}
+
+export type LogsProp = {
+  ip: string
+  user: string
+  browser: string
+  device: string
+  event: LogsEvents
+  other?: string
+}
+
+export class Logs {
+  private lastPage?: QuerySnapshot<DocumentData>
+
+  public constructor(data?: LogsProp) {
+    if (!data) return
+    try {
+      addDoc(collection(db, 'logs'), {
+        ...data,
+        created: Timestamp.now().toMillis(),
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  public listen(
+    cb: (value: LogsProp & { refId: string }, type: DocumentChangeType) => void
+  ): Unsubscribe {
+    const q = query(
+      collection(db, 'logs'),
+      orderBy('created', 'desc'),
+      limit(1)
+    )
+
+    return onSnapshot(q, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        cb({ ...(change.doc.data() as any), refId: change.doc.id }, change.type)
+      })
+    })
+  }
+
+  public async getData(lim: number | undefined = 20) {
+    try {
+      const l = lim ?? 20
+      let q = !this.lastPage
+        ? query(collection(db, 'logs'), orderBy('created', 'desc'), limit(l))
+        : query(
+            collection(db, 'logs'),
+            orderBy('created', 'desc'),
+            startAfter(this.lastPage.docs[this.lastPage.docs.length - 1]),
+            limit(l)
+          )
+
+      const snapshot = await getDocs(q)
+
+      this.lastPage = snapshot
+
+      const value: (LogsProp & { refId: string })[] = []
+      snapshot.forEach((v) => {
+        value.push({ ...(v.data() as any), refId: v.id })
+      })
+
+      return value
+    } catch (e) {
+      return []
+    }
   }
 }
