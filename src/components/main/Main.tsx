@@ -238,17 +238,17 @@ export const Main = ({
 }: { pageTitle?: string } & FlexProps) => {
   const device = useContext(IPAndDeviceContext)
   const { user } = useUser()
-  const { asPath } = useRouter()
+  const { asPath, pathname } = useRouter()
 
   useEffect(() => {
     if (!!device.ip) {
       new Logs({
-        user: !!user ? user.id : 'anonymous',
+        user: !!user ? 'USER-' + user.id : 'anonymous',
         ip: device.ip,
         event: LogsEvents.navigate,
         browser: device?.browser?.name + ' v' + device?.browser?.version,
         device: device?.os?.name + ' v' + device?.os?.version,
-        other: asPath,
+        other: asPath.startsWith('/login/?who=') ? asPath : pathname,
       })
     }
   }, [asPath, device])

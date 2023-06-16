@@ -5,6 +5,16 @@ export enum Level {
   COLLEGE = 'College',
 }
 
+export enum Education {
+  first1stSem = '1st year',
+  second = '2nd year',
+  third = '3rd year',
+  fourth = '4th year',
+  fifth = '5th year',
+  sixth = '6th year',
+  summer = 'Summer',
+}
+
 export enum ShsTrackAndStrandsEnum {
   ABM = 'ABM',
   STEM = 'STEM',
@@ -25,6 +35,7 @@ export type RequiredFiles = {
   pantawid: string
   gradeSlip: string
   birthCert: string
+  autobiography: string
   homeSketch: string
   waterBill?: string
   electricBill?: string
@@ -158,4 +169,19 @@ export type EventDto<T extends any = Date> = {
   startDate: T
   endDate: T
   color?: string
+}
+
+export enum FileTypes {
+  ID_PIC = 'ID_PICTURE',
+  NCAE = 'NCAE',
+  CERT = 'CERTIFICATE',
+  PANTAWID = 'PANTAWID',
+  GRADE_SLIP = 'GRADE_SLIP',
+  BIRTH_CERT = 'BIRTH_CERTIFICATE',
+  BIO = 'AUTOBIOGRAPHY',
+  HOME_SKETCH = 'HOME_SKETCH',
+  WATER_BILL = 'WATER_BILL',
+  ELECTRIC_BILL = 'ELECTRIC_BILL',
+  WIFI_BILL = 'WIFI_BILL',
+  ENROLLMENT_BILL = 'ENROLLMENT_BILL',
 }

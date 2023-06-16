@@ -161,7 +161,11 @@ export const AdminMobileNavigation = memo(() => {
       </Button>
       <Drawer
         open={state.left}
-        anchor={window.innerWidth <= 639 ? 'right' : 'left'}
+        anchor={
+          typeof window !== 'undefined' && window.innerWidth <= 639
+            ? 'right'
+            : 'left'
+        }
         onClose={toggleDrawer(false)}
       >
         {list()}

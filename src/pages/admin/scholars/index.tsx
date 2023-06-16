@@ -202,7 +202,32 @@ export default function Scholars({
               field: 'email',
               name: 'Email',
             },
+            {
+              name: 'Scholar Status',
+              custom: (v) => {
+                if (!v?.scholar || v?.scholar?.length === 0)
+                  return (
+                    <Text as={'h4'} color={'blue'}>
+                      Not started
+                    </Text>
+                  )
 
+                const value = v!.scholar!.sort(
+                  (a: any, b: any) =>
+                    new Date(b.created).getTime() -
+                    new Date(a.created).getTime()
+                )[0]
+
+                return (
+                  <Text
+                    as={'h4'}
+                    color={value.status === 'started' ? 'green' : 'red'}
+                  >
+                    {value.status.toUpperCase()}
+                  </Text>
+                )
+              },
+            },
             {
               name: 'Status',
               custom: (v) => (

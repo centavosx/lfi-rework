@@ -5,18 +5,20 @@ import {
   Dispatch,
   SetStateAction,
   useEffect,
+  useMemo,
 } from 'react'
 import { getUserInfo, updateUser } from 'api'
 import { Button, SecondaryButton, UploadProcess } from 'components/button'
 import { FormContainer, ScrollToError } from 'components/forms'
 import { FormInput, InputError } from 'components/input'
 import { Loading } from 'components/loading'
-import { Select, SelectV2 } from 'components/select'
+import { SelectV2 } from 'components/select'
 import {
   COLLEGE_PROGRAMS,
   DISPLAY_FILES,
   Level,
   RegFormType,
+  RequiredFiles,
   SCHOOL_LEVEL,
   SHS_PROGRAMS,
 } from 'constant'
@@ -24,9 +26,17 @@ import { Roles, User, UserStatus } from 'entities'
 import { Formik } from 'formik'
 import { FormikValidation } from 'helpers'
 import { useApi, useApiPost } from 'hooks'
-import { Flex } from 'rebass'
+import { Flex, Text } from 'rebass'
 import { theme } from 'utils/theme'
 import { AreYouSure, ButtonModal } from 'components/modal'
+import { enumToFileName } from 'helpers/convertFiles'
+import { AiOutlineDownCircle, AiOutlineUpCircle } from 'react-icons/ai'
+
+const AddOrCancel = ({ children }: { children: ReactNode }) => {
+  const [isAdd, setIsAdd] = useState(false)
+
+  return <Flex flexDirection={'column'}></Flex>
+}
 
 const Editable = memo(
   ({
@@ -43,6 +53,56 @@ const Editable = memo(
 )
 Editable.displayName = 'Editable'
 
+const DisplayOrNot = memo(
+  ({ title, children }: { title: string; children: ReactNode }) => {
+    const [isOpen, setIsOpen] = useState(true)
+
+    return (
+      <Flex flexDirection={'column'} width="100%" sx={{ gap: 2 }}>
+        <Flex
+          flexDirection={'row'}
+          sx={{
+            gap: 3,
+            alignItems: 'center',
+            borderBottom: '1px solid black',
+            cursor: 'pointer',
+            padding: 3,
+            ':hover': {
+              backgroundColor: 'rgba(1,1,1,0.2)',
+            },
+          }}
+          onClick={() => setIsOpen((v) => !v)}
+        >
+          <Text flex={1} as={'h3'}>
+            {title}
+          </Text>
+          {!isOpen ? (
+            <AiOutlineDownCircle
+              cursor="pointer"
+              size={25}
+              style={{ alignItems: 'center' }}
+            />
+          ) : (
+            <AiOutlineUpCircle
+              cursor="pointer"
+              size={25}
+              style={{ alignItems: 'center' }}
+            />
+          )}
+        </Flex>
+
+        {isOpen && (
+          <Flex flexDirection={'column'} p={3}>
+            {children}{' '}
+          </Flex>
+        )}
+      </Flex>
+    )
+  }
+)
+
+DisplayOrNot.displayName = 'displayornot'
+
 export const UserInformation = memo(
   ({
     id,
@@ -55,7 +115,11 @@ export const UserInformation = memo(
     isDisabled?: boolean
     isAcceptReject?: boolean
   }) => {
-    const { data, isFetching, refetch } = useApi<User>(getUserInfo, false, id)
+    const {
+      data: userData,
+      isFetching,
+      refetch,
+    } = useApi<User>(getUserInfo, false, id)
 
     const {
       isSuccess,
@@ -66,6 +130,29 @@ export const UserInformation = memo(
     useEffect(() => {
       if (isSuccess) onSuccess?.()
     }, [isSuccess])
+
+    const data = useMemo(() => {
+      let userInfo = structuredClone(userData) as unknown as Partial<
+        User | { files: undefined }
+      >
+
+      userInfo = {
+        ...userInfo,
+        ...(userData?.files?.reduce((before, now) => {
+          return {
+            ...before,
+            [enumToFileName(now.type) as unknown as any]: now.link,
+          }
+        }, {} as Partial<RequiredFiles>) ?? {}),
+      }
+
+      delete userInfo?.files
+
+      return userInfo as unknown as RegFormType & {
+        status: UserStatus
+        role: Roles[]
+      }
+    }, [userData])
 
     return (
       <Flex flexDirection={'column'}>
@@ -254,94 +341,108 @@ export const UserInformation = memo(
                       sx={{ color: 'black', width: '100%' }}
                     />
                     {/* <UploadButton>dwa</UploadButton> */}
-                    <Flex flexDirection={'column'} sx={{ gap: 2 }}>
-                      {DISPLAY_FILES.map((v, i) => {
-                        return (
-                          <Editable key={v.name}>
-                            {(isEdit, setEdit) => (
-                              <UploadProcess
-                                name={v.name}
-                                disabled={isDisabled}
-                                title={v.title}
-                                isNew={
-                                  !!(
-                                    !isEdit &&
-                                    values[
-                                      v.name as unknown as keyof typeof values
-                                    ] &&
-                                    data[v.name as unknown as keyof typeof data]
-                                  )
-                                }
-                                newChildren={(deleteF) =>
-                                  isEdit ? (
-                                    <SecondaryButton
-                                      onClick={() => {
-                                        deleteF()
-                                        setFieldValue(
-                                          v.name as keyof typeof values,
-                                          data[v.name as unknown as keyof User]
-                                        )
-                                        setEdit((v) => !v)
-                                      }}
-                                    >
-                                      Cancel
-                                    </SecondaryButton>
-                                  ) : (
-                                    !!values[
-                                      v.name as unknown as keyof typeof values
-                                    ] &&
-                                    !!data[
-                                      v.name as unknown as keyof typeof data
-                                    ] && (
-                                      <Flex
-                                        flexDirection={'row'}
-                                        sx={{ gap: 2 }}
-                                      >
-                                        <Button
-                                          onClick={() =>
-                                            !!window &&
-                                            window.open(
-                                              values[
-                                                v.name as unknown as keyof typeof values
-                                              ] as any
+                    <Flex flexDirection={'column'} sx={{ gap: 1 }}>
+                      <DisplayOrNot title="Files">
+                        <Flex flexDirection={'column'} sx={{ gap: 2 }}>
+                          {DISPLAY_FILES.map((v, i) => {
+                            return (
+                              <Editable key={v.name}>
+                                {(isEdit, setEdit) => (
+                                  <UploadProcess
+                                    name={v.name}
+                                    disabled={isDisabled}
+                                    title={v.title}
+                                    isNew={
+                                      !!(
+                                        !isEdit &&
+                                        values[
+                                          v.name as unknown as keyof typeof values
+                                        ] &&
+                                        data[
+                                          v.name as unknown as keyof typeof data
+                                        ]
+                                      )
+                                    }
+                                    newChildren={(deleteF) =>
+                                      isEdit ? (
+                                        <SecondaryButton
+                                          onClick={() => {
+                                            deleteF()
+                                            setFieldValue(
+                                              v.name as keyof typeof values,
+                                              data[
+                                                v.name as unknown as keyof typeof data
+                                              ]
                                             )
-                                          }
+                                            setEdit((v) => !v)
+                                          }}
                                         >
-                                          View
-                                        </Button>
-                                        {!isDisabled && (
-                                          <SecondaryButton
-                                            onClick={() => setEdit((v) => !v)}
+                                          Cancel
+                                        </SecondaryButton>
+                                      ) : (
+                                        !!values[
+                                          v.name as unknown as keyof typeof values
+                                        ] &&
+                                        !!data[
+                                          v.name as unknown as keyof typeof data
+                                        ] && (
+                                          <Flex
+                                            flexDirection={'row'}
+                                            sx={{ gap: 2 }}
                                           >
-                                            Edit
-                                          </SecondaryButton>
-                                        )}
-                                      </Flex>
-                                    )
-                                  )
-                                }
-                                textProps={{
-                                  fontWeight: 'bold',
-                                  justifyContent: 'center',
-                                }}
-                                errorString={
-                                  errors[v.name as keyof typeof errors] as any
-                                }
-                                width={150}
-                                onChange={(link) =>
-                                  link !== null && setFieldValue(v.name, link)
-                                }
-                              >
-                                {!!values[
-                                  v.name as unknown as keyof typeof values
-                                ]
-                                  ? 'Upload New'
-                                  : 'Upload'}
-                              </UploadProcess>
-                            )}
-                          </Editable>
-                        )
-                      })}
+                                            <Button
+                                              onClick={() =>
+                                                !!window &&
+                                                window.open(
+                                                  values[
+                                                    v.name as unknown as keyof typeof values
+                                                  ] as any
+                                                )
+                                              }
+                                            >
+                                              View
+                                            </Button>
+                                            {!isDisabled && (
+                                              <SecondaryButton
+                                                onClick={() =>
+                                                  setEdit((v) => !v)
+                                                }
+                                              >
+                                                Edit
+                                              </SecondaryButton>
+                                            )}
+                                          </Flex>
+                                        )
+                                      )
+                                    }
+                                    textProps={{
+                                      fontWeight: 'bold',
+                                      justifyContent: 'center',
+                                    }}
+                                    errorString={
+                                      errors[
+                                        v.name as keyof typeof errors
+                                      ] as any
+                                    }
+                                    width={150}
+                                    onChange={(link) =>
+                                      link !== null &&
+                                      setFieldValue(v.name, link)
+                                    }
+                                  >
+                                    {!!values[
+                                      v.name as unknown as keyof typeof values
+                                    ]
+                                      ? 'Upload New'
+                                      : 'Upload'}
+                                  </UploadProcess>
+                                )}
+                              </Editable>
+                            )
+                          })}
+                        </Flex>
+                      </DisplayOrNot>
+                      <DisplayOrNot title="Scholar History"></DisplayOrNot>
                     </Flex>
                     <Flex sx={{ gap: 2, justifyContent: 'flex-end' }}>
                       {isAcceptReject ? (
@@ -361,8 +462,9 @@ export const UserInformation = memo(
                                 cancelText="No"
                                 confirmText="Yes"
                                 onSubmit={() =>
+                                  !!userData?.id &&
                                   callApi({
-                                    id: data.id,
+                                    id: userData.id,
                                     status: UserStatus.CANCELED,
                                   })
                                 }
@@ -386,8 +488,9 @@ export const UserInformation = memo(
                                 cancelText="No"
                                 confirmText="Yes"
                                 onSubmit={() =>
+                                  !!userData?.id &&
                                   callApi({
-                                    id: data.id,
+                                    id: userData.id,
                                     status: UserStatus.ACTIVE,
                                   })
                                 }
@@ -418,8 +521,9 @@ export const UserInformation = memo(
                                   cancelText="No"
                                   confirmText="Yes"
                                   onSubmit={() =>
+                                    !!userData?.id &&
                                     callApi({
-                                      id: data.id,
+                                      id: userData.id,
                                       status: UserStatus.VERIFIED,
                                     })
                                   }

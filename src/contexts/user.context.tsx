@@ -25,11 +25,7 @@ type DataType = {
 
 export const DataContext = createContext<DataType>({} as DataType)
 
-export const DataProvider = ({
-  children,
-}: {
-  children: (status?: ReturnType<typeof checkRoles>) => ReactNode
-}) => {
+export const DataProvider = ({ children }: { children: ReactNode }) => {
   const { refresh } = useRouter()
   const token = Cookies.get('accessToken')
   const [user, setUser] = useState<User | undefined>(
@@ -59,9 +55,9 @@ export const DataProvider = ({
         device: device?.os?.name + ' v' + device?.os?.version,
       })
     }
+    Cookies.remove('refreshToken')
+    Cookies.remove('accessToken')
     if (!!user) {
-      Cookies.remove('refreshToken')
-      Cookies.remove('accessToken')
       refresh()
     }
   }, [setUser, user, device])
@@ -74,8 +70,6 @@ export const DataProvider = ({
   }
 
   return (
-    <DataContext.Provider value={provider}>
-      {children(checkRoles(user?.roles))}
-    </DataContext.Provider>
+    <DataContext.Provider value={provider}>{children}</DataContext.Provider>
   )
 }

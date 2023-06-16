@@ -1,5 +1,5 @@
-import { SecondaryButton } from 'components/button'
-import { Button, Flex, Text } from 'rebass'
+import { SecondaryButton, Button } from 'components/button'
+import { Flex, Text } from 'rebass'
 
 export const AreYouSure = ({
   message,

@@ -47,17 +47,15 @@ export default function App({ Component, pageProps }: AppProps) {
     <ThemeProvider theme={theme}>
       <IPAndDeviceProvider>
         <DataProvider>
-          {(status) =>
-            status?.isAdmin || status?.isSuper ? (
-              <AdminMain>
-                <Component {...pageProps} />
-              </AdminMain>
-            ) : (
-              <Main>
-                <Component {...pageProps} />
-              </Main>
-            )
-          }
+          {pathname.startsWith('/admin') ? (
+            <AdminMain>
+              <Component {...pageProps} />
+            </AdminMain>
+          ) : (
+            <Main>
+              <Component {...pageProps} />
+            </Main>
+          )}
         </DataProvider>
       </IPAndDeviceProvider>
     </ThemeProvider>
