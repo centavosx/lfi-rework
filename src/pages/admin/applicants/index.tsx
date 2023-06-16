@@ -44,7 +44,7 @@ const modalInitial: ModalFlexProps<CreateUserType, RegisterDto> = {
     lname: '',
     address: '',
     email: '',
-    status: UserStatus.VERIFIED,
+
     role: [Roles.USER],
   },
   fields: [

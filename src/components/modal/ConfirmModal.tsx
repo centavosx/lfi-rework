@@ -268,11 +268,13 @@ export const AreYouSure = ({
   onSubmit,
   cancelText,
   confirmText,
+  message = 'Are you sure?',
 }: {
   setOpen: Dispatch<SetStateAction<boolean>>
   onSubmit: () => void
   cancelText: string
   confirmText: string
+  message?: string
 }) => {
   return (
     <Flex
@@ -290,7 +292,7 @@ export const AreYouSure = ({
           fontWeight: 'bold',
         }}
       >
-        Are you sure?
+        {message}
       </Text>
       <Flex sx={{ gap: 10 }}>
         <Button

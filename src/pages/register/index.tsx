@@ -178,6 +178,8 @@ export default function RegisterUser() {
             callApi(values as any)
             setSubmitting(false)
           }}
+          validateOnMount={true}
+          validateOnChange={true}
         >
           {({ values, isSubmitting, setFieldValue, errors }) => (
             <FormContainer

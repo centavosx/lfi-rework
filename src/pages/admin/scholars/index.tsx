@@ -205,12 +205,39 @@ export default function Scholars({
 
             {
               name: 'Status',
-              custom: (v) => (
-                <Text
-                  as={'h4'}
-                  color={v.status === UserStatus.EXPELLED ? 'red' : 'green'}
-                >{`${v.status.toUpperCase()}`}</Text>
-              ),
+              custom: (v) => {
+                if (!v?.scholar || v?.scholar?.length === 0)
+                  return (
+                    <Text as={'h4'} color={'blue'}>
+                      Not started
+                    </Text>
+                  )
+
+                const value = v!.scholar!.sort(
+                  (a: any, b: any) =>
+                    new Date(b.created).getTime() -
+                    new Date(a.created).getTime()
+                )[0]
+                return (
+                  <Text
+                    as={'h4'}
+                    color={
+                      v.status === UserStatus.EXPELLED ||
+                      value.status === 'ended'
+                        ? 'red'
+                        : value.status === ('pending' as any)
+                        ? 'blue'
+                        : 'green'
+                    }
+                  >{`${
+                    value.status === 'ended' && v.status !== UserStatus.EXPELLED
+                      ? 'ENDED'
+                      : value.status === ('pending' as any)
+                      ? 'RENEWAL'
+                      : v.status.toUpperCase()
+                  }`}</Text>
+                )
+              },
               items: {
                 itemValues: ['All', UserStatus.ACTIVE, UserStatus.EXPELLED],
                 onChange: (v: string | UserStatus) => {

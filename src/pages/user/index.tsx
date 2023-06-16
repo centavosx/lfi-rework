@@ -33,7 +33,7 @@ type EventProp = {
 
 export default function User() {
   const today = new Date()
-  const { user } = useUser()
+  const { user, logout } = useUser()
   const [selectedDate, setSelectedDate] = useState(new Date())
   const { data, refetch } = useApi<
     {
@@ -112,7 +112,14 @@ export default function User() {
           width={250}
           title="Logout"
           titleProps={{ as: 'h3' }}
-          modalChild={<AreYouSure message="Are you sure?" />}
+          modalChild={
+            <AreYouSure
+              message="Are you sure?"
+              onClick={(v) => {
+                if (v) logout()
+              }}
+            />
+          }
         >
           Logout
         </ButtonModal>

@@ -1,5 +1,13 @@
-import { Fragment, useContext, useEffect, useRef, useState } from 'react'
-import { Flex, Image, Link as Anchor, FlexProps } from 'rebass'
+import {
+  Dispatch,
+  Fragment,
+  ReactNode,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
+import { Flex, Image, Link as Anchor, FlexProps, Text as Text2 } from 'rebass'
 import Navigation from '../navigation'
 
 import { theme } from '../../utils/theme'
@@ -23,6 +31,16 @@ import {
 import { useRouter } from 'next/router'
 import { IPAndDeviceContext } from 'contexts'
 import { format } from 'date-fns'
+import { AiFillCloseCircle } from 'react-icons/ai'
+
+const IsOpenOrClose = ({
+  children,
+}: {
+  children: (v: boolean, setO: Dispatch<SetStateAction<boolean>>) => ReactNode
+}) => {
+  const [open, setOpen] = useState(true)
+  return <>{open && children(open, setOpen)}</>
+}
 
 const ChatClick = ({ setOpen }: { setOpen: () => void }) => {
   const { user } = useUser()
@@ -238,17 +256,17 @@ export const Main = ({
 }: { pageTitle?: string } & FlexProps) => {
   const device = useContext(IPAndDeviceContext)
   const { user } = useUser()
-  const { asPath } = useRouter()
+  const { asPath, pathname } = useRouter()
 
   useEffect(() => {
     if (!!device.ip) {
       new Logs({
-        user: !!user ? user.id : 'anonymous',
+        user: !!user ? 'USER-' + user.id : 'anonymous',
         ip: device.ip,
         event: LogsEvents.navigate,
         browser: device?.browser?.name + ' v' + device?.browser?.version,
         device: device?.os?.name + ' v' + device?.os?.version,
-        other: asPath,
+        other: asPath.startsWith('/login/?who=') ? asPath : pathname,
       })
     }
   }, [asPath, device])
@@ -368,6 +386,31 @@ export const Main = ({
           maxWidth={2250}
           alignSelf="center"
         >
+          {!!user?.scholar &&
+            !user?.scholar?.sort(
+              (a: any, b: any) => new Date(b).getTime() - new Date(a).getTime()
+            )[0].enrollmentBill && (
+              <IsOpenOrClose>
+                {(v, setO) => (
+                  <Flex
+                    width={'100%'}
+                    backgroundColor={'RGBA(255, 255, 0, 0.2)'}
+                    p={3}
+                    alignItems={'center'}
+                  >
+                    <Text2 flex={1} as={'h4'}>
+                      Reminder: Please submit your enrollment bill!
+                    </Text2>
+                    <AiFillCloseCircle
+                      onClick={() => setO((v: any) => !v)}
+                      cursor={'pointer'}
+                      style={{ marginRight: 20 }}
+                    />
+                  </Flex>
+                )}
+              </IsOpenOrClose>
+            )}
+
           <Flex flex={1} flexDirection={'column'}>
             {children}
           </Flex>

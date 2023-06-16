@@ -1,4 +1,4 @@
-import { Level } from 'constant'
+import { Education, FileTypes, Level } from 'constant'
 
 export enum UserStatus {
   EXPELLED = 'expelled',
@@ -21,6 +21,63 @@ export type Role = {
   name: Roles
 }
 
+export type UserFileNames = {
+  idPic?: string | null
+
+  ncae?: string | null
+
+  certificate?: string | null
+
+  pantawid?: string | null
+
+  gradeSlip?: string | null
+
+  autobiography?: string | null
+
+  birthCert?: string | null
+
+  homeSketch?: string | null
+
+  waterBill?: string | null
+
+  electricBill?: string | null
+
+  wifiBill?: string | null
+
+  enrollmentBill?: string | null
+}
+
+export type Files = {
+  id: string
+  type: FileTypes
+  link: string
+  date: Date
+}
+
+export type Scholar = {
+  id: string
+
+  level?: Level | null
+
+  program?: string | null
+
+  education: Education
+
+  semester: number
+
+  lastGwa: number
+
+  gradeSlip: string
+
+  enrollmentBill: string
+
+  status: 'started' | 'ended'
+
+  created: Date
+
+  ended: Date | null
+}
+
 export type User = {
   id: string
 
@@ -36,33 +93,11 @@ export type User = {
 
   address?: string | null
 
-  level?: Level | null
-
-  program?: string | null
-
-  idPic?: string | null
-
-  ncae?: string | null
-
-  certificate?: string | null
-
-  pantawid?: string | null
-
-  gradeSlip?: string | null
-
-  birthCert?: string | null
-
-  homeSketch?: string | null
-
-  waterBill?: string | null
-
-  electricBill?: string | null
-
-  wifiBill?: string | null
-
-  enrollmentBill?: string | null
-
   roles: Role[]
+
+  files?: Files[] | null
+
+  scholar?: Scholar[] | null
 
   created: Date
 

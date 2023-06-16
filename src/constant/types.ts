@@ -5,6 +5,38 @@ export enum Level {
   COLLEGE = 'College',
 }
 
+export enum Education {
+  first1stSem = '1st year - 1st Sem',
+  first2ndSem = '1st year - 2nd Sem',
+  first3rdSem = '1st year - 3rd Sem',
+  firstSummer = '1st year - Summer',
+
+  second1stSem = '2nd year - 1st Sem',
+  second2ndSem = '2nd year - 2nd Sem',
+  second3rdSem = '2nd year - 3rd Sem',
+  secondSummer = '2nd year - Summer',
+
+  third1stSem = '3rd year - 1st Sem',
+  third2ndSem = '3rd year - 2nd Sem',
+  third3rdSem = '3rd year - 3rd Sem',
+  thirdSummer = '3rd year - Summer',
+
+  fourth1stSem = '4th year - 1st Sem',
+  fourth2ndSem = '4th year - 2nd Sem',
+  fourth3rdSem = '4th year - 3rd Sem',
+  fourthSummer = '4th year - Summer',
+
+  fifth1stSem = '5th year - 1st Sem',
+  fifth2ndSem = '5th year - 2nd Sem',
+  fifth3rdSem = '5th year - 3rd Sem',
+  fifthSummer = '5th year - Summer',
+
+  sixth1stSem = '6th year - 1st Sem',
+  sixth2ndSem = '6th year - 2nd Sem',
+  sixth3rdSem = '6th year - 3rd Sem',
+  sixthSummer = '6th year - Summer',
+}
+
 export enum ShsTrackAndStrandsEnum {
   ABM = 'ABM',
   STEM = 'STEM',
@@ -25,6 +57,7 @@ export type RequiredFiles = {
   pantawid: string
   gradeSlip: string
   birthCert: string
+  autobiography: string
   homeSketch: string
   waterBill?: string
   electricBill?: string
@@ -44,14 +77,17 @@ export type RegisterDto = UserDetails & {
   status: UserStatus
   role: Roles[]
   userData?: RequiredFiles & {
-    level: Level
+    level: string
     program: string
+    education: string
+    semester: number
   }
 }
 
 export type UserInfo = UserDetails & {
   level: string
-
+  education: string
+  semester: number
   program: string
 }
 
@@ -62,7 +98,9 @@ export type RegFormType = {
   level?: Level
   address: string
   email: string
-  program?: CollegeEnum | ShsTrackAndStrandsEnum | null
+  program?: string
+  education?: string
+  lastGwa?: number
 } & Partial<RequiredFiles>
 
 export enum CollegeEnum {
@@ -158,4 +196,19 @@ export type EventDto<T extends any = Date> = {
   startDate: T
   endDate: T
   color?: string
+}
+
+export enum FileTypes {
+  ID_PIC = 'ID_PICTURE',
+  NCAE = 'NCAE',
+  CERT = 'CERTIFICATE',
+  PANTAWID = 'PANTAWID',
+  GRADE_SLIP = 'GRADE_SLIP',
+  BIRTH_CERT = 'BIRTH_CERTIFICATE',
+  BIO = 'AUTOBIOGRAPHY',
+  HOME_SKETCH = 'HOME_SKETCH',
+  WATER_BILL = 'WATER_BILL',
+  ELECTRIC_BILL = 'ELECTRIC_BILL',
+  WIFI_BILL = 'WIFI_BILL',
+  ENROLLMENT_BILL = 'ENROLLMENT_BILL',
 }

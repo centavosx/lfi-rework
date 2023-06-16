@@ -1,10 +1,11 @@
-import { Level, ShsTrackAndStrandsEnum, CollegeEnum } from './types'
+import { Level, ShsTrackAndStrandsEnum, CollegeEnum, Education } from './types'
 import { Option } from 'components/select'
 
 export const Levels = {
   [Level.SHS]: 'Senior High School',
   [Level.COLLEGE]: 'College',
 }
+
 //  {
 //     label: 'Accountancy, Business and Management Strand',
 //     value: 'ABM',
@@ -166,6 +167,15 @@ export const SCHOOL_LEVEL: Option<string, Level>[] = [
     value: Level.COLLEGE,
   },
 ]
+
+export const LEVEL_EDUC: Option<string, Education>[] = Object.keys(
+  Education
+).map((v) => {
+  return {
+    label: Education[v as keyof typeof Education] as Education,
+    value: Education[v as keyof typeof Education] as Education,
+  }
+})
 
 export const SHS_PROGRAMS: Option<string, ShsTrackAndStrandsEnum | null>[] = [
   ...Object.keys(ShsTrackAndStrands).map((v) => {

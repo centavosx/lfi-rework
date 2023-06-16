@@ -10,6 +10,10 @@ import {
   AdminMobileNavigation,
   AdminWebNavigation,
 } from 'components/navigation/admin'
+import { useContext, useEffect } from 'react'
+import { useUser } from 'hooks'
+import { LogsEvents, Logs } from 'firebaseapp'
+import { IPAndDeviceContext } from 'contexts'
 
 const SideNav = ({ isWeb }: { isWeb?: boolean }) => {
   return (
@@ -36,7 +40,7 @@ const SideNav = ({ isWeb }: { isWeb?: boolean }) => {
           width: ['auto', '100%', '100%', '100%'],
         }}
       >
-        <Anchor href="/admin">
+        <Anchor href="/admin/dashboard">
           <Flex alignItems={'center'} sx={{ gap: 2 }} width={'100%'}>
             <Image
               src={'/assets/logo-white.png'}
@@ -87,7 +91,22 @@ export const AdminMain = ({
   pageTitle,
   children,
 }: { pageTitle?: string } & FlexProps) => {
-  const { pathname } = useRouter()
+  const { pathname, asPath } = useRouter()
+  const device = useContext(IPAndDeviceContext)
+  const { user } = useUser()
+
+  useEffect(() => {
+    if (!!device.ip) {
+      new Logs({
+        user: !!user ? 'ADMIN-' + user.id : 'anonymous',
+        ip: device.ip,
+        event: LogsEvents.navigate,
+        browser: device?.browser?.name + ' v' + device?.browser?.version,
+        device: device?.os?.name + ' v' + device?.os?.version,
+        other: asPath.startsWith('/login/?who=') ? asPath : pathname,
+      })
+    }
+  }, [asPath, device])
 
   return (
     <>
@@ -119,6 +138,7 @@ export const AdminMain = ({
           <DesktopView>
             <SideNav />
           </DesktopView>
+
           <Flex
             flex={1}
             height={['100%', '100vh', '100vh', '100vh']}

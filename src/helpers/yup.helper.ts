@@ -20,6 +20,13 @@ export const FormikValidation = {
       .required('Required'),
   }),
 
+  renewal: Yup.object().shape({
+    level: Yup.string().required('Required'),
+    lastGwa: Yup.number().required('Required'),
+    education: Yup.string().required('Required'),
+    gradeSlip: Yup.string().required('Required'),
+    program: Yup.string().nullable().required('Required'),
+  }),
   createEvent: Yup.object().shape({
     name: Yup.string().required('Required'),
     description: Yup.string().required('Required'),
@@ -54,6 +61,8 @@ export const FormikValidation = {
     fname: Yup.string().required('Required'),
     lname: Yup.string().required('Required'),
     level: Yup.string().required('Required'),
+    lastGwa: Yup.number().required('Required'),
+    education: Yup.string().required('Required'),
     program: Yup.string().nullable().required('Required'),
     address: Yup.string().required('Required'),
     email: Yup.string()
