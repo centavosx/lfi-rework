@@ -32,7 +32,13 @@ export const updateMe = async (
 }
 
 export const updateUser = async (
-  data?: Partial<UserInfo & RequiredFiles & { status: UserStatus }> & {
+  data?: Partial<
+    UserInfo &
+      RequiredFiles & {
+        status: UserStatus
+        scholarStatus: 'started' | 'rejected' | 'ended'
+      }
+  > & {
     id: string
   }
 ) => {
@@ -189,6 +195,48 @@ export const updateRole = async (data?: { id: string; role: Roles[] }) => {
     if (!data) return false
     const response = await apiAuth.patch('/user/role', data)
     return true
+  } catch (e) {
+    throw e
+  }
+}
+
+export const renewalScholar = async (data?: {
+  id: string
+  lastGwa: number
+  level: string
+  education: string
+  program: string
+  gradeSlip: string
+  enrollmentBill?: string
+}) => {
+  try {
+    if (!data) throw new Error()
+
+    const id = data.id
+    const response = await apiAuth.post('/user/renewal/' + id, {
+      ...data,
+      id: undefined,
+    })
+    return response.data
+  } catch (e) {
+    throw e
+  }
+}
+
+export const submitBill = async (data?: {
+  id: string
+
+  enrollmentBill: string
+}) => {
+  try {
+    if (!data) throw new Error()
+
+    const id = data.id
+    const response = await apiAuth.post('/user/enrollmentBill/' + id, {
+      ...data,
+      id: undefined,
+    })
+    return response.data
   } catch (e) {
     throw e
   }

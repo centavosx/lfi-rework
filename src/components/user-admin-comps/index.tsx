@@ -5,6 +5,7 @@ import { SelectV2 } from 'components/select'
 import {
   COLLEGE_PROGRAMS,
   DISPLAY_FILES,
+  LEVEL_EDUC,
   Level,
   RegFormType,
   SCHOOL_LEVEL,
@@ -39,27 +40,35 @@ export const UserRequiredFields = memo(
     ].find((v) => v.value === fields.program)
     return (
       <Flex flexDirection={'column'} sx={{ gap: 3 }}>
+        <FormInput
+          name="lastGwa"
+          type="number"
+          label="General Average"
+          placeholder="Type your general average"
+          value={fields.lastGwa}
+        />
         <Flex flexDirection={'column'} sx={{ width: '100%', gap: 2 }}>
           <FormControl fullWidth>
             <SelectV2
-              label="Level"
+              label="Education"
               options={SCHOOL_LEVEL}
               value={SCHOOL_LEVEL.find((v) => v.value === fields.level) as any}
               onChange={(v) => {
                 if (v === null) {
-                  onAnyChange('level', undefined)
+                  onAnyChange('education', undefined)
                 } else {
-                  onAnyChange('level', v.value)
+                  onAnyChange('education', v.value)
                 }
                 onAnyChange('program', undefined)
+                onAnyChange('level', undefined)
               }}
               placeholder="Select School Level"
             />
           </FormControl>
-          <InputError error={errors.level} />
+          <InputError error={errors.education} />
         </Flex>
 
-        {!!fields.level && (
+        {!!fields.education && (
           <Flex flexDirection={'column'} sx={{ width: '100%', gap: 2 }}>
             <SelectV2
               label="Program"
@@ -102,6 +111,30 @@ export const UserRequiredFields = memo(
             placeholder={'Please type program'}
             value={fields.program}
           />
+        )}
+
+        {!!fields.program && (
+          <Flex flexDirection={'column'} sx={{ width: '100%', gap: 2 }}>
+            <SelectV2
+              label="Level"
+              placeholder="Select Education LEvel"
+              options={[
+                { label: 'Select Education Level...', value: undefined },
+                ...LEVEL_EDUC,
+              ]}
+              value={LEVEL_EDUC.find((v) => v.value === fields.education)!}
+              onChange={(v) => {
+                if (v === null) {
+                  onAnyChange('level', undefined)
+                  return
+                }
+
+                onAnyChange('level', (v as any).value)
+              }}
+            />
+
+            <InputError error={errors.level} />
+          </Flex>
         )}
         <Flex flexWrap={'wrap'} flexDirection={'column'} sx={{ gap: 2 }}>
           {DISPLAY_FILES.map((_, i) => {

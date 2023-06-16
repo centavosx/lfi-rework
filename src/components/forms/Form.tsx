@@ -12,6 +12,7 @@ export const FormContainer = ({
   labelProps,
   image,
   imageProps,
+  custom,
   ...others
 }: CSSProperties & {
   flexProps?: FlexProps
@@ -19,7 +20,8 @@ export const FormContainer = ({
   label?: string
   image?: string
   imageProps?: ImageProps
-  children?: any | any[] | null
+  children?: ReactNode | null
+  custom?: ReactNode
 }) => {
   const { sx, ...flexOther } = flexProps ?? { sx: undefined }
   return (
@@ -37,11 +39,14 @@ export const FormContainer = ({
             {...imageProps}
           />
         )}
-        {!!label && (
-          <Label as={'h2'} color="black" {...labelProps}>
-            {label}
-          </Label>
-        )}
+        <Flex flexDirection={['column', 'row', 'row']} sx={{ gap: 2 }}>
+          {!!label && (
+            <Label as={'h2'} color="black" flex={1} {...labelProps}>
+              {label}
+            </Label>
+          )}
+          {custom}
+        </Flex>
         {children}
       </Flex>
     </Form>

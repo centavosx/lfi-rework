@@ -69,7 +69,7 @@ export type Scholar = {
 
   gradeSlip: string
 
-  enrollmentSlip: string
+  enrollmentBill: string
 
   status: 'started' | 'ended'
 
