@@ -1,11 +1,11 @@
 import {
   Dispatch,
-  Fragment,
   ReactNode,
   useContext,
   useEffect,
   useRef,
   useState,
+  SetStateAction,
 } from 'react'
 import { Flex, Image, Link as Anchor, FlexProps, Text as Text2 } from 'rebass'
 import Navigation from '../navigation'
@@ -255,7 +255,10 @@ export const Main = ({
   children,
 }: { pageTitle?: string } & FlexProps) => {
   const device = useContext(IPAndDeviceContext)
-  const { user } = useUser()
+  const {
+    user,
+    roles: { isUser },
+  } = useUser()
   const { asPath, pathname } = useRouter()
 
   useEffect(() => {
@@ -387,9 +390,11 @@ export const Main = ({
           alignSelf="center"
         >
           {!!user?.scholar &&
+            user.status === UserStatus.ACTIVE &&
+            isUser &&
             !user?.scholar?.sort(
               (a: any, b: any) => new Date(b).getTime() - new Date(a).getTime()
-            )[0].enrollmentBill && (
+            )?.[0]?.enrollmentBill && (
               <IsOpenOrClose>
                 {(v, setO) => (
                   <Flex

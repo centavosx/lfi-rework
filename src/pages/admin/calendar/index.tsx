@@ -1,8 +1,10 @@
 import { useState, useEffect, useMemo, memo } from 'react'
 import { EventCalendar, Event } from 'components/calendar'
-import { AdminMain } from 'components/main'
-import { ButtonModal, CustomModal } from 'components/modal'
+
+import { CustomModal } from 'components/modal'
+import { AreYouSure } from 'components/are-you-sure'
 import { ListContainer, ListItem } from 'components/ul'
+
 import {
   endOfDay,
   endOfMonth,
@@ -24,7 +26,11 @@ import { EventDto } from 'constant'
 import { useApi, useApiPost, useUser } from 'hooks'
 import { getDailyEvents, getMonthlyEvents, postEvent } from 'api'
 import { Loading } from 'components/loading'
-import { getAnnouncements } from 'api/announcement.api'
+import {
+  deleteAnnouncement,
+  getAnnouncements,
+  postAnnouncement,
+} from 'api/announcement.api'
 import { CircularProgress } from '@mui/material'
 
 const CreateEvent = memo(({ onSuccess }: { onSuccess?: () => void }) => {
@@ -112,80 +118,107 @@ type EventProp = {
   color: string
 }
 
-export const DisplayEvents = memo(({ date }: { date: Date }) => {
-  const { data: dailies, isFetching } = useApi<
-    EventProp[],
-    { startDate: Date; endDate: Date }
-  >(getDailyEvents, false, {
-    startDate: startOfDay(date),
-    endDate: endOfDay(date),
-  })
+export const DisplayEvents = memo(
+  ({ date, isAdmin }: { date: Date; isAdmin?: boolean }) => {
+    const {
+      data: dailies,
+      isFetching,
+      refetch,
+    } = useApi<EventProp[], { startDate: Date; endDate: Date }>(
+      getDailyEvents,
+      false,
+      {
+        startDate: startOfDay(date),
+        endDate: endOfDay(date),
+      }
+    )
 
-  const events = useMemo(() => {
-    if (!dailies) return []
+    const events = useMemo(() => {
+      if (!dailies) return []
 
-    return dailies
-      .map((v) => {
-        const fDate = new Date(v.start_date)
-        const eDate = new Date(v.end_date)
-        return { ...v, start_date: fDate, end_date: eDate }
-      })
-      .sort((a, b) => {
-        const fDate = a.start_date.getTime()
-        const sDate = b.start_date.getTime()
-        return fDate - sDate
-      })
-  }, [dailies])
+      return dailies
+        .map((v) => {
+          const fDate = new Date(v.start_date)
+          const eDate = new Date(v.end_date)
+          return { ...v, start_date: fDate, end_date: eDate }
+        })
+        .sort((a, b) => {
+          const fDate = a.start_date.getTime()
+          const sDate = b.start_date.getTime()
+          return fDate - sDate
+        })
+    }, [dailies])
 
-  return (
-    <Flex flexDirection={'column'} sx={{ gap: 4, mt: 3 }}>
-      {isFetching ? (
-        <CircularProgress style={{ margin: 'auto' }} />
-      ) : (
-        <>
-          <Flex flexDirection={'column'} sx={{ gap: 2 }}>
-            <Text as={'h4'}>Earliest Event</Text>
-            <ListContainer>
-              {events.length > 0 ? (
-                <Event
-                  eventName={events[0].name}
-                  from={format(events[0].start_date, `LLLL d'@'hh:mm a`)}
-                  to={format(events[0].end_date, `LLLL d'@'hh:mm a`)}
-                  description={events[0].description}
-                />
-              ) : (
-                <Text as={'h4'}>{'No items'}</Text>
-              )}
-            </ListContainer>
-          </Flex>
-          <Flex flexDirection={'column'} sx={{ gap: 2 }}>
-            <Text as={'h4'}>Next Events</Text>
-            <ListContainer>
-              {events
-                .filter((_, i) => i > 0)
-                .map((v) => {
-                  const startDate = new Date(v.start_date)
-                  const endDate = new Date(v.end_date)
+    return (
+      <Flex flexDirection={'column'} sx={{ gap: 4, mt: 3 }}>
+        {isFetching ? (
+          <CircularProgress style={{ margin: 'auto' }} />
+        ) : (
+          <>
+            <Flex flexDirection={'column'} sx={{ gap: 2 }}>
+              <Text as={'h4'}>Earliest Event</Text>
+              <ListContainer>
+                {events.length > 0 ? (
+                  <Event
+                    id={events[0]?.id}
+                    isAdmin={isAdmin}
+                    eventName={events[0].name}
+                    from={format(events[0].start_date, `LLLL d'@'hh:mm a`)}
+                    to={format(events[0].end_date, `LLLL d'@'hh:mm a`)}
+                    description={events[0].description}
+                    onDelete={() =>
+                      refetch({
+                        startDate: startOfDay(date),
+                        endDate: endOfDay(date),
+                      })
+                    }
+                    start={events[0].start_date}
+                    end={events[0].end_date}
+                  />
+                ) : (
+                  <Text as={'h4'}>{'No items'}</Text>
+                )}
+              </ListContainer>
+            </Flex>
+            <Flex flexDirection={'column'} sx={{ gap: 2 }}>
+              <Text as={'h4'}>Next Events</Text>
+              <ListContainer>
+                {events
+                  .filter((_, i) => i > 0)
+                  .map((v) => {
+                    const startDate = new Date(v.start_date)
+                    const endDate = new Date(v.end_date)
 
-                  const start = format(startDate, `LLLL d'@'hh:mm a`)
-                  const end = format(endDate, `LLLL d'@'hh:mm a`)
-                  return (
-                    <Event
-                      key={v.id}
-                      eventName={v.name}
-                      from={start}
-                      to={end}
-                      description={v.description}
-                    />
-                  )
-                })}
-            </ListContainer>
-          </Flex>
-        </>
-      )}
-    </Flex>
-  )
-})
+                    const start = format(startDate, `LLLL d'@'hh:mm a`)
+                    const end = format(endDate, `LLLL d'@'hh:mm a`)
+                    return (
+                      <Event
+                        key={v.id}
+                        id={events[0].id}
+                        eventName={v.name}
+                        from={start}
+                        to={end}
+                        isAdmin={isAdmin}
+                        description={v.description}
+                        onDelete={() =>
+                          refetch({
+                            startDate: startOfDay(date),
+                            endDate: endOfDay(date),
+                          })
+                        }
+                        start={startDate}
+                        end={endDate}
+                      />
+                    )
+                  })}
+              </ListContainer>
+            </Flex>
+          </>
+        )}
+      </Flex>
+    )
+  }
+)
 
 DisplayEvents.displayName = 'DisplayEvents'
 
@@ -193,21 +226,36 @@ export default function Calendar() {
   const today = new Date()
   const { roles } = useUser()
   const [selectedDate, setSelectedDate] = useState(new Date())
+
+  const [month, setMonth] = useState(new Date())
+
   const { data, refetch, isFetching } = useApi<
     (EventProp & { day: number })[],
     { startDate: Date; endDate: Date }
   >(getMonthlyEvents, true)
 
-  const { data: dailies, isFetching: isLoading } = useApi<
-    EventProp[],
-    { startDate: Date; endDate: Date }
-  >(getDailyEvents, false, {
-    startDate: startOfDay(today),
-    endDate: endOfDay(today),
-  })
+  const {
+    data: dailies,
+    isFetching: isLoading,
+    refetch: refetchDaily,
+  } = useApi<EventProp[], { startDate: Date; endDate: Date }>(
+    getDailyEvents,
+    false,
+    {
+      startDate: startOfDay(today),
+      endDate: endOfDay(today),
+    }
+  )
 
-  const { data: announcements, isFetching: isAnnouncementLoading } = useApi<
-    { data: { name: string; description: string }[]; total: number },
+  const {
+    data: announcements,
+    isFetching: isAnnouncementLoading,
+    refetch: refetchAnnouncement,
+  } = useApi<
+    {
+      data: { id: string; title: string; description: string }[]
+      total: number
+    },
     {
       page: number
       limit: number
@@ -215,7 +263,7 @@ export default function Calendar() {
     }
   >(getAnnouncements, false, {
     page: 0,
-    limit: 5,
+    limit: 25,
     other: {
       sort: 'desc',
     },
@@ -247,6 +295,24 @@ export default function Calendar() {
     return mv
   }, [data])
 
+  const refreshItems = () => {
+    refetch({
+      startDate: startOfMonth(month),
+      endDate: endOfMonth(month),
+    })
+    refetchDaily({
+      startDate: startOfDay(today),
+      endDate: endOfDay(today),
+    })
+  }
+
+  useEffect(() => {
+    refetch({
+      startDate: startOfMonth(month),
+      endDate: endOfMonth(month),
+    })
+  }, [month])
+
   return (
     <Flex
       sx={{
@@ -257,10 +323,16 @@ export default function Calendar() {
       }}
     >
       <CustomModal
+        onClose={() => refreshItems()}
         title={format(selectedDate, 'cccc LLLL d, yyyy')}
         titleProps={{ as: 'h3' }}
         maxHeight={'80%'}
-        modalChild={<DisplayEvents date={selectedDate} />}
+        modalChild={
+          <DisplayEvents
+            date={selectedDate}
+            isAdmin={roles.isSuper || roles.isAdminWrite}
+          />
+        }
       >
         {({ isOpen, setOpen }) => (
           <Flex flexDirection={['column']} sx={{ gap: 4 }}>
@@ -270,7 +342,7 @@ export default function Calendar() {
                   <Text as={'h1'} width={'100%'}>
                     Events
                   </Text>
-                  {isLoading || isAnnouncementLoading ? (
+                  {isLoading || isFetching ? (
                     <Flex flex={1} justifyContent={'flex-end'}>
                       <CircularProgress
                         size={24}
@@ -281,8 +353,14 @@ export default function Calendar() {
                     <CustomModal
                       title={format(selectedDate, 'cccc LLLL d')}
                       titleProps={{ as: 'h3' }}
-                      maxHeight={'80%'}
-                      modalChild={<CreateEvent />}
+                      modalChild={({ setOpen }) => (
+                        <CreateEvent
+                          onSuccess={() => {
+                            refreshItems()
+                            setOpen(false)
+                          }}
+                        />
+                      )}
                     >
                       {({ setOpen: setO }) =>
                         (roles.isAdminWrite || roles.isSuper) && (
@@ -297,17 +375,7 @@ export default function Calendar() {
                   )}
                 </Flex>
                 <hr style={{ width: '100%' }} />
-                <Flex sx={{ gap: 2 }} alignItems={'center'}>
-                  <Text as={'h3'}>Today</Text>
-                  <Button
-                    onClick={() => {
-                      setSelectedDate(today)
-                      setOpen(true)
-                    }}
-                  >
-                    View
-                  </Button>
-                </Flex>
+
                 {!!dailies && dailies?.length > 0 ? (
                   <ListContainer>
                     {dailies?.map((v) => {
@@ -335,20 +403,118 @@ export default function Calendar() {
                   </Text>
                 )}
                 <hr style={{ width: '100%' }} />
-                <Flex sx={{ gap: 2 }} mt={2} alignItems={'center'}>
-                  <Text as={'h3'}>Announcements</Text>
-                  <Button
-                    onClick={() => {
-                      setSelectedDate(today)
-                      setOpen(true)
-                    }}
-                  >
-                    View All
-                  </Button>
+                <Flex flexDirection={'column'} maxHeight={250}>
+                  <Flex alignItems={'center'}>
+                    <Text as={'h2'} width={'100%'}>
+                      Announcements
+                    </Text>
+                    {isAnnouncementLoading ? (
+                      <Flex flex={1} justifyContent={'flex-end'}>
+                        <CircularProgress
+                          size={24}
+                          style={{ alignSelf: 'center' }}
+                        />
+                      </Flex>
+                    ) : (
+                      <CustomModal
+                        title={format(selectedDate, 'cccc LLLL d')}
+                        titleProps={{ as: 'h3' }}
+                        maxHeight={'80%'}
+                        modalChild={({ setOpen }) => (
+                          <CreateAnnouncement
+                            onSuccess={() => {
+                              refetchAnnouncement({
+                                page: 0,
+                                limit: 25,
+                                other: {
+                                  sort: 'desc',
+                                },
+                              })
+                              setOpen(false)
+                            }}
+                          />
+                        )}
+                      >
+                        {({ setOpen: setO }) =>
+                          (roles.isAdminWrite || roles.isSuper) && (
+                            <AiFillPlusCircle
+                              size={24}
+                              cursor={'pointer'}
+                              onClick={() => setO(true)}
+                            />
+                          )
+                        }
+                      </CustomModal>
+                    )}
+                  </Flex>
+                  {!!announcements && announcements.data?.length > 0 ? (
+                    <Flex
+                      flexDirection={'column'}
+                      sx={{ gap: 2 }}
+                      mt={3}
+                      overflowY={'auto'}
+                    >
+                      {announcements?.data.map((v, i) => (
+                        <Flex key={v.id} flexDirection={'column'}>
+                          <Flex flexDirection={'row'}>
+                            <Text as={'h4'} flex={0.98}>
+                              {i + 1}. {v.title}
+                            </Text>
+
+                            <CustomModal
+                              width={250}
+                              modalChild={
+                                <AreYouSure
+                                  message="Are you sure you want to delete?"
+                                  onClick={(ch) =>
+                                    !!ch &&
+                                    deleteAnnouncement(v.id).finally(() =>
+                                      refetchAnnouncement({
+                                        page: 0,
+                                        limit: 25,
+                                        other: {
+                                          sort: 'desc',
+                                        },
+                                      })
+                                    )
+                                  }
+                                />
+                              }
+                            >
+                              {({ setOpen }) => (
+                                <Text
+                                  color={'red'}
+                                  sx={{
+                                    textDecoration: 'underline',
+                                    cursor: 'pointer',
+                                  }}
+                                  onClick={() => {
+                                    setOpen(true)
+                                  }}
+                                >
+                                  Delete
+                                </Text>
+                              )}
+                            </CustomModal>
+                          </Flex>
+                          <Text
+                            ml={3}
+                            sx={{
+                              wordBreak: 'break-all',
+                              whiteSpace: 'normal',
+                            }}
+                          >
+                            {v.description}
+                          </Text>
+                        </Flex>
+                      ))}
+                    </Flex>
+                  ) : (
+                    <Text as={'h3'} fontWeight={400} mt={3}>
+                      No Announcements
+                    </Text>
+                  )}
                 </Flex>
-                {announcements?.data.map((v, i) => (
-                  <Text key={i}>{v.name}</Text>
-                ))}
               </Flex>
             </Flex>
             <EventCalendar
@@ -357,10 +523,7 @@ export default function Calendar() {
               isOpen={isOpen}
               data={mappedValues}
               currentViewDate={(v) => {
-                refetch({
-                  startDate: startOfMonth(v),
-                  endDate: endOfMonth(v),
-                })
+                setMonth(v)
               }}
             />
           </Flex>
@@ -369,3 +532,70 @@ export default function Calendar() {
     </Flex>
   )
 }
+
+export const CreateAnnouncement = memo(
+  ({ onSuccess }: { onSuccess?: () => void }) => {
+    const { isFetching, isSuccess, callApi } = useApiPost(postAnnouncement)
+
+    useEffect(() => {
+      if (!!isSuccess) onSuccess?.()
+    }, [isSuccess])
+
+    return (
+      <Formik<{ title: string; description: string }>
+        initialValues={{
+          title: '',
+          description: '',
+        }}
+        validationSchema={FormikValidation.createAnnouncement}
+        validateOnMount={true}
+        onSubmit={(v, { setSubmitting }) => {
+          setSubmitting(true)
+          callApi(v)
+          setSubmitting(false)
+        }}
+      >
+        {({ isSubmitting, values }) => (
+          <FormContainer marginTop={20} flexProps={{ sx: { gap: 3 } }}>
+            {isSubmitting && <Loading />}
+            {isFetching ? (
+              <CircularProgress style={{ margin: 'auto' }} />
+            ) : (
+              <>
+                <FormInput
+                  name="title"
+                  label="Title"
+                  placeholder="Type event name"
+                />
+                <FormInput
+                  name="description"
+                  label="Description"
+                  placeholder="Type description"
+                  multiline={true}
+                  variant="outlined"
+                  inputcolor={{
+                    labelColor: 'gray',
+                    backgroundColor: 'white',
+                    borderBottomColor: theme.mainColors.first,
+
+                    color: 'black',
+                  }}
+                  maxRows={7}
+                  padding={20}
+                  paddingBottom={14}
+                  sx={{ color: 'black', width: '100%' }}
+                />
+
+                <Button type="submit" style={{ width: 150 }}>
+                  Submit
+                </Button>
+              </>
+            )}
+          </FormContainer>
+        )}
+      </Formik>
+    )
+  }
+)
+
+CreateAnnouncement.displayName = 'CreateAnnoiuncement'

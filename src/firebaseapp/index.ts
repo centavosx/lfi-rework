@@ -201,7 +201,20 @@ export class FirebaseAdminRealtimeMessaging<
     super(id, 'users', [undefined, orderBy('chatModified', 'desc')])
   }
 
-  public async readData(id?: string | undefined): Promise<void> {}
+  public async readData(id?: string | undefined): Promise<void> {
+    try {
+      await runTransaction(db, async (transaction) => {
+        const q = query(collection(db, this.db), where('id', '==', id))
+
+        const snap = await getDocs(q)
+
+        snap.forEach((v) => {
+          const ref = doc(db, this.db, v.id)
+          transaction.update(ref, { read: true })
+        })
+      })
+    } catch {}
+  }
   public async getUnreadCount() {
     const q = query(collection(db, this.db), where('read', '==', false))
     const snap = await getDocs(q)
@@ -246,7 +259,7 @@ export class FirebaseRealtimeMessaging<
             transaction.set(doc(db, 'users', newUser.id), {
               id: this.id,
               lastMessage: data.message,
-              read: false,
+              read: this.id !== data.from,
               chatModified: Timestamp.now().toMillis(),
             })
             return
@@ -260,7 +273,7 @@ export class FirebaseRealtimeMessaging<
         const ref = doc(db, 'users', this.refId!)
         transaction.update(ref, {
           lastMessage: data.message,
-          read: false,
+          read: this.id !== data.from,
           chatModified: Timestamp.now().toMillis(),
         })
       })

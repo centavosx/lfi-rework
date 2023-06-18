@@ -4,7 +4,10 @@ import { theme } from 'utils/theme'
 import { format } from 'date-fns'
 import { Input } from 'components/input'
 import { Button } from 'components/button'
-import { FirebaseRealtimeMessaging } from 'firebaseapp'
+import {
+  FirebaseAdminRealtimeMessaging,
+  FirebaseRealtimeMessaging,
+} from 'firebaseapp'
 
 export const ChatMessages = ({ id, from }: { id: string; from: string }) => {
   const [data, setData] = useState<
@@ -19,6 +22,7 @@ export const ChatMessages = ({ id, from }: { id: string; from: string }) => {
   const fb = useRef(
     new FirebaseRealtimeMessaging<{ message: string }>(id)
   ).current
+  const fb2 = useRef(new FirebaseAdminRealtimeMessaging(id)).current
 
   const [isMounted, setIsMounted] = useState(false)
 
@@ -52,6 +56,7 @@ export const ChatMessages = ({ id, from }: { id: string; from: string }) => {
 
   useEffect(() => {
     fb.readData(from)
+    if (from !== id) fb2.readData(id)
   }, [data])
 
   return (
@@ -137,9 +142,17 @@ export const UserMessage = ({
 
 const ChatInput = memo(({ id, from }: { id: string; from: string }) => {
   const [message, setMessage] = useState('')
-  const fb = useRef(
+  let fb = useRef(
     new FirebaseRealtimeMessaging<{ message: string; from: string }>(id)
-  ).current
+  )
+
+  useEffect(() => {
+    fb.current = new FirebaseRealtimeMessaging<{
+      message: string
+      from: string
+    }>(id)
+  }, [id])
+
   return (
     <Flex flexDirection={['column', 'row']} sx={{ gap: 2 }}>
       <Input
@@ -163,8 +176,10 @@ const ChatInput = memo(({ id, from }: { id: string; from: string }) => {
       <Button
         style={{ width: 50, height: 40 }}
         onClick={() => {
-          fb.sendData({ message, from })
-          setMessage('')
+          if (!!id) {
+            fb.current.sendData({ message, from })
+            setMessage('')
+          }
         }}
       >
         Send
@@ -186,13 +201,44 @@ export const Chat = ({
   from?: string
   img?: string
 }) => {
+  const [selected, setSelected] = useState({
+    loading: false,
+    id: '',
+  })
+
+  useEffect(() => {
+    setSelected({
+      id: '',
+      loading: true,
+    })
+    setTimeout(() => {
+      setSelected({
+        id,
+        loading: false,
+      })
+    }, 300)
+  }, [id])
+
   return (
     <Flex sx={{ flexDirection: 'column', gap: 2, overflow: 'auto' }} flex={1}>
-      <Flex sx={{ gap: 2, alignItems: 'center' }} mb={2}>
-        <Image src={img} size={64} sx={{ borderRadius: '100%' }} alt="logo" />
-        <Text as={'h2'}>{title}</Text>
-      </Flex>
-      <ChatMessages id={id} from={from ?? id} />
+      {selected.id && !selected.loading ? (
+        <>
+          <Flex sx={{ gap: 2, alignItems: 'center' }} mb={2}>
+            <Image
+              src={img || '/assets/logo.png'}
+              size={64}
+              sx={{ borderRadius: '100%' }}
+              alt="logo"
+            />
+            <Text as={'h2'}>{title}</Text>
+          </Flex>
+
+          <ChatMessages id={id} from={from ?? id} />
+        </>
+      ) : (
+        <Flex flex={1}></Flex>
+      )}
+
       <ChatInput id={id} from={from ?? id} />
     </Flex>
   )

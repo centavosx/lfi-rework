@@ -151,10 +151,10 @@ export const DISPLAY_FILES = [
   { name: 'birthCert', title: 'Photocopy of PSA Birth Certificate ' },
   { name: 'autobiography', title: 'Autobiography' },
   { name: 'homeSketch', title: 'Sketch of Home Address' },
-  { name: 'waterBill', title: 'Water Bill' },
-  { name: 'electricBill', title: 'Electric Bill' },
-  { name: 'wifiBill', title: 'Wifi Bill' },
-  { name: 'enrollmentBill', title: 'Enrollment Bill' },
+  { name: 'waterBill', title: 'Water Bill (Optional)' },
+  { name: 'electricBill', title: 'Electric Bill (Optional)' },
+  { name: 'wifiBill', title: 'Wifi Bill (Optional)' },
+  { name: 'enrollmentBill', title: 'Enrollment Bill (Optional)' },
 ]
 
 export const SCHOOL_LEVEL: Option<string, Level>[] = [

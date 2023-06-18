@@ -178,8 +178,6 @@ export const UploadProcess = memo(
                   'image/jpeg',
                   'image/png',
                   'application/pdf',
-                  'application/doc',
-                  'application/docx',
                 ]}
               >
                 <span

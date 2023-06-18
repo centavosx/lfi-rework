@@ -24,6 +24,9 @@ import {
 
 import { UserStatus } from 'entities'
 import { UserRequiredFields } from 'components/user-admin-comps'
+import { CustomModal } from 'components/modal'
+import { Checkbox, FormControlLabel } from '@mui/material'
+import { ListContainer, ListItem } from 'components/ul'
 
 const ValidateEmail = () => {
   const { user, refetch } = useUser()
@@ -169,11 +172,18 @@ export default function RegisterUser() {
       {user?.status === UserStatus.PENDING ? (
         <ValidateEmail />
       ) : (
-        <Formik<RegFormType>
+        <Formik<RegFormType & { checked: boolean }>
           key={1}
-          initialValues={{ fname: '', lname: '', email: '', address: '' }}
+          initialValues={{
+            fname: '',
+            lname: '',
+            email: '',
+            address: '',
+            checked: false,
+          }}
           validationSchema={FormikValidation.register}
           onSubmit={(values, { setSubmitting }) => {
+            delete (values as any).checked
             setSubmitting(true)
             callApi(values as any)
             setSubmitting(false)
@@ -181,12 +191,17 @@ export default function RegisterUser() {
           validateOnMount={true}
           validateOnChange={true}
         >
-          {({ values, isSubmitting, setFieldValue, errors }) => (
+          {({
+            values,
+            isSubmitting,
+            setFieldValue,
+            errors,
+            isValid,
+            submitForm,
+          }) => (
             <FormContainer
               flex={1}
               label={`Sign up for scholar`}
-              // image="/assets/logo.png"
-              // imageProps={{ height: 100, width: 100, margin: 'none' }}
               labelProps={{ sx: { justifyContent: 'left' } }}
               flexProps={{ sx: { gap: 20, mb: 30 } }}
             >
@@ -257,14 +272,120 @@ export default function RegisterUser() {
               />
               <ScrollToError>
                 {(scroll) => (
-                  <Button
-                    style={{ width: 120, alignSelf: 'flex-end' }}
-                    type="submit"
-                    disabled={isSubmitting}
-                    onClick={() => scroll()}
+                  <CustomModal
+                    onClose={scroll}
+                    title={'Please fill up all required fields'}
+                    titleProps={{ as: 'h3' }}
+                    modalChild={({ setOpen }) => {
+                      return (
+                        <Flex flexDirection={'column'} sx={{ gap: 2, mt: 2 }}>
+                          <Button
+                            style={{ width: 300 }}
+                            onClick={() => setOpen(false)}
+                          >
+                            Ok
+                          </Button>
+                        </Flex>
+                      )
+                    }}
+                    maxWidth={350}
                   >
-                    Sign up
-                  </Button>
+                    {({ isOpen, setOpen }) => (
+                      <Flex
+                        flexDirection={'column'}
+                        alignSelf={'flex-end'}
+                        sx={{ gap: 2 }}
+                      >
+                        <CustomModal
+                          title="Terms and Condition"
+                          titleProps={{ as: 'h3' }}
+                          modalChild={() => {
+                            return (
+                              <Flex flexDirection={'column'}>
+                                <Text>
+                                  By applying to the Lao Foundation Inc.
+                                  scholarship program, the applicant agrees that
+                                  the Lao Foundation Inc. will be collecting,
+                                  storing, and processing their personal data
+                                  and is not limited to their:
+                                </Text>
+                                <ListContainer>
+                                  {[
+                                    'Full Name',
+                                    'Email',
+                                    'Address',
+                                    'ID Picture (2x2)',
+                                    'Photocopy of National Career  Assessment Examination(NCAE)',
+                                    'Certificate of Indigency',
+                                    'Photocopy of Pantawid ID',
+                                    'Grade Slip',
+                                    'Photocopy of PSA Birth Certificate',
+                                    'Autobiography',
+                                    'Sketch of Home Address',
+                                    'Water Bill',
+                                    'Electric Bill',
+                                    'Wifi Bill',
+                                  ].map((v, i) => (
+                                    <ListItem key={i}>{v}</ListItem>
+                                  ))}
+                                </ListContainer>
+                                <Text>
+                                  The foundation will use this information to
+                                  assess your application and if the applicant
+                                  is to be given the merit of scholarship; hence
+                                  the information gathered will not be used and
+                                  shared publicly but within Lao Foundation Inc.
+                                  only.
+                                </Text>
+                              </Flex>
+                            )
+                          }}
+                        >
+                          {({ setOpen }) => (
+                            <Flex
+                              flexDirection={'row'}
+                              alignItems={'center'}
+                              name="checked"
+                            >
+                              <Checkbox
+                                checked={values.checked}
+                                style={{ pointerEvents: 'auto' }}
+                                onClick={() => {
+                                  setFieldValue('checked', !values.checked)
+                                }}
+                              />{' '}
+                              <Text>
+                                By clicking this checkbox, you agree to our{' '}
+                                <span
+                                  style={{
+                                    textDecoration: 'underline',
+                                    color: theme.colors.green,
+                                    cursor: 'pointer',
+                                    pointerEvents: 'auto',
+                                  }}
+                                  onClick={() => setOpen(true)}
+                                >
+                                  terms and conditions
+                                </span>
+                              </Text>
+                            </Flex>
+                          )}
+                        </CustomModal>
+                        <Button
+                          style={{ width: 120, alignSelf: 'flex-end' }}
+                          type="submit"
+                          disabled={isSubmitting}
+                          onClick={() => {
+                            if (!isValid) {
+                              setOpen(true)
+                            }
+                          }}
+                        >
+                          Sign up
+                        </Button>
+                      </Flex>
+                    )}
+                  </CustomModal>
                 )}
               </ScrollToError>
             </FormContainer>

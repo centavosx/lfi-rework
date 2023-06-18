@@ -1,5 +1,5 @@
-import { memo } from 'react'
-import { TextProps } from 'rebass'
+import { memo, useEffect, useRef } from 'react'
+import { TextProps, Flex, Text as TextCopy } from 'rebass'
 import { theme } from '../../../utils/theme'
 import { Text } from '../../text'
 import Drawer from '@mui/material/Drawer'
@@ -15,6 +15,7 @@ import {
 import { Button } from '../../button'
 import { useRouter } from 'next/router'
 import { useUser } from 'hooks'
+import { FirebaseAdminRealtimeMessaging } from 'firebaseapp'
 
 const LinkRef = ({
   href,
@@ -25,10 +26,11 @@ const LinkRef = ({
 }: { href: string; isCurrent: boolean } & TextProps) => {
   const { push } = useRouter()
   return (
-    <Text
+    <Flex
       width={'auto'}
       fontWeight={'bold'}
       sx={{
+        position: 'relative',
         fontSize: [14, 16],
         fontFamily: 'Castego',
         borderRadius: 8,
@@ -49,7 +51,7 @@ const LinkRef = ({
       {...others}
     >
       {children}
-    </Text>
+    </Flex>
   )
 }
 
@@ -60,9 +62,45 @@ const navigations = [
   'Applicants',
   'Admins',
   'Chats',
-
   'Audits',
+  'Logout',
 ]
+
+const ChatNumber = ({ isSelected }: { isSelected: boolean }) => {
+  const [num, setNum] = useState(0)
+  const fb2 = useRef(new FirebaseAdminRealtimeMessaging('')).current
+
+  useEffect(() => {
+    const sub = fb2.listen(() => {
+      fb2.getUnreadCount().then((v) => {
+        setNum(v)
+      })
+    })
+
+    return () => {
+      sub()
+    }
+  }, [])
+
+  return !!num ? (
+    <Flex
+      sx={{
+        position: 'absolute',
+        right: 10,
+        backgroundColor: isSelected ? 'white' : 'black',
+        borderRadius: '100%',
+        width: 24,
+        height: 24,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <TextCopy color={isSelected ? 'black' : 'white'}>{num}</TextCopy>
+    </Flex>
+  ) : (
+    <></>
+  )
+}
 
 export const AdminWebNavigation = memo(() => {
   const { pathname } = useRouter()
@@ -70,20 +108,31 @@ export const AdminWebNavigation = memo(() => {
 
   return (
     <>
-      {navigations.map((data) => (
-        <LinkRef
-          key={data}
-          href={data?.split(' ').join('').toLowerCase()}
-          color={
-            pathname.includes(data?.split(' ').join('').toLowerCase())
-              ? theme.colors.white
-              : 'lightgray'
-          }
-          isCurrent={pathname.includes(data?.split(' ').join('').toLowerCase())}
-        >
-          {data}
-        </LinkRef>
-      ))}
+      {navigations
+        .filter((v) => v !== 'Logout')
+        .map((data) => (
+          <LinkRef
+            key={data}
+            href={data?.split(' ').join('').toLowerCase()}
+            color={
+              pathname.includes(data?.split(' ').join('').toLowerCase())
+                ? theme.colors.white
+                : 'lightgray'
+            }
+            isCurrent={pathname.includes(
+              data?.split(' ').join('').toLowerCase()
+            )}
+          >
+            {data}
+            {data === 'Chats' && (
+              <ChatNumber
+                isSelected={pathname.includes(
+                  data?.split(' ').join('').toLowerCase()
+                )}
+              />
+            )}
+          </LinkRef>
+        ))}
       <Text
         width={'auto'}
         fontWeight={'bold'}
@@ -114,6 +163,7 @@ export const AdminWebNavigation = memo(() => {
 AdminWebNavigation.displayName = 'AdminWebNavigation'
 
 export const AdminMobileNavigation = memo(() => {
+  const { logout } = useUser()
   const { replace } = useRouter()
   const [state, setState] = useState({
     left: false,
@@ -143,9 +193,13 @@ export const AdminMobileNavigation = memo(() => {
         {navigations.map((data: string, i) => (
           <ListItem key={i} disablePadding={true}>
             <ListItemButton
-              onClick={() =>
+              onClick={() => {
+                if (data === 'Logout') {
+                  logout()
+                  return
+                }
                 replace('/admin/' + data?.split(' ').join('').toLowerCase())
-              }
+              }}
             >
               <ListItemText primary={data} />
             </ListItemButton>

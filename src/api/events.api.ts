@@ -35,3 +35,26 @@ export const getDailyEvents = async (data?: {
   })
   return response
 }
+
+export const deleteEvent = async (id: string) => {
+  try {
+    const response = await apiAuth.delete('/events/' + id)
+    return true
+  } catch (e) {
+    throw e
+  }
+}
+
+export const patchEvent = async (data?: EventDto & { id: string }) => {
+  try {
+    if (!data) return null
+    const values = structuredClone<Partial<typeof data>>(data)
+    const uid = data.id
+
+    delete values.id
+    const response = await apiAuth.patch('/events/' + uid, values)
+    return response.data
+  } catch (e) {
+    throw e
+  }
+}
