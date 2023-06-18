@@ -2,9 +2,12 @@ import { Chat } from 'components/chat'
 import { SearchableInput } from 'components/input'
 import { Section } from 'components/sections'
 import { format } from 'date-fns'
-import { FirebaseAdminRealtimeMessaging } from 'firebaseapp'
+import {
+  FirebaseAdminRealtimeMessaging,
+  FirebaseRealtimeMessaging,
+} from 'firebaseapp'
 import { useUser } from 'hooks'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, memo } from 'react'
 import { Flex, Image, Text } from 'rebass'
 import { theme } from 'utils/theme'
 
@@ -80,6 +83,8 @@ const UserInfoContainer = ({
         return (
           <UserInfo
             key={v.id}
+            id={id}
+            selectedId={v.id}
             isSelected={!!selectedId && v.id === selectedId}
             name={v.name}
             img={v.picture}
@@ -95,60 +100,112 @@ const UserInfoContainer = ({
   )
 }
 
-const UserInfo = ({
-  img,
-  name,
-  date,
-  message,
-  onClick,
-  isSelected,
-}: {
-  isSelected: boolean
-  onClick: () => void
-  img?: string
-  name: string
-  date: string
-  message?: string
-}) => {
-  return (
-    <Flex
-      sx={{
-        gap: 2,
-        alignItems: 'center',
-        backgroundColor: isSelected ? theme.colors.green : '',
-
-        ':hover': {
-          backgroundColor: theme.colors.green,
-        },
-        padding: 2,
-        cursor: 'pointer',
-      }}
-      onClick={onClick}
-    >
-      <Image
-        src={
-          !img
-            ? isSelected
-              ? '/assets/logo-white.png'
-              : '/assets/logo.png'
-            : img
+const UserInfo = memo(
+  ({
+    id,
+    img,
+    name,
+    date,
+    message,
+    onClick,
+    isSelected,
+    selectedId,
+  }: {
+    id: string
+    isSelected: boolean
+    onClick: () => void
+    img?: string
+    name: string
+    date: string
+    message?: string
+    selectedId: string
+  }) => {
+    const [number, setNumber] = useState(0)
+    const fb = useRef(
+      new FirebaseRealtimeMessaging<
+        any,
+        {
+          id: string
+          name: string
+          picture?: string
+          chatModified: number
+          lastMessage?: string
         }
-        size={64}
-        sx={{ borderRadius: '100%' }}
-        alt="logo"
-      />
-      <Flex flexDirection={'column'} flex={1}>
-        <Text as={'h3'} color={isSelected ? 'white' : undefined}>
-          {name}
-        </Text>
-        <Text as={'h6'} color={isSelected ? 'white' : undefined}>
-          {date}
-        </Text>
-        <Text color={isSelected ? 'white' : undefined}>{message}</Text>
+      >(selectedId)
+    ).current
+
+    useEffect(() => {
+      const sub = fb.listen(() => {
+        fb.getUnreadCount(id).then((v) => {
+          setNumber(v)
+        })
+      })
+
+      return () => {
+        sub()
+      }
+    }, [])
+    return (
+      <Flex
+        sx={{
+          gap: 2,
+          alignItems: 'center',
+          backgroundColor: isSelected ? theme.colors.green : '',
+          position: 'relative',
+          borderRadius: 8,
+          ':hover': {
+            backgroundColor: theme.colors.green,
+          },
+          padding: 2,
+          cursor: 'pointer',
+        }}
+        onClick={onClick}
+      >
+        <Image
+          src={
+            !img
+              ? isSelected
+                ? '/assets/logo-white.png'
+                : '/assets/logo.png'
+              : img
+          }
+          size={64}
+          sx={{ borderRadius: '100%' }}
+          alt="logo"
+        />
+        <Flex flexDirection={'column'} flex={1}>
+          <Text as={'h3'} color={isSelected ? 'white' : undefined}>
+            {name}
+          </Text>
+          <Text as={'h6'} color={isSelected ? 'white' : undefined}>
+            {date}
+          </Text>
+          <Text color={isSelected ? 'white' : undefined}>{message}</Text>
+        </Flex>
+        {!!number && (
+          <Flex
+            sx={{
+              position: 'absolute',
+              borderRadius: '100%',
+              backgroundColor: theme.colors.green,
+              padding: '2px',
+              pl: '6px',
+              pr: '6px',
+              top: 0,
+              left: '-7px',
+            }}
+          >
+            <Text color={'white'} fontSize={12}>
+              {number}
+            </Text>
+          </Flex>
+        )}
       </Flex>
-    </Flex>
-  )
-}
+    )
+  }
+)
+
+UserInfo.displayName = 'UserInfo'
 
 const ChatContainer = () => {
   const [select, setSelected] = useState<{
@@ -176,14 +233,12 @@ const ChatContainer = () => {
         />
       </Flex>
       <Flex justifyContent={'flex-end'} height={'100%'} width={'100%'}>
-        {!!select && (
-          <Chat
-            id={select.id}
-            title={select.name}
-            from={user?.id ?? ''}
-            img={select.picture}
-          />
-        )}
+        <Chat
+          id={select?.id ?? ''}
+          title={select?.name ?? ''}
+          from={user?.id ?? ''}
+          img={select?.picture ?? ''}
+        />
       </Flex>
     </Flex>
   )

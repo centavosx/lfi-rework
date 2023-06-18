@@ -752,12 +752,12 @@ export const UserInformation = memo(
                       </DisplayOrNot>
                       <DisplayOrNot title="Scholar History">
                         <AddOrCancel
-                          status={sorted[0].status}
+                          status={sorted?.[0]?.status}
                           id={id}
                           onSuccess={() => refetch()}
                         />
                         <Flex flexDirection={'column'}>
-                          {sorted.map((v, i) => {
+                          {sorted?.map((v, i) => {
                             return (
                               <ScholarHistory
                                 id={id}
@@ -841,7 +841,7 @@ export const UserInformation = memo(
                                           />
                                         )}
                                       >
-                                        Start
+                                        Accept
                                       </ButtonModal>
                                     ) : (
                                       <Text
@@ -855,7 +855,9 @@ export const UserInformation = memo(
                                             : 'blue'
                                         }
                                       >
-                                        {v.status.toUpperCase()}
+                                        {v.status === 'started'
+                                          ? 'ACTIVE'
+                                          : v.status.toUpperCase()}
                                       </Text>
                                     )}
                                   </Flex>

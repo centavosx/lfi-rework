@@ -15,9 +15,6 @@ import {
   CustomModal,
   ModalFlexProps,
 } from 'components/modal'
-import { FormikValidation } from 'helpers'
-import { AdminMain } from 'components/main'
-import { PageLoading } from 'components/loading'
 import {
   GetAllUserType,
   createUser,

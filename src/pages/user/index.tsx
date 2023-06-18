@@ -56,7 +56,7 @@ export default function User() {
   })
 
   const { data: announcements, isFetching: isAnnouncementLoading } = useApi<
-    { data: { name: string; description: string }[]; total: number },
+    { data: { title: string; description: string }[]; total: number },
     {
       page: number
       limit: number
@@ -64,7 +64,7 @@ export default function User() {
     }
   >(getAnnouncements, false, {
     page: 0,
-    limit: 5,
+    limit: 25,
     other: {
       sort: 'desc',
     },
@@ -151,9 +151,32 @@ export default function User() {
                   Announcements ({announcements?.data.length ?? 0})
                 </Text>
                 <hr style={{ width: '100%' }} />
-                {announcements?.data.map((v, i) => (
-                  <Text key={i}>{v.name}</Text>
-                ))}
+                {!!announcements && announcements.data?.length > 0 ? (
+                  <Flex
+                    flexDirection={'column'}
+                    sx={{ gap: 2 }}
+                    mt={3}
+                    overflowY={'auto'}
+                  >
+                    {announcements?.data.map((v, i) => (
+                      <Flex key={i} flexDirection={'column'}>
+                        <Text as={'h4'}>
+                          {i + 1}. {v.title}
+                        </Text>
+                        <Text
+                          ml={3}
+                          sx={{ wordBreak: 'break-all', whiteSpace: 'normal' }}
+                        >
+                          {v.description}
+                        </Text>
+                      </Flex>
+                    ))}
+                  </Flex>
+                ) : (
+                  <Text as={'h3'} fontWeight={400} mt={3}>
+                    No Announcements
+                  </Text>
+                )}
               </Flex>
               <Flex flex={1} flexDirection={'column'}>
                 <Text as={'h4'} width={'100%'}>

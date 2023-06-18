@@ -19,3 +19,25 @@ export const getAnnouncements = async (data?: {
 
   return response
 }
+
+export const postAnnouncement = async (data?: {
+  title: string
+  description: string
+}) => {
+  try {
+    if (!data) return false
+    const response = await apiAuth.post('/announcements', data)
+    return true
+  } catch (e) {
+    throw e
+  }
+}
+
+export const deleteAnnouncement = async (id: string) => {
+  try {
+    const response = await apiAuth.delete('/announcements/' + id)
+    return true
+  } catch (e) {
+    throw e
+  }
+}

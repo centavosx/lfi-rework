@@ -104,13 +104,17 @@ const DatePick = memo((props: any) => {
 DatePick.displayName = 'Date'
 
 export const StartAndEnd = ({
+  startD,
+  endD,
   onChangeDate,
 }: {
+  startD?: number
+  endD?: number
   onChangeDate?: (d: { start: Date; end: Date }) => void
 }) => {
-  const [start, setStartDate] = useState(new Date())
+  const [start, setStartDate] = useState(startD ? new Date(startD) : new Date())
 
-  const [end, setEndDate] = useState(new Date())
+  const [end, setEndDate] = useState(endD ? new Date(endD) : new Date())
 
   useEffect(() => {
     onChangeDate?.({ start, end })

@@ -4,6 +4,10 @@ import YupPassword from 'yup-password'
 YupPassword(Yup)
 
 export const FormikValidation = {
+  createAnnouncement: Yup.object().shape({
+    title: Yup.string().required('Required'),
+    description: Yup.string().required('Required'),
+  }),
   createMail: Yup.object().shape({
     from: Yup.string().email('Please enter a valid email').required('Required'),
     subject: Yup.string()
@@ -78,7 +82,7 @@ export const FormikValidation = {
         return prev
       return {
         ...prev,
-        [curr.name]: Yup.string().required('Required'),
+        [curr.name]: Yup.string().required('Required (pdf or images only)'),
       }
     }, {} as any),
   }),

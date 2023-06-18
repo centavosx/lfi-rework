@@ -5,6 +5,7 @@ import {
   Dispatch,
   SetStateAction,
   memo,
+  useEffect,
 } from 'react'
 
 import Modal from '@mui/material/Modal'
@@ -31,6 +32,7 @@ export const CustomModal = memo(
     width,
     titleProps,
     title,
+    onClose,
   }: {
     modalChild?: ((props: ChildProps) => ReactNode) | ReactNode
     children: ((props: ChildrenProps) => ReactNode) | ReactNode
@@ -41,13 +43,23 @@ export const CustomModal = memo(
     width?: string[] | number[] | number | string
     titleProps?: TextProps
     title?: string
+    onClose?: () => void
   }) => {
     const [open, setOpen] = useState<boolean>(false)
+    const [mounted, setMounted] = useState(false)
 
     const onSubmitSuccess = useCallback(() => {
       onSubmit?.()
       setOpen(false)
     }, [onSubmit, setOpen])
+
+    useEffect(() => {
+      setMounted(true)
+    }, [])
+
+    useEffect(() => {
+      if (!open && !!mounted) onClose?.()
+    }, [open])
 
     return (
       <>
