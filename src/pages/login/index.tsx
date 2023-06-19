@@ -8,6 +8,7 @@ import { Formik } from 'formik'
 import { FormikValidation } from 'helpers'
 import { Flex, Image, Link } from 'rebass'
 import { useRouter } from 'next/router'
+import { useRouter as useNav } from 'next/navigation'
 import { useApiPost, useUser } from 'hooks'
 import { loginUser, resetPass } from 'api'
 
@@ -77,6 +78,7 @@ export default function Login({ who = 'Scholar' }: { who?: User }) {
   const { refetch, user } = useUser()
   const [whoUser, setWhoUser] = useState<User>(who)
   const { asPath } = useRouter()
+  const { refresh } = useNav()
   const [isReset, setIsReset] = useState(false)
 
   const { isFetching, isSuccess, error, callApi } = useApiPost(loginUser)
@@ -84,18 +86,14 @@ export default function Login({ who = 'Scholar' }: { who?: User }) {
   useEffect(() => {
     const param = new URLSearchParams(window.location.search)
     const whoUser = param.get('who')
-    // replace('/login', {
-    //   query: {
-    //     who: whoUser,
-    //   },
-    // })
+
     setWhoUser(
       whoUser === 'Scholar' || whoUser === 'Employee' ? whoUser : 'Scholar'
     )
   }, [asPath])
 
   useEffect(() => {
-    if (isSuccess) refetch(true)
+    if (isSuccess) refresh()
   }, [isSuccess])
 
   useEffect(() => {
