@@ -3,7 +3,7 @@ import { theme } from 'utils/theme'
 import { useState, useEffect } from 'react'
 import { Formik } from 'formik'
 import { FormContainer, ScrollToError } from 'components/forms'
-import { FormInput, InputError } from 'components/input'
+import { FormInput, Input, InputError } from 'components/input'
 import { Button, UploadProcess } from 'components/button'
 import { FormikValidation } from 'helpers'
 import { refreshVerifCode, registerUser, verifyUser } from 'api'
@@ -181,7 +181,7 @@ export default function RegisterUser() {
             address: '',
             checked: false,
           }}
-          validationSchema={FormikValidation.register}
+          validationSchema={FormikValidation.createNewUser}
           onSubmit={(values, { setSubmitting }) => {
             delete (values as any).checked
             setSubmitting(true)
@@ -343,38 +343,55 @@ export default function RegisterUser() {
                         >
                           {({ setOpen }) => (
                             <Flex
-                              flexDirection={'row'}
-                              alignItems={'center'}
-                              name="checked"
+                              flexDirection={'column'}
+                              width={'100%'}
+                              mb={2}
                             >
-                              <Checkbox
-                                checked={values.checked}
-                                style={{ pointerEvents: 'auto' }}
-                                onClick={() => {
-                                  setFieldValue('checked', !values.checked)
-                                }}
-                              />{' '}
-                              <Text>
-                                By clicking this checkbox, you agree to our{' '}
-                                <span
-                                  style={{
-                                    textDecoration: 'underline',
-                                    color: theme.colors.green,
-                                    cursor: 'pointer',
-                                    pointerEvents: 'auto',
+                              <Flex
+                                flexDirection={'row'}
+                                alignItems={'center'}
+                                name="checked"
+                              >
+                                <Checkbox
+                                  checked={values.checked}
+                                  style={{ pointerEvents: 'auto' }}
+                                  onClick={() => {
+                                    setFieldValue('checked', !values.checked)
                                   }}
-                                  onClick={() => setOpen(true)}
-                                >
-                                  terms and conditions
-                                </span>
-                              </Text>
+                                />{' '}
+                                <Text>
+                                  By clicking this checkbox, you agree to our{' '}
+                                  <span
+                                    style={{
+                                      textDecoration: 'underline',
+                                      color: theme.colors.green,
+                                      cursor: 'pointer',
+                                      pointerEvents: 'auto',
+                                    }}
+                                    onClick={() => setOpen(true)}
+                                  >
+                                    terms and conditions
+                                  </span>
+                                </Text>
+                              </Flex>
+                              <Flex
+                                justifyContent={'flex-end'}
+                                alignItems={'flex-end'}
+                                width={'100%'}
+                                flexDirection={'column'}
+                                textAlign={'end'}
+                              >
+                                <InputError error={errors.checked} />
+                              </Flex>
                             </Flex>
                           )}
                         </CustomModal>
                         <Button
                           style={{ width: 120, alignSelf: 'flex-end' }}
                           type="submit"
-                          disabled={isSubmitting}
+                          disabled={
+                            isSubmitting || Object.keys(errors).length > 0
+                          }
                           onClick={() => {
                             if (!isValid) {
                               setOpen(true)

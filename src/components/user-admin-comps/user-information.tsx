@@ -553,7 +553,6 @@ export const UserInformation = memo(
               initialValues={{
                 ...(data as any),
               }}
-              validationSchema={FormikValidation.register}
               onSubmit={(values, { setSubmitting }) => {
                 setSubmitting(true)
                 callApi(values as any)

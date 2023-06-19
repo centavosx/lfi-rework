@@ -310,7 +310,6 @@ export const EventCalendar = memo(function ({
           if (!value) return
 
           const dt = new Date(value.start_date)
-          console.log(v, dt, value, 'RENDER')
 
           if (
             v.date.getFullYear() !== dt.getFullYear() ||

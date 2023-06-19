@@ -86,7 +86,34 @@ export const FormikValidation = {
       }
     }, {} as any),
   }),
-
+  createNewUser: Yup.object().shape({
+    fname: Yup.string().required('Required'),
+    lname: Yup.string().required('Required'),
+    level: Yup.string().required('Required'),
+    lastGwa: Yup.number().required('Required'),
+    education: Yup.string().required('Required'),
+    program: Yup.string().nullable().required('Required'),
+    address: Yup.string().required('Required'),
+    email: Yup.string()
+      .email('Please enter a valid email')
+      .required('Required'),
+    checked: Yup.boolean()
+      .required('The terms and conditions must be accepted.')
+      .oneOf([true], 'The terms and conditions must be accepted.'),
+    ...DISPLAY_FILES.reduce((prev, curr) => {
+      if (
+        curr.name === 'waterBill' ||
+        curr.name === 'electricBill' ||
+        curr.name === 'wifiBill' ||
+        curr.name === 'enrollmentBill'
+      )
+        return prev
+      return {
+        ...prev,
+        [curr.name]: Yup.string().required('Required (pdf or images only)'),
+      }
+    }, {} as any),
+  }),
   code: Yup.object().shape({
     code: Yup.string().required('Required'),
   }),
@@ -99,6 +126,14 @@ export const FormikValidation = {
   forgot: Yup.object().shape({
     email: Yup.string()
       .email('Please enter a valid email')
+      .required('Required'),
+  }),
+
+  changePassword: Yup.object().shape({
+    old: Yup.string().required('Required'),
+    password: Yup.string().trim().password().required('Required'),
+    confirm: Yup.string()
+      .oneOf([Yup.ref('password')], 'Passwords must match')
       .required('Required'),
   }),
 }

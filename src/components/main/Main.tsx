@@ -32,6 +32,7 @@ import { useRouter } from 'next/router'
 import { IPAndDeviceContext } from 'contexts'
 import { format } from 'date-fns'
 import { AiFillCloseCircle } from 'react-icons/ai'
+import Link from 'next/link'
 
 const IsOpenOrClose = ({
   children,
@@ -113,8 +114,8 @@ const NotifDataListen = ({ close, id }: { close?: () => void; id: string }) => {
   const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
-    if (!!isMounted) {
-      const sub = ref.listen((v, t) => {
+    const sub = ref.listen((v, t) => {
+      if (isMounted) {
         setData((value) => {
           if (t === 'removed') {
             return value.filter((rem) => rem.refId !== v.refId)
@@ -126,13 +127,13 @@ const NotifDataListen = ({ close, id }: { close?: () => void; id: string }) => {
             )
           }
         })
-      })
-
-      return () => {
-        sub()
       }
+    })
+
+    return () => {
+      sub()
     }
-  }, [id, isMounted])
+  }, [id])
 
   useEffect(() => {
     ref
@@ -163,6 +164,7 @@ const NotifDataListen = ({ close, id }: { close?: () => void; id: string }) => {
         paddingBottom: 2,
         zIndex: 9999,
         backgroundColor: theme.colors.white,
+        overflow: 'auto',
       }}
     >
       {data.map((v, i) => {
@@ -392,6 +394,8 @@ export const Main = ({
           {!!user?.scholar &&
             user.status === UserStatus.ACTIVE &&
             isUser &&
+            pathname !== '/' &&
+            !pathname.startsWith('/user/waiting') &&
             !user?.scholar?.sort(
               (a: any, b: any) => new Date(b).getTime() - new Date(a).getTime()
             )?.[0]?.enrollmentBill && (
@@ -404,7 +408,15 @@ export const Main = ({
                     alignItems={'center'}
                   >
                     <Text2 flex={1} as={'h4'}>
-                      Reminder: Please submit your enrollment bill!
+                      Reminder: Please submit your enrollment bill! Go to{' '}
+                      <Link
+                        href={'/user/settings'}
+                        prefetch={true}
+                        style={{ textDecoration: 'underline' }}
+                      >
+                        settings
+                      </Link>
+                      .
                     </Text2>
                     <AiFillCloseCircle
                       onClick={() => setO((v: any) => !v)}
