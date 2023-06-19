@@ -288,8 +288,6 @@ export const EventCalendar = memo(function ({
     if (!!data) setMp(data)
   }, [data])
 
-  console.log(mp)
-
   return (
     <Flex flex={0.8}>
       <CustomCalendar
@@ -299,8 +297,6 @@ export const EventCalendar = memo(function ({
           const value = mp.get(v.date.getDate())
 
           const holiday = holidays.isHoliday(v.date)
-
-          console.log(value, v.date)
 
           if (!!holiday && !value) {
             return (
@@ -314,14 +310,12 @@ export const EventCalendar = memo(function ({
           if (!value) return
 
           const dt = new Date(value.start_date)
+          console.log(v, dt, value, 'RENDER')
 
           if (
-            new Date(
-              v.date.getFullYear(),
-              v.date.getMonth(),
-              v.date.getDate()
-            ).getTime() !==
-            new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()).getTime()
+            v.date.getFullYear() !== dt.getFullYear() ||
+            v.date.getMonth() !== dt.getMonth() ||
+            v.date.getDate() !== dt.getDate()
           )
             return
 

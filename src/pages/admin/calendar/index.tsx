@@ -298,8 +298,6 @@ export default function Calendar() {
     return mv
   }, [data])
 
-  console.log(mappedValues, month, isFetching)
-
   const refreshItems = () => {
     refetch({
       startDate: startOfMonth(month),
