@@ -24,7 +24,9 @@ export default function Waiting() {
         </b>
         , thank you for signing up to our scholarship program but we need to
         process your account before you can proceed, {"we'll"} email or notify
-        you once you got accepted. Thank you so much!
+        you once you got accepted. Thank you so much! <br />
+        <br /> If you received an email and a password, please logout and login
+        again using that account.
       </Text>
     </Flex>
   )

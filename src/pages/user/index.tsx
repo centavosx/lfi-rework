@@ -112,14 +112,15 @@ export default function User() {
           width={250}
           title="Logout"
           titleProps={{ as: 'h3' }}
-          modalChild={
+          modalChild={({ setOpen }) => (
             <AreYouSure
               message="Are you sure?"
               onClick={(v) => {
                 if (v) logout()
+                setOpen(false)
               }}
             />
-          }
+          )}
         >
           Logout
         </ButtonModal>
