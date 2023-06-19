@@ -339,40 +339,43 @@ export default function Calendar() {
             <Flex flex={0.2} flexDirection={'column'} sx={{ gap: 3 }}>
               <Flex flex={1} flexDirection={'column'}>
                 <Flex alignItems={'center'}>
-                  <Text as={'h1'} width={'100%'}>
-                    Events
-                  </Text>
-                  {isLoading || isFetching ? (
-                    <Flex flex={1} justifyContent={'flex-end'}>
+                  <Text as={'h1'}>Events</Text>
+
+                  <Flex
+                    flex={1}
+                    alignSelf={'center'}
+                    justifyContent={'flex-end'}
+                  >
+                    {isLoading || isFetching ? (
                       <CircularProgress
-                        size={24}
-                        style={{ alignSelf: 'center' }}
+                        size={25}
+                        style={{ justifyContent: 'flex-end' }}
                       />
-                    </Flex>
-                  ) : (
-                    <CustomModal
-                      title={format(selectedDate, 'cccc LLLL d')}
-                      titleProps={{ as: 'h3' }}
-                      modalChild={({ setOpen }) => (
-                        <CreateEvent
-                          onSuccess={() => {
-                            refreshItems()
-                            setOpen(false)
-                          }}
-                        />
-                      )}
-                    >
-                      {({ setOpen: setO }) =>
-                        (roles.isAdminWrite || roles.isSuper) && (
-                          <AiFillPlusCircle
-                            size={24}
-                            cursor={'pointer'}
-                            onClick={() => setO(true)}
+                    ) : (
+                      <CustomModal
+                        title={format(selectedDate, 'cccc LLLL d')}
+                        titleProps={{ as: 'h3' }}
+                        modalChild={({ setOpen }) => (
+                          <CreateEvent
+                            onSuccess={() => {
+                              refreshItems()
+                              setOpen(false)
+                            }}
                           />
-                        )
-                      }
-                    </CustomModal>
-                  )}
+                        )}
+                      >
+                        {({ setOpen: setO }) =>
+                          (roles.isAdminWrite || roles.isSuper) && (
+                            <AiFillPlusCircle
+                              size={24}
+                              cursor={'pointer'}
+                              onClick={() => setO(true)}
+                            />
+                          )
+                        }
+                      </CustomModal>
+                    )}
+                  </Flex>
                 </Flex>
                 <hr style={{ width: '100%' }} />
 
@@ -405,47 +408,50 @@ export default function Calendar() {
                 <hr style={{ width: '100%' }} />
                 <Flex flexDirection={'column'} maxHeight={250}>
                   <Flex alignItems={'center'}>
-                    <Text as={'h2'} width={'100%'}>
-                      Announcements
-                    </Text>
-                    {isAnnouncementLoading ? (
-                      <Flex flex={1} justifyContent={'flex-end'}>
+                    <Text as={'h2'}>Announcements</Text>
+
+                    <Flex
+                      flex={1}
+                      alignSelf={'center'}
+                      justifyContent={'flex-end'}
+                    >
+                      {isAnnouncementLoading ? (
                         <CircularProgress
-                          size={24}
-                          style={{ alignSelf: 'center' }}
+                          size={25}
+                          style={{ justifyContent: 'flex-end' }}
                         />
-                      </Flex>
-                    ) : (
-                      <CustomModal
-                        title={format(selectedDate, 'cccc LLLL d')}
-                        titleProps={{ as: 'h3' }}
-                        maxHeight={'80%'}
-                        modalChild={({ setOpen }) => (
-                          <CreateAnnouncement
-                            onSuccess={() => {
-                              refetchAnnouncement({
-                                page: 0,
-                                limit: 25,
-                                other: {
-                                  sort: 'desc',
-                                },
-                              })
-                              setOpen(false)
-                            }}
-                          />
-                        )}
-                      >
-                        {({ setOpen: setO }) =>
-                          (roles.isAdminWrite || roles.isSuper) && (
-                            <AiFillPlusCircle
-                              size={24}
-                              cursor={'pointer'}
-                              onClick={() => setO(true)}
+                      ) : (
+                        <CustomModal
+                          title={format(selectedDate, 'cccc LLLL d')}
+                          titleProps={{ as: 'h3' }}
+                          maxHeight={'80%'}
+                          modalChild={({ setOpen }) => (
+                            <CreateAnnouncement
+                              onSuccess={() => {
+                                refetchAnnouncement({
+                                  page: 0,
+                                  limit: 25,
+                                  other: {
+                                    sort: 'desc',
+                                  },
+                                })
+                                setOpen(false)
+                              }}
                             />
-                          )
-                        }
-                      </CustomModal>
-                    )}
+                          )}
+                        >
+                          {({ setOpen: setO }) =>
+                            (roles.isAdminWrite || roles.isSuper) && (
+                              <AiFillPlusCircle
+                                size={24}
+                                cursor={'pointer'}
+                                onClick={() => setO(true)}
+                              />
+                            )
+                          }
+                        </CustomModal>
+                      )}
+                    </Flex>
                   </Flex>
                   {!!announcements && announcements.data?.length > 0 ? (
                     <Flex

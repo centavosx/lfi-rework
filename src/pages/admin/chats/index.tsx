@@ -1,6 +1,8 @@
+import { Button } from 'components/button'
 import { Chat } from 'components/chat'
 import { SearchableInput } from 'components/input'
 import { Section } from 'components/sections'
+import { FullWebView, MobileView, WebView } from 'components/views'
 import { format } from 'date-fns'
 import {
   FirebaseAdminRealtimeMessaging,
@@ -217,29 +219,78 @@ const ChatContainer = () => {
   }>()
   const { user } = useUser()
   return (
-    <Flex flexDirection={'row'} sx={{ gap: 2, width: '100%', height: '100%' }}>
-      <Flex
-        flexDirection={'column'}
-        sx={{
-          gap: 2,
-          width: 300,
-        }}
-      >
-        <SearchableInput label="Search user" />
-        <UserInfoContainer
-          getData={(id) => setSelected(id)}
-          id={user?.id ?? ''}
-          selectedId={select?.id}
-        />
-      </Flex>
-      <Flex justifyContent={'flex-end'} height={'100%'} width={'100%'}>
-        <Chat
-          id={select?.id ?? ''}
-          title={select?.name ?? ''}
-          from={user?.id ?? ''}
-          img={select?.picture ?? ''}
-        />
-      </Flex>
+    <Flex
+      flexDirection={['column', 'row']}
+      sx={{ gap: 2, width: '100%', height: '100%' }}
+    >
+      <FullWebView>
+        <Flex
+          flexDirection={'row'}
+          sx={{ gap: 2, width: '100%', height: '100%' }}
+        >
+          <Flex
+            flexDirection={'column'}
+            sx={{
+              gap: 2,
+              width: ['100%', 250, 450],
+            }}
+          >
+            <SearchableInput label="Search user" />
+            <UserInfoContainer
+              getData={(id) => setSelected(id)}
+              id={user?.id ?? ''}
+              selectedId={select?.id}
+            />
+          </Flex>
+          <Flex justifyContent={'flex-end'} height={'100%'} flex={1}>
+            <Chat
+              id={select?.id ?? ''}
+              title={select?.name ?? ''}
+              from={user?.id ?? ''}
+              img={select?.picture ?? ''}
+            />
+          </Flex>
+        </Flex>
+      </FullWebView>
+      <MobileView>
+        {!select ? (
+          <Flex
+            flexDirection={'column'}
+            sx={{
+              gap: 2,
+              width: ['100%'],
+            }}
+          >
+            <SearchableInput label="Search user" />
+            <UserInfoContainer
+              getData={(id) => setSelected(id)}
+              id={user?.id ?? ''}
+              selectedId={(select as any)?.id}
+            />
+          </Flex>
+        ) : (
+          <Flex flexDirection={'column'} sx={{ gap: 2 }}>
+            <Button
+              onClick={() => setSelected(undefined)}
+              style={{ width: 100 }}
+            >
+              Back
+            </Button>
+            <Flex
+              justifyContent={'flex-end'}
+              height={window.innerHeight}
+              width={'100%'}
+            >
+              <Chat
+                id={select?.id ?? ''}
+                title={select?.name ?? ''}
+                from={user?.id ?? ''}
+                img={select?.picture ?? ''}
+              />
+            </Flex>
+          </Flex>
+        )}
+      </MobileView>
     </Flex>
   )
 }
@@ -253,7 +304,7 @@ export default function Chats() {
       height={'90vh'}
     >
       <Section
-        title="Applicants"
+        title="Messages"
         textProps={{ textAlign: 'start' }}
         flex={1}
         height={'100%'}
