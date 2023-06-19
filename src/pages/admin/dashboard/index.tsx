@@ -157,7 +157,7 @@ export default function Dashboard({
           sx={{ gap: 4 }}
         >
           <Text as={'h3'}>Number of Scholars per Year</Text>
-          <Text>Select, Select</Text>
+
           <Flex height={[300, 300, 400]}>
             <BarGraph<string>
               xValues={xAndYArr}
