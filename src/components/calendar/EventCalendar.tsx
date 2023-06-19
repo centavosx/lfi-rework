@@ -354,7 +354,7 @@ export const EventCalendar = memo(function ({
                               };`,
                             }}
                           >
-                            {value.name}dawdwadaw
+                            {value.name}
                           </Text>
                         </AdminWebView>
                       </Flex>
