@@ -232,7 +232,10 @@ export default function Calendar() {
   const { data, refetch, isFetching } = useApi<
     (EventProp & { day: number })[],
     { startDate: Date; endDate: Date }
-  >(getMonthlyEvents, true)
+  >(getMonthlyEvents, false, {
+    startDate: startOfMonth(month),
+    endDate: endOfMonth(month),
+  })
 
   const {
     data: dailies,
@@ -378,33 +381,35 @@ export default function Calendar() {
                   </Flex>
                 </Flex>
                 <hr style={{ width: '100%' }} />
+                <Flex flexDirection={'column'} sx={{ gap: 2 }}>
+                  <Text as={'h2'}>Today</Text>
+                  {!!dailies && dailies?.length > 0 ? (
+                    <ListContainer>
+                      {dailies?.map((v) => {
+                        const startDate = new Date(v.start_date)
+                        const endDate = new Date(v.end_date)
 
-                {!!dailies && dailies?.length > 0 ? (
-                  <ListContainer>
-                    {dailies?.map((v) => {
-                      const startDate = new Date(v.start_date)
-                      const endDate = new Date(v.end_date)
-
-                      const start = format(startDate, `LLLL d'@'hh:mm a`)
-                      const end = format(endDate, `LLLL d'@'hh:mm a`)
-                      return (
-                        <ListItem
-                          style={{ marginLeft: '-15px', color: 'black' }}
-                          key={v.id}
-                        >
-                          {v.name} -{' '}
-                          <span style={{ fontWeight: 500 }}>
-                            {start} to {end}
-                          </span>
-                        </ListItem>
-                      )
-                    })}
-                  </ListContainer>
-                ) : (
-                  <Text as={'h3'} fontWeight={400} mt={3}>
-                    No Events Today
-                  </Text>
-                )}
+                        const start = format(startDate, `LLLL d'@'hh:mm a`)
+                        const end = format(endDate, `LLLL d'@'hh:mm a`)
+                        return (
+                          <ListItem
+                            style={{ marginLeft: '-15px', color: 'black' }}
+                            key={v.id}
+                          >
+                            {v.name} -{' '}
+                            <span style={{ fontWeight: 500 }}>
+                              {start} to {end}
+                            </span>
+                          </ListItem>
+                        )
+                      })}
+                    </ListContainer>
+                  ) : (
+                    <Text as={'h3'} fontWeight={400} mt={3}>
+                      No Events Today
+                    </Text>
+                  )}
+                </Flex>
                 <hr style={{ width: '100%' }} />
                 <Flex flexDirection={'column'} maxHeight={250}>
                   <Flex alignItems={'center'}>

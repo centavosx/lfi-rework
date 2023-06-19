@@ -32,7 +32,7 @@ const ColoredContainer = ({
 
 type DashboardProps<T extends string = string> = {
   graphValues: { x: string; y: T }[]
-  userCounts: { name: 'employee' | 'applicant' | 'user'; count: T }[]
+  userCounts: { name: 'employee' | 'applicant' | 'scholar'; count: T }[]
   upcomingEvents: {
     id: string
     name: string
@@ -157,7 +157,7 @@ export default function Dashboard({
           sx={{ gap: 4 }}
         >
           <Text as={'h3'}>Number of Scholars per Year</Text>
-          <Text>Select, Select</Text>
+
           <Flex height={[300, 300, 400]}>
             <BarGraph<string>
               xValues={xAndYArr}
@@ -217,7 +217,7 @@ export default function Dashboard({
             Number of scholars
           </Text>
           <Text as="h1" textAlign={'end'} color={'white'}>
-            {data?.userCounts.find((v) => v.name === 'user')?.count || 0}
+            {data?.userCounts.find((v) => v.name === 'scholar')?.count || 0}
           </Text>
         </ColoredContainer>
         <ColoredContainer color={'blue'} sx={{ gap: 3, padding: 3, flex: 1 }}>
