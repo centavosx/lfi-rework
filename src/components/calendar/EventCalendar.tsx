@@ -335,19 +335,17 @@ export const EventCalendar = memo(function ({
                       pl={2}
                       pr={2}
                     >
-                      <Flex flex={1} alignSelf={'center'}>
+                      <Flex flex={1} alignSelf={'center'} overflow={'hidden'}>
                         <AdminWebView>
                           <Text
                             as={'h6'}
                             width={'100%'}
                             color={c}
-                            textAlign={'left'}
                             sx={{
-                              display: 'inline-block',
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
                               whiteSpace: 'nowrap',
-                              pl: 10,
+
                               pr: 2,
                               textShadow: `0px 0px 3px  ${
                                 c === theme.colors.white
@@ -356,7 +354,7 @@ export const EventCalendar = memo(function ({
                               };`,
                             }}
                           >
-                            {value.name}
+                            {value.name}dawdwadaw
                           </Text>
                         </AdminWebView>
                       </Flex>

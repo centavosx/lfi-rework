@@ -7,6 +7,13 @@ export const WebView = styled.div`
     display:none;
   `};
 `
+export const FullWebView = styled.div`
+  display: block;
+  width: 100%;
+  ${mediaQueries.tablet`
+    display:none;
+  `};
+`
 
 export const MobileView = styled.div`
   display: none;
