@@ -184,7 +184,6 @@ export const SHS_PROGRAMS: Option<string, ShsTrackAndStrandsEnum | null>[] = [
       value: v as ShsTrackAndStrandsEnum,
     }
   }),
-  { label: 'Others', value: null },
 ]
 
 export const COLLEGE_PROGRAMS: Option<string, CollegeEnum | null>[] = [

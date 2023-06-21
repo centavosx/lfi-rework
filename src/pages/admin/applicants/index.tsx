@@ -44,7 +44,6 @@ const modalInitial: ModalFlexProps<CreateUserType, RegisterDto> = {
     lname: '',
     address: '',
     email: '',
-
     role: [Roles.USER],
   },
   fields: [
@@ -104,7 +103,7 @@ const modalInitial: ModalFlexProps<CreateUserType, RegisterDto> = {
       status,
       role,
     }
-    fetch({ ...userDetails, userData: { ...other } as any })
+    fetch({ ...userDetails, userData: { ...other } as any } as any)
     setSubmitting(false)
   },
 }

@@ -73,6 +73,7 @@ const ChatClick = ({ setOpen }: { setOpen: () => void }) => {
       minWidth={'auto'}
     >
       <Image
+        rel="preload"
         src={'/assets/icons/chat.png'}
         width={'100%'}
         height={'100%'}
@@ -230,6 +231,7 @@ const NotifClick = () => {
 
   return (
     <NotifButton
+      rel="preload"
       src={'/assets/icons/bell.png'}
       width={18}
       height={18}
@@ -276,6 +278,9 @@ export const Main = ({
     }
   }, [asPath, device])
 
+  const scolar = user?.scholar?.sort(
+    (a: any, b: any) => new Date(b).getTime() - new Date(a).getTime()
+  )?.[0]
   return (
     <>
       <BaseHead
@@ -315,6 +320,7 @@ export const Main = ({
               <Anchor href="/" sx={{ mr: [null, 4] }}>
                 <Flex alignItems={'center'} sx={{ gap: 1 }}>
                   <Image
+                    rel="preload"
                     src={'/assets/logo.png'}
                     width={50}
                     height={50}
@@ -396,9 +402,8 @@ export const Main = ({
             isUser &&
             pathname !== '/' &&
             !pathname.startsWith('/user/waiting') &&
-            !user?.scholar?.sort(
-              (a: any, b: any) => new Date(b).getTime() - new Date(a).getTime()
-            )?.[0]?.enrollmentBill && (
+            !scolar?.enrollmentBill &&
+            !scolar?.ended && (
               <IsOpenOrClose>
                 {(v, setO) => (
                   <Flex
@@ -458,6 +463,7 @@ export const Main = ({
                 }}
               >
                 <Image
+                  rel="preload"
                   src={'/assets/logo-white.png'}
                   width={50}
                   height={50}
@@ -496,6 +502,7 @@ export const Main = ({
                   <Text as={'h5'}>Follow US</Text>
                   <Flex width={'100%'} flexDirection={'row'} sx={{ gap: 2 }}>
                     <Image
+                      rel="preload"
                       height={24}
                       width={24}
                       src={'/assets/fb.png'}
@@ -504,6 +511,7 @@ export const Main = ({
                       alt="image"
                     />
                     <Image
+                      rel="preload"
                       height={24}
                       width={24}
                       src={'/assets/ig.png'}

@@ -43,6 +43,7 @@ const SideNav = ({ isWeb }: { isWeb?: boolean }) => {
         <Anchor href="/admin/dashboard">
           <Flex alignItems={'center'} sx={{ gap: 2 }} width={'100%'}>
             <Image
+              rel="preload"
               src={'/assets/logo-white.png'}
               width={60}
               height={60}

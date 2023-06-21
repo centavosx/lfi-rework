@@ -9,6 +9,7 @@ import { useEffect } from 'react'
 import NProgress from 'nprogress'
 
 const theme = createTheme()
+NProgress.configure({ showSpinner: false })
 
 export default function App({ Component, pageProps }: AppProps) {
   const { pathname } = useRouter()
@@ -22,6 +23,15 @@ export default function App({ Component, pageProps }: AppProps) {
       NProgress.done(false)
     })
   }, [Router])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('beforeunload', () => NProgress.start())
+      return () => {
+        window.removeEventListener('beforeunload', () => NProgress.done(false))
+      }
+    }
+  }, [])
 
   return (
     <ThemeProvider theme={theme}>
