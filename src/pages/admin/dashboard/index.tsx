@@ -1,4 +1,4 @@
-import { ReactNode, useMemo } from 'react'
+import { ReactNode, useMemo, useEffect } from 'react'
 import { Flex, SxStyleProp, Text } from 'rebass'
 import { BarGraph, XAndY } from 'components/chart'
 import { theme } from 'utils/theme'
@@ -10,6 +10,13 @@ import { format } from 'date-fns'
 import { Event } from 'components/calendar'
 import { NextPage } from 'next'
 import { UserStatus } from 'entities'
+import Radio from '@mui/material/Radio'
+import RadioGroup from '@mui/material/RadioGroup'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import FormControl from '@mui/material/FormControl'
+import FormLabel from '@mui/material/FormLabel'
+import { useRouter } from 'next/router'
+import { useRouter as useNav } from 'next/navigation'
 
 const ColoredContainer = ({
   color,
@@ -69,14 +76,22 @@ const getMaximum = (max: number) => {
 
 export default function Dashboard({
   statusParams,
-}: NextPage & { statusParams?: UserStatus }) {
+  isCollege,
+}: NextPage & { statusParams?: UserStatus; isCollege: string }) {
   const { user } = useUser()
-  const { data, isFetching } = useApi<DashboardProps>(
+  const { asPath } = useRouter()
+  const { replace } = useNav()
+  const { data, isFetching, refetch } = useApi<DashboardProps>(
     getDashboard,
     false,
-    statusParams === UserStatus.EXPELLED || statusParams === UserStatus.ACTIVE
-      ? statusParams
-      : UserStatus.ACTIVE
+    {
+      status:
+        statusParams === UserStatus.EXPELLED ||
+        statusParams === UserStatus.ACTIVE
+          ? statusParams
+          : UserStatus.ACTIVE,
+      isCollege,
+    }
   )
   const max = getMaximum(
     Number(
@@ -114,6 +129,17 @@ export default function Dashboard({
     }, defaultVal) as XAndY<string>[]
   }, [data?.graphValues])
 
+  useEffect(() => {
+    refetch({
+      status:
+        statusParams === UserStatus.EXPELLED ||
+        statusParams === UserStatus.ACTIVE
+          ? statusParams
+          : UserStatus.ACTIVE,
+      isCollege,
+    })
+  }, [asPath])
+
   return (
     <Flex sx={{ height: '100%', gap: 3 }} flexDirection={'column'} padding={3}>
       {isFetching && <Loading />}
@@ -150,6 +176,7 @@ export default function Dashboard({
             </ListContainer>
           </Flex>
         </Flex>
+
         <Flex
           flex={[1, 0.65]}
           flexDirection={'column'}
@@ -157,7 +184,43 @@ export default function Dashboard({
           sx={{ gap: 4 }}
         >
           <Text as={'h3'}>Number of Scholars per Year</Text>
-
+          <FormControl>
+            <RadioGroup
+              row
+              aria-labelledby="demo-row-radio-buttons-group-label"
+              name="row-radio-buttons-group"
+              value={isCollege || statusParams || UserStatus.ACTIVE}
+              onChange={(v) => {
+                replace(
+                  v.target.value === 'true' || v.target.value === 'false'
+                    ? '/admin/dashboard/?isCollege=' + v.target.value
+                    : '/admin/dashboard/?status=' + v.target.value
+                )
+                // v.target.value ==== 'true' || v.target.value === 'false'?:'/admin/dashboard/?status='+v.target.value
+              }}
+            >
+              <FormControlLabel
+                value={UserStatus.ACTIVE}
+                control={<Radio />}
+                label="All"
+              />
+              <FormControlLabel
+                value="true"
+                control={<Radio />}
+                label="College Graduate"
+              />
+              <FormControlLabel
+                value="false"
+                control={<Radio />}
+                label="Shs Graduate"
+              />
+              <FormControlLabel
+                value={UserStatus.EXPELLED}
+                control={<Radio />}
+                label="Expelled"
+              />
+            </RadioGroup>
+          </FormControl>
           <Flex height={[300, 300, 400]}>
             <BarGraph<string>
               xValues={xAndYArr}
@@ -183,7 +246,10 @@ export default function Dashboard({
                   width: '80%',
                   maxWidth: 80,
                   alignSelf: 'center',
-                  backgroundColor: theme.colors.green,
+                  backgroundColor:
+                    statusParams === UserStatus.EXPELLED
+                      ? 'red'
+                      : theme.colors.green,
                 },
                 avgLineColor: theme.colors.black,
               }}
@@ -235,8 +301,12 @@ export default function Dashboard({
 
 export async function getServerSideProps(context: any) {
   let statusParams: string = context.query.status || ''
+  let isCollege: string =
+    context.query.isCollege === 'true' || context.query.isCollege === 'false'
+      ? context.query.isCollege
+      : ''
 
   return {
-    props: { statusParams },
+    props: { statusParams, isCollege },
   }
 }

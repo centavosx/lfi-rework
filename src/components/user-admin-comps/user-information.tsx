@@ -27,12 +27,13 @@ import {
 import { Roles, User, UserStatus } from 'entities'
 import { Formik, FormikProps } from 'formik'
 import { FormikValidation } from 'helpers'
-import { useApi, useApiPost } from 'hooks'
+import { useApi, useApiPost, useUser } from 'hooks'
 import { Flex, Text } from 'rebass'
 import { theme } from 'utils/theme'
 import { AreYouSure, ButtonModal } from 'components/modal'
 import { enumToFileName } from 'helpers/convertFiles'
 import { AiOutlineDownCircle, AiOutlineUpCircle } from 'react-icons/ai'
+import { format } from 'date-fns'
 
 const ScholarHistory = memo(
   ({
@@ -45,9 +46,13 @@ const ScholarHistory = memo(
     setIsAdd,
     onSuccess,
     onSuccessLink,
+    otherData,
     status,
     index,
     id,
+    shsGraduated,
+    collegeGraudated,
+    isUser,
   }: {
     initial: {
       level?: string
@@ -56,6 +61,11 @@ const ScholarHistory = memo(
       education?: string
       gradeSlip?: string
       enrollmentBill?: string
+    }
+    otherData?: {
+      created?: Date
+      accepted?: Date
+      ended?: Date
     }
     title?: string
     isDisabled?: boolean
@@ -68,6 +78,9 @@ const ScholarHistory = memo(
     status?: string
     index?: number
     id: string
+    shsGraduated: boolean
+    collegeGraudated: boolean
+    isUser?: boolean
   }) => {
     const ref = useRef<
       FormikProps<{
@@ -88,7 +101,7 @@ const ScholarHistory = memo(
 
     return (
       <>
-        {!!isAddOrCancel && (
+        {!!isAddOrCancel && isUser && !collegeGraudated && (
           <Flex sx={{ gap: 2 }}>
             {(status === 'ended' || status === 'rejected') &&
               (isAdd ? (
@@ -173,7 +186,11 @@ const ScholarHistory = memo(
                       <SelectV2
                         isDisabled={isDisabled}
                         label="Education"
-                        options={SCHOOL_LEVEL}
+                        options={SCHOOL_LEVEL.filter(
+                          (v) =>
+                            (v.value === Level.SHS && !shsGraduated) ||
+                            (v.value === Level.COLLEGE && !collegeGraudated)
+                        )}
                         value={
                           SCHOOL_LEVEL.find(
                             (v) => v.value === fields.education
@@ -275,6 +292,38 @@ const ScholarHistory = memo(
                         />
 
                         <InputError error={errors.level} />
+                      </Flex>
+                    )}
+
+                    {!!otherData && (
+                      <Flex flexDirection={'column'} sx={{ gap: 2 }}>
+                        {otherData?.created && (
+                          <Text as={'h4'} color="blue">
+                            Created:{' '}
+                            {format(
+                              new Date(otherData.created),
+                              'cccc LLLL d, yyyy hh:mm a'
+                            )}
+                          </Text>
+                        )}
+                        {otherData?.accepted && (
+                          <Text as={'h4'} color={'green'}>
+                            Accepted:{' '}
+                            {format(
+                              new Date(otherData.accepted),
+                              'cccc LLLL d, yyyy hh:mm a'
+                            )}
+                          </Text>
+                        )}
+                        {otherData?.ended && (
+                          <Text as={'h4'} color="red">
+                            Ended:{' '}
+                            {format(
+                              new Date(otherData.ended),
+                              'cccc LLLL d, yyyy hh:mm a'
+                            )}
+                          </Text>
+                        )}
                       </Flex>
                     )}
                     {DISPLAY_FILES.filter(
@@ -393,10 +442,16 @@ const AddOrCancel = ({
   status,
   id,
   onSuccess,
+  college,
+  shs,
+  isUser,
 }: {
   status: string
   id: string
   onSuccess: () => void
+  college: boolean
+  shs: boolean
+  isUser?: boolean
 }) => {
   const [isAdd, setIsAdd] = useState(false)
 
@@ -405,9 +460,12 @@ const AddOrCancel = ({
       <ScholarHistory
         initial={{}}
         isAddOrCancel={true}
+        isUser={isUser}
         isAdd={isAdd}
         setIsAdd={setIsAdd}
         status={status}
+        collegeGraudated={college}
+        shsGraduated={shs}
         onSuccess={() => {
           onSuccess()
           setIsAdd(false)
@@ -513,6 +571,8 @@ export const UserInformation = memo(
       if (isSuccess) onSuccess?.()
     }, [isSuccess])
 
+    const { user } = useUser()
+
     const data = useMemo(() => {
       let userInfo = structuredClone(userData) as unknown as Partial<
         User | { files: undefined }
@@ -543,6 +603,7 @@ export const UserInformation = memo(
         }) ?? []
       )
     }, [userData])
+
     return (
       <Flex flexDirection={'column'} width={'100%'}>
         {isFetching ? (
@@ -575,7 +636,6 @@ export const UserInformation = memo(
                     flexProps={{ sx: { gap: 20, mb: 30, mt: 2 } }}
                   >
                     {(isSubmitting || isFetching || isUpdating) && <Loading />}
-
                     <Flex
                       sx={{
                         flexDirection: ['column', 'column', 'row'],
@@ -643,7 +703,26 @@ export const UserInformation = memo(
                       paddingBottom={15}
                       sx={{ color: 'black', width: '100%' }}
                     />
-
+                    <Flex flexDirection={'column'} sx={{ gap: 2 }}>
+                      {userData?.shsGraduated && (
+                        <Text as={'h3'}>
+                          Graduated SHS:{' '}
+                          {format(
+                            new Date(userData?.shsGraduated),
+                            'cccc LLLL d, yyyy'
+                          )}
+                        </Text>
+                      )}
+                      {userData?.collegeGraduated && (
+                        <Text as={'h3'}>
+                          Graduated College:{' '}
+                          {format(
+                            new Date(userData?.collegeGraduated),
+                            'cccc LLLL d, yyyy'
+                          )}
+                        </Text>
+                      )}
+                    </Flex>
                     <Flex flexDirection={'column'} sx={{ gap: 1 }}>
                       <DisplayOrNot title="Files">
                         <Flex flexDirection={'column'} sx={{ gap: 2 }}>
@@ -751,6 +830,9 @@ export const UserInformation = memo(
                       </DisplayOrNot>
                       <DisplayOrNot title="Scholar History">
                         <AddOrCancel
+                          isUser={user?.id === userData?.id}
+                          shs={!!userData?.shsGraduated}
+                          college={!!userData?.collegeGraduated}
                           status={sorted?.[0]?.status}
                           id={id}
                           onSuccess={() => refetch()}
@@ -759,6 +841,8 @@ export const UserInformation = memo(
                           {sorted?.map((v, i) => {
                             return (
                               <ScholarHistory
+                                shsGraduated={!!userData?.shsGraduated}
+                                collegeGraudated={!!userData?.collegeGraduated}
                                 id={id}
                                 index={i}
                                 initial={{
@@ -768,6 +852,11 @@ export const UserInformation = memo(
                                   gradeSlip: v.gradeSlip,
                                   lastGwa: v.lastGwa,
                                   program: v.program as string,
+                                }}
+                                otherData={{
+                                  accepted: v.accepted || undefined,
+                                  created: v.created,
+                                  ended: v.ended || undefined,
                                 }}
                                 key={i}
                                 title={v.education + ' - ' + v.level}
@@ -868,7 +957,80 @@ export const UserInformation = memo(
                         </Flex>
                       </DisplayOrNot>
                     </Flex>
-                    <Flex sx={{ gap: 2, justifyContent: 'flex-end' }}>
+                    <Flex sx={{ gap: 2 }}>
+                      <Flex flex={1}>
+                        {!isAcceptReject && userData?.id !== user?.id && (
+                          <Flex flexWrap={'wrap'} sx={{ gap: 2 }}>
+                            <ButtonModal
+                              isSecondary={!!userData?.shsGraduated}
+                              title={
+                                !userData?.shsGraduated
+                                  ? 'Graduate SHS?'
+                                  : 'Ungraduate SHS?'
+                              }
+                              titleProps={{
+                                as: 'h3',
+                                width: 'auto',
+                              }}
+                              width={['60%', '50%', '40%', '30%']}
+                              style={{ alignSelf: 'flex-end' }}
+                              disabled={isUpdating || isSubmitting}
+                              modalChild={({ setOpen }) => (
+                                <AreYouSure
+                                  cancelText="No"
+                                  confirmText="Yes"
+                                  onSubmit={() =>
+                                    !!userData?.id &&
+                                    callApi({
+                                      id: userData.id,
+                                      isShsGraduate: !userData?.shsGraduated,
+                                    })
+                                  }
+                                  setOpen={setOpen}
+                                />
+                              )}
+                            >
+                              {!userData?.shsGraduated
+                                ? 'SHS GRADUATE'
+                                : 'UNGRADUATE SHS'}
+                            </ButtonModal>
+                            <ButtonModal
+                              isSecondary={!!userData?.collegeGraduated}
+                              title={
+                                !userData?.shsGraduated
+                                  ? 'Graduate College?'
+                                  : 'Ungraduate College?'
+                              }
+                              titleProps={{
+                                as: 'h3',
+                                width: 'auto',
+                              }}
+                              width={['60%', '50%', '40%', '30%']}
+                              style={{ alignSelf: 'flex-end' }}
+                              disabled={isUpdating || isSubmitting}
+                              modalChild={({ setOpen }) => (
+                                <AreYouSure
+                                  cancelText="No"
+                                  confirmText="Yes"
+                                  onSubmit={() =>
+                                    !!userData?.id &&
+                                    callApi({
+                                      id: userData.id,
+                                      isCollegeGraduate:
+                                        !userData?.collegeGraduated,
+                                    })
+                                  }
+                                  setOpen={setOpen}
+                                />
+                              )}
+                            >
+                              {!userData?.collegeGraduated
+                                ? 'COLLEGE GRADUATE'
+                                : 'UNGRADUATE COLLEGE'}
+                            </ButtonModal>
+                          </Flex>
+                        )}
+                      </Flex>
                       {isAcceptReject ? (
                         <>
                           <ButtonModal

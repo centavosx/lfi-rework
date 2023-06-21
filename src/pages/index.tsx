@@ -87,6 +87,7 @@ export default function Home() {
         fadeDuration={150}
         carouselContent={['lao2', 'lao3', 'lao4'].map((data, i) => (
           <Image
+            rel="preload"
             key={i}
             src={`/assets/carousel/${data}.PNG`}
             alt="image"
@@ -154,6 +155,7 @@ export default function Home() {
       >
         <Flex flex={1} pl={[0, 20]}>
           <Image
+            rel="preload"
             src={`/assets/AboutUs.PNG`}
             alt="image"
             width={'100%'}

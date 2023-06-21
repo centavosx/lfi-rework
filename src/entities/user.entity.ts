@@ -63,8 +63,6 @@ export type Scholar = {
 
   education: Education
 
-  semester: number
-
   lastGwa: number
 
   gradeSlip: string
@@ -74,6 +72,8 @@ export type Scholar = {
   status: 'started' | 'ended'
 
   created: Date
+
+  accepted: Date | null
 
   ended: Date | null
 }
@@ -104,4 +104,8 @@ export type User = {
   modified: Date
 
   deleted?: Date | null
+
+  shsGraduated?: Date | null
+
+  collegeGraduated?: Date | null
 }

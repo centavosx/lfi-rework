@@ -35,8 +35,10 @@ export const updateUser = async (
   data?: Partial<
     UserInfo &
       RequiredFiles & {
-        status: UserStatus
-        scholarStatus: 'started' | 'rejected' | 'ended'
+        status?: UserStatus
+        scholarStatus?: 'started' | 'rejected' | 'ended'
+        isShsGraduate?: boolean
+        isCollegeGraduate?: boolean
       }
   > & {
     id: string

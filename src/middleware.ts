@@ -1,5 +1,5 @@
 import { User, UserStatus } from 'entities'
-import { Logs } from 'firebaseapp'
+
 import { checkRoles } from 'hooks'
 import jwtDecode from 'jwt-decode'
 import { NextRequest, NextResponse } from 'next/server'
@@ -15,7 +15,7 @@ const checkPath = (
   isAdmin: boolean,
   isSuper: boolean
 ) => {
-  if (pathname === '/') return null
+  if (pathname === '/' && !isAdmin && !isSuper) return null
 
   if (
     !pathname.startsWith('/user') &&

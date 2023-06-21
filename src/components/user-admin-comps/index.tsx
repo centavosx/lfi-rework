@@ -16,7 +16,10 @@ import { FormikErrors } from 'formik'
 import { memo, useState } from 'react'
 import { Flex } from 'rebass'
 
-export type CreateUserType = RegFormType & { status: UserStatus; role: Roles[] }
+export type CreateUserType = RegFormType & {
+  status?: UserStatus
+  role: Roles[]
+}
 
 export const UserRequiredFields = memo(
   ({
@@ -34,7 +37,7 @@ export const UserRequiredFields = memo(
         value: undefined,
       },
 
-      ...((fields.level === Level.SHS
+      ...((fields.education === Level.SHS
         ? SHS_PROGRAMS
         : COLLEGE_PROGRAMS) as any[]),
     ].find((v) => v.value === fields.program)
@@ -52,7 +55,9 @@ export const UserRequiredFields = memo(
             <SelectV2
               label="Education"
               options={SCHOOL_LEVEL}
-              value={SCHOOL_LEVEL.find((v) => v.value === fields.level) as any}
+              value={
+                SCHOOL_LEVEL.find((v) => v.value === fields.education) as any
+              }
               onChange={(v) => {
                 if (v === null) {
                   onAnyChange('education', undefined)
@@ -76,7 +81,7 @@ export const UserRequiredFields = memo(
               options={[
                 { label: 'Select Program...', value: undefined },
                 { label: 'Others', value: 'Other' },
-                ...((fields.level === Level.SHS
+                ...((fields.education === Level.SHS
                   ? SHS_PROGRAMS
                   : COLLEGE_PROGRAMS) as any[]),
               ]}
@@ -104,6 +109,7 @@ export const UserRequiredFields = memo(
             <InputError error={errors.program} />
           </Flex>
         )}
+
         {!findPrograms && (!!fields.program || fields.program === null) && (
           <FormInput
             name={'program'}
@@ -122,7 +128,9 @@ export const UserRequiredFields = memo(
                 { label: 'Select Education Level...', value: undefined },
                 ...LEVEL_EDUC,
               ]}
-              value={LEVEL_EDUC.find((v) => v.value === fields.education)!}
+              value={
+                LEVEL_EDUC.find((v) => v.value === fields.education) as any
+              }
               onChange={(v) => {
                 if (v === null) {
                   onAnyChange('level', undefined)

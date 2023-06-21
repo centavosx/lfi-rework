@@ -30,6 +30,7 @@ import { RegisterDto } from 'constant'
 
 import { CreateUserType, UserRequiredFields } from 'components/user-admin-comps'
 import { UserInformation } from 'components/user-admin-comps/user-information'
+import { format } from 'date-fns'
 
 type PageProps = NextPage & {
   limitParams: number
@@ -108,7 +109,7 @@ const modalInitial: ModalFlexProps<CreateUserType, RegisterDto> = {
       status,
       role,
     }
-    fetch({ ...userDetails, userData: { ...other } as any })
+    fetch({ ...userDetails, userData: { ...other } as any } as any)
     setSubmitting(false)
   },
 }
@@ -204,6 +205,22 @@ export default function Scholars({
             },
 
             {
+              name: 'Graduated Shs',
+              custom: (d) => {
+                return !!d.shsGraduated
+                  ? format(new Date(d?.shsGraduated), 'cccc LLLL d, yyyy')
+                  : '---'
+              },
+            },
+            {
+              name: 'Graduated College',
+              custom: (d) => {
+                return !!d.collegeGraduated
+                  ? format(new Date(d?.collegeGraduated), 'cccc LLLL d, yyyy')
+                  : '---'
+              },
+            },
+            {
               name: 'Status',
               custom: (v) => {
                 if (!v?.scholar || v?.scholar?.length === 0)
@@ -238,6 +255,7 @@ export default function Scholars({
                   }`}</Text>
                 )
               },
+
               items: {
                 itemValues: ['All', UserStatus.ACTIVE, UserStatus.EXPELLED],
                 onChange: (v: string | UserStatus) => {
