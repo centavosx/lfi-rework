@@ -103,7 +103,7 @@ export default function Settings() {
         textProps={{ textAlign: 'start', as: 'h2' }}
         contentProps={{ width: '100%', pl: [16, '5%'], pr: [16, '5%'] }}
       >
-        <Text>Email: {user.email}</Text>
+        <Text>Email: {user?.email}</Text>
         <ChangePassword />
       </Section>
     </Flex>
