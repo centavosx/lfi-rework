@@ -1,7 +1,6 @@
 import { Flex, Image, Text } from 'rebass'
 import { theme } from '../utils/theme'
 
-import { Main } from '../components/main'
 import { Carousel } from '../components/carousel'
 import { Section } from '../components/sections'
 
