@@ -63,6 +63,7 @@ const navigations = [
   'Admins',
   'Chats',
   'Audits',
+  'Settings',
   'Logout',
 ]
 
