@@ -4,44 +4,24 @@ import { ThemeProvider } from 'styled-components'
 import { createTheme } from '@mui/material'
 import { DataProvider, IPAndDeviceProvider } from '../contexts'
 import { AdminMain, Main } from 'components/main'
-import { useRouter } from 'next/router'
+import { Router, useRouter } from 'next/router'
 import { useEffect } from 'react'
+import NProgress from 'nprogress'
 
 const theme = createTheme()
 
-const userLinks = ['/', '/user/', '/register/', '/login/']
-const adminLinks = [
-  '/admin',
-  '/admin/dashboard/',
-  '/admin/admins/',
-  '/admin/applicants/',
-  '/admin/calendar/',
-  '/admin/dashboard/',
-  '/admin/scholars/',
-  '/admin/audits/',
-  '/admin/chats/',
-]
-
 export default function App({ Component, pageProps }: AppProps) {
-  const { prefetch, pathname } = useRouter()
+  const { pathname } = useRouter()
 
   useEffect(() => {
-    if (pathname.startsWith('/admin')) {
-      adminLinks.forEach(async (v) => {
-        if (pathname !== v) await prefetch(v)
-      })
-      return
-    }
-    userLinks.forEach(async (v) => {
-      if (pathname !== v) {
-        let link = v
-        if (link === '/login/') {
-          await prefetch(link, link + '?who=Employee')
-        }
-        await prefetch(link, link + '?who=Scholar')
-      }
+    Router.events.on('routeChangeStart', (url) => {
+      NProgress.start()
     })
-  }, [])
+
+    Router.events.on('routeChangeComplete', (url) => {
+      NProgress.done(false)
+    })
+  }, [Router])
 
   return (
     <ThemeProvider theme={theme}>
