@@ -149,7 +149,7 @@ export default function Dashboard({
       >
         <Flex flex={[1, 0.35]} flexDirection={'column'} sx={{ gap: 2 }}>
           <Text as={'h2'} mb={4}>
-            Welcome {user?.mname}
+            Welcome {user?.lname}, {user?.fname} {user?.mname}
           </Text>
           <Flex flex={1} flexDirection={'column'}>
             <Text as={'h4'} width={'100%'}>
