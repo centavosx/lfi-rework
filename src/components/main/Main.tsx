@@ -121,7 +121,7 @@ const NotifDataListen = ({ close, id }: { close?: () => void; id: string }) => {
           if (t === 'removed') {
             return value.filter((rem) => rem.refId !== v.refId)
           } else if (t === 'added') {
-            return [...value, v as any]
+            return [v as any, ...value]
           } else {
             return value.map((up) =>
               up.refId === v.refId ? { ...up, ...(v as any) } : up
@@ -139,7 +139,7 @@ const NotifDataListen = ({ close, id }: { close?: () => void; id: string }) => {
   useEffect(() => {
     ref
       .getData(20)
-      .then((v) => setData((val) => [...val, ...(v as any).reverse()]))
+      .then((v) => setData((val) => [...val, ...(v as any)]))
       .finally(() => {
         setIsMounted(true)
       })
