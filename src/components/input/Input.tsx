@@ -1,4 +1,5 @@
 import {
+  Button,
   CircularProgress,
   InputAdornment,
   TextField,
@@ -6,6 +7,8 @@ import {
   Theme,
 } from '@mui/material'
 import { styled, SxProps } from '@mui/material/styles'
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined'
+import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined'
 
 import {
   ChangeEventHandler,
@@ -34,8 +37,6 @@ const TextInput = ({
   sx,
   children,
   padding,
-  paddingTop,
-  paddingBottom,
   ...other
 }: TextFieldProps &
   InputColor & {
@@ -45,8 +46,37 @@ const TextInput = ({
     paddingLeft?: number
     paddingRight?: number
   }) => {
-  return <TextField sx={{ width: '100%', ...sx }} {...other} />
+  const [password, setPassword] = useState(false)
+  return (
+    <TextField
+      sx={{ width: '100%', ...sx }}
+      {...other}
+      type={!password ? other.type : 'text'}
+      InputProps={{
+        endAdornment: other.type === 'password' && (
+          <InputAdornment position="end">
+            <Button
+              style={{
+                marginRight: 14,
+                cursor: 'pointer',
+                padding: 3,
+                minWidth: 'auto',
+              }}
+              onClick={() => setPassword((v) => !v)}
+            >
+              {password ? (
+                <VisibilityOutlinedIcon />
+              ) : (
+                <VisibilityOffOutlinedIcon />
+              )}
+            </Button>
+          </InputAdornment>
+        ),
+      }}
+    />
+  )
 }
+
 export const Input = styled(TextInput)(
   ({
     inputcolor,

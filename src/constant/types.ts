@@ -63,6 +63,7 @@ export type RequiredFiles = {
   electricBill?: string
   wifiBill?: string
   enrollmentBill?: string
+  homeVisitProof: string
 }
 
 export type UserDetails = {
@@ -211,4 +212,5 @@ export enum FileTypes {
   ELECTRIC_BILL = 'ELECTRIC_BILL',
   WIFI_BILL = 'WIFI_BILL',
   ENROLLMENT_BILL = 'ENROLLMENT_BILL',
+  HOME_VISIT_PROOF = 'HOME_VISIT_PROOF',
 }

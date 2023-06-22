@@ -26,6 +26,8 @@ export function getFileTypeEnum(file: string): FileTypes | undefined {
       return FileTypes.WIFI_BILL
     case 'enrollmentBill':
       return FileTypes.ENROLLMENT_BILL
+    case 'homeVisitProof':
+      return FileTypes.HOME_VISIT_PROOF
     default:
       return undefined
   }
@@ -59,6 +61,8 @@ export const enumToFileName = (
       return 'wifiBill'
     case FileTypes.ENROLLMENT_BILL:
       return 'enrollmentBill'
+    case FileTypes.HOME_VISIT_PROOF:
+      return 'homeVisitProof'
     default:
       return undefined
   }

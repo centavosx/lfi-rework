@@ -151,6 +151,7 @@ export const DISPLAY_FILES = [
   { name: 'birthCert', title: 'Photocopy of PSA Birth Certificate ' },
   { name: 'autobiography', title: 'Autobiography' },
   { name: 'homeSketch', title: 'Sketch of Home Address' },
+  { name: 'homeVisitProof', title: 'Home Visit Proof' },
   { name: 'waterBill', title: 'Water Bill (Optional)' },
   { name: 'electricBill', title: 'Electric Bill (Optional)' },
   { name: 'wifiBill', title: 'Wifi Bill (Optional)' },

@@ -471,42 +471,43 @@ export default function Calendar() {
                             <Text as={'h4'} flex={0.98}>
                               {i + 1}. {v.title}
                             </Text>
-
-                            <CustomModal
-                              width={250}
-                              modalChild={
-                                <AreYouSure
-                                  message="Are you sure you want to delete?"
-                                  onClick={(ch) =>
-                                    !!ch &&
-                                    deleteAnnouncement(v.id).finally(() =>
-                                      refetchAnnouncement({
-                                        page: 0,
-                                        limit: 25,
-                                        other: {
-                                          sort: 'desc',
-                                        },
-                                      })
-                                    )
-                                  }
-                                />
-                              }
-                            >
-                              {({ setOpen }) => (
-                                <Text
-                                  color={'red'}
-                                  sx={{
-                                    textDecoration: 'underline',
-                                    cursor: 'pointer',
-                                  }}
-                                  onClick={() => {
-                                    setOpen(true)
-                                  }}
-                                >
-                                  Delete
-                                </Text>
-                              )}
-                            </CustomModal>
+                            {(roles.isAdminWrite || roles.isSuper) && (
+                              <CustomModal
+                                width={250}
+                                modalChild={
+                                  <AreYouSure
+                                    message="Are you sure you want to delete?"
+                                    onClick={(ch) =>
+                                      !!ch &&
+                                      deleteAnnouncement(v.id).finally(() =>
+                                        refetchAnnouncement({
+                                          page: 0,
+                                          limit: 25,
+                                          other: {
+                                            sort: 'desc',
+                                          },
+                                        })
+                                      )
+                                    }
+                                  />
+                                }
+                              >
+                                {({ setOpen }) => (
+                                  <Text
+                                    color={'red'}
+                                    sx={{
+                                      textDecoration: 'underline',
+                                      cursor: 'pointer',
+                                    }}
+                                    onClick={() => {
+                                      setOpen(true)
+                                    }}
+                                  >
+                                    Delete
+                                  </Text>
+                                )}
+                              </CustomModal>
+                            )}
                           </Flex>
                           <Text
                             ml={3}

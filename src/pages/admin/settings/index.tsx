@@ -101,9 +101,11 @@ export default function Settings() {
       <Section
         title="Settings"
         textProps={{ textAlign: 'start', as: 'h2' }}
-        contentProps={{ width: '100%', pl: [16, '5%'], pr: [16, '5%'] }}
+        contentProps={{ width: '100%' }}
       >
-        <Text>Email: {user?.email}</Text>
+        <Text as={'h3'} width={'100%'}>
+          Email: {user?.email}
+        </Text>
         <ChangePassword />
       </Section>
     </Flex>
