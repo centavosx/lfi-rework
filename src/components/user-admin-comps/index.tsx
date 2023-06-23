@@ -26,10 +26,12 @@ export const UserRequiredFields = memo(
     onAnyChange,
     fields,
     errors,
+    isUser,
   }: {
     onAnyChange: (k: keyof CreateUserType, v: any) => void
     fields: CreateUserType
     errors: FormikErrors<CreateUserType>
+    isUser?: boolean
   }) => {
     const findPrograms = [
       {
@@ -145,7 +147,9 @@ export const UserRequiredFields = memo(
           </Flex>
         )}
         <Flex flexWrap={'wrap'} flexDirection={'column'} sx={{ gap: 2 }}>
-          {DISPLAY_FILES.map((_, i) => {
+          {DISPLAY_FILES.filter(
+            (v) => (isUser && v.name !== 'homeVisitProof') || !isUser
+          ).map((_, i) => {
             if (i % 2 === 0) {
               const v = DISPLAY_FILES[i]
               const v2 = DISPLAY_FILES[i + 1]
