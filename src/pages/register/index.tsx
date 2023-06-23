@@ -269,6 +269,7 @@ export default function RegisterUser() {
                 onAnyChange={setFieldValue}
                 fields={values as any}
                 errors={errors}
+                isUser={true}
               />
               <ScrollToError>
                 {(scroll) => (

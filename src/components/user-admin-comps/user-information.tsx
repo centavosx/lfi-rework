@@ -30,7 +30,7 @@ import { FormikValidation } from 'helpers'
 import { useApi, useApiPost, useUser } from 'hooks'
 import { Flex, Text } from 'rebass'
 import { theme } from 'utils/theme'
-import { AreYouSure, ButtonModal } from 'components/modal'
+import { AreYouSure, ButtonModal, CustomModal } from 'components/modal'
 import { enumToFileName } from 'helpers/convertFiles'
 import { AiOutlineDownCircle, AiOutlineUpCircle } from 'react-icons/ai'
 import { format } from 'date-fns'
@@ -548,12 +548,14 @@ export const UserInformation = memo(
     isDisabled,
     isAcceptReject,
     isUser,
+    isApplicant,
   }: {
     id: string
     onSuccess?: () => void
     isDisabled?: boolean
     isAcceptReject?: boolean
     isUser?: boolean
+    isApplicant?: boolean
   }) => {
     const {
       data: userData,
@@ -729,7 +731,8 @@ export const UserInformation = memo(
                           {DISPLAY_FILES.filter(
                             (v) =>
                               v.name !== 'gradeSlip' &&
-                              v.name !== 'enrollmentBill'
+                              v.name !== 'enrollmentBill' &&
+                              v.name !== 'homeVisitProof'
                           ).map((v, i) => {
                             return (
                               <Editable key={v.name}>
@@ -867,88 +870,90 @@ export const UserInformation = memo(
                                   }).then(() => refetch())
                                 }
                                 custom={
-                                  <Flex
-                                    sx={{
-                                      alignSelf: 'center',
-                                      alignItems: 'center',
-                                    }}
-                                  >
-                                    {v.status === 'started' && !isUser ? (
-                                      <ButtonModal
-                                        isSecondary={true}
-                                        title="End user scholarship?"
-                                        titleProps={{
-                                          as: 'h3',
-                                          width: 'auto',
-                                        }}
-                                        width={['60%', '50%', '40%', '30%']}
-                                        style={{ alignSelf: 'flex-end' }}
-                                        disabled={isUpdating || isSubmitting}
-                                        modalChild={({ setOpen }) => (
-                                          <AreYouSure
-                                            cancelText="No"
-                                            confirmText="Yes"
-                                            onSubmit={() =>
-                                              !!userData?.id &&
-                                              callApi({
-                                                id: userData.id,
-                                                scholarStatus: 'ended',
-                                              })
-                                            }
-                                            message="Are you sure? It cannot be undone."
-                                            setOpen={setOpen}
-                                          />
-                                        )}
-                                      >
-                                        End
-                                      </ButtonModal>
-                                    ) : v.status === ('pending' as any) &&
-                                      !isUser ? (
-                                      <ButtonModal
-                                        title="Start user scholarship?"
-                                        titleProps={{
-                                          as: 'h3',
-                                          width: 'auto',
-                                        }}
-                                        width={['60%', '50%', '40%', '30%']}
-                                        style={{ alignSelf: 'flex-end' }}
-                                        disabled={isUpdating || isSubmitting}
-                                        modalChild={({ setOpen }) => (
-                                          <AreYouSure
-                                            cancelText="No"
-                                            confirmText="Yes"
-                                            onSubmit={() =>
-                                              !!userData?.id &&
-                                              callApi({
-                                                id: userData.id,
-                                                scholarStatus: 'started',
-                                              })
-                                            }
-                                            message="Are you sure? It cannot be undone."
-                                            setOpen={setOpen}
-                                          />
-                                        )}
-                                      >
-                                        Accept
-                                      </ButtonModal>
-                                    ) : (
-                                      <Text
-                                        fontWeight={700}
-                                        color={
-                                          v.status == 'ended' ||
-                                          v.status === ('rejected' as any)
-                                            ? 'red'
-                                            : v.status === 'started'
-                                            ? 'green'
-                                            : 'blue'
-                                        }
-                                      >
-                                        {v.status === 'started'
-                                          ? 'ACTIVE'
-                                          : v.status.toUpperCase()}
-                                      </Text>
-                                    )}
-                                  </Flex>
+                                  !isApplicant && (
+                                    <Flex
+                                      sx={{
+                                        alignSelf: 'center',
+                                        alignItems: 'center',
+                                      }}
+                                    >
+                                      {v.status === 'started' && !isUser ? (
+                                        <ButtonModal
+                                          isSecondary={true}
+                                          title="End user scholarship?"
+                                          titleProps={{
+                                            as: 'h3',
+                                            width: 'auto',
+                                          }}
+                                          width={['60%', '50%', '40%', '30%']}
+                                          style={{ alignSelf: 'flex-end' }}
+                                          disabled={isUpdating || isSubmitting}
+                                          modalChild={({ setOpen }) => (
+                                            <AreYouSure
+                                              cancelText="No"
+                                              confirmText="Yes"
+                                              onSubmit={() =>
+                                                !!userData?.id &&
+                                                callApi({
+                                                  id: userData.id,
+                                                  scholarStatus: 'ended',
+                                                })
+                                              }
+                                              message="Are you sure? It cannot be undone."
+                                              setOpen={setOpen}
+                                            />
+                                          )}
+                                        >
+                                          End
+                                        </ButtonModal>
+                                      ) : v.status === ('pending' as any) &&
+                                        !isUser ? (
+                                        <ButtonModal
+                                          title="Start user scholarship?"
+                                          titleProps={{
+                                            as: 'h3',
+                                            width: 'auto',
+                                          }}
+                                          width={['60%', '50%', '40%', '30%']}
+                                          style={{ alignSelf: 'flex-end' }}
+                                          disabled={isUpdating || isSubmitting}
+                                          modalChild={({ setOpen }) => (
+                                            <AreYouSure
+                                              cancelText="No"
+                                              confirmText="Yes"
+                                              onSubmit={() =>
+                                                !!userData?.id &&
+                                                callApi({
+                                                  id: userData.id,
+                                                  scholarStatus: 'started',
+                                                })
+                                              }
+                                              message="Are you sure? It cannot be undone."
+                                              setOpen={setOpen}
+                                            />
+                                          )}
+                                        >
+                                          Accept
+                                        </ButtonModal>
+                                      ) : (
+                                        <Text
+                                          fontWeight={700}
+                                          color={
+                                            v.status == 'ended' ||
+                                            v.status === ('rejected' as any)
+                                              ? 'red'
+                                              : v.status === 'started'
+                                              ? 'green'
+                                              : 'blue'
+                                          }
+                                        >
+                                          {v.status === 'started'
+                                            ? 'ACTIVE'
+                                            : v.status.toUpperCase()}
+                                        </Text>
+                                      )}
+                                    </Flex>
+                                  )
                                 }
                                 isDisabled={true}
                               />
@@ -959,6 +964,73 @@ export const UserInformation = memo(
                     </Flex>
                     <Flex sx={{ gap: 2 }}>
                       <Flex flex={1}>
+                        {isApplicant && !!data && (
+                          <Editable>
+                            {(isEdit, setEdit) => (
+                              <UploadProcess
+                                name={'homeVisitProof'}
+                                title={'Home Visit Proof'}
+                                isNew={
+                                  !!(
+                                    !isEdit &&
+                                    values.homeVisitProof &&
+                                    data.homeVisitProof
+                                  )
+                                }
+                                newChildren={(deleteF) => {
+                                  return isEdit ? (
+                                    <SecondaryButton
+                                      onClick={() => {
+                                        deleteF()
+                                        setFieldValue(
+                                          'homeVisitProof',
+                                          data.homeVisitProof
+                                        )
+                                        setEdit((v) => !v)
+                                      }}
+                                    >
+                                      Cancel
+                                    </SecondaryButton>
+                                  ) : (
+                                    !!values.homeVisitProof &&
+                                      !!data.homeVisitProof && (
+                                        <Flex
+                                          flexDirection={'row'}
+                                          sx={{ gap: 2 }}
+                                        >
+                                          <Button
+                                            onClick={() =>
+                                              !!window &&
+                                              window.open(values.homeVisitProof)
+                                            }
+                                          >
+                                            View
+                                          </Button>
+
+                                          <SecondaryButton
+                                            onClick={() => setEdit((v) => !v)}
+                                          >
+                                            Edit
+                                          </SecondaryButton>
+                                        </Flex>
+                                      )
+                                  )
+                                }}
+                                textProps={{
+                                  fontWeight: 'bold',
+                                  justifyContent: 'center',
+                                }}
+                                errorString={errors.homeVisitProof}
+                                width={150}
+                                onChange={(link) => {}}
+                              >
+                                {!!values.homeVisitProof
+                                  ? 'Upload New'
+                                  : 'Upload'}
+                              </UploadProcess>
+                            )}
+                          </Editable>
+                        )}
                         {!isAcceptReject && userData?.id !== user?.id && (
                           <Flex flexWrap={'wrap'} sx={{ gap: 2 }}>
                             <ButtonModal
@@ -1061,33 +1133,49 @@ export const UserInformation = memo(
                           >
                             Reject
                           </ButtonModal>
-                          <ButtonModal
-                            title="Accept user?"
-                            titleProps={{
-                              as: 'h3',
-                              width: 'auto',
-                            }}
-                            width={['60%', '50%', '40%', '30%']}
-                            style={{ alignSelf: 'flex-end' }}
-                            disabled={isUpdating || isSubmitting}
-                            modalChild={({ setOpen }) => (
-                              <AreYouSure
-                                cancelText="No"
-                                confirmText="Yes"
-                                onSubmit={() =>
-                                  !!userData?.id &&
-                                  callApi({
-                                    id: userData.id,
-                                    status: UserStatus.ACTIVE,
-                                    scholarStatus: 'started',
-                                  })
-                                }
-                                setOpen={setOpen}
-                              />
-                            )}
+                          <CustomModal
+                            modalChild={
+                              "You can't accept an applicant without home visit proof"
+                            }
                           >
-                            Accept
-                          </ButtonModal>
+                            {({ setOpen }) => (
+                              <ButtonModal
+                                title="Accept user?"
+                                titleProps={{
+                                  as: 'h3',
+                                  width: 'auto',
+                                }}
+                                width={['60%', '50%', '40%', '30%']}
+                                style={{ alignSelf: 'flex-end' }}
+                                disabled={isUpdating || isSubmitting}
+                                modalChild={({ setOpen }) => (
+                                  <AreYouSure
+                                    cancelText="No"
+                                    confirmText="Yes"
+                                    onSubmit={() => {
+                                      if (
+                                        !data.homeVisitProof &&
+                                        !values.homeVisitProof
+                                      )
+                                        setOpen(true)
+                                      !!userData?.id &&
+                                        callApi({
+                                          id: userData.id,
+                                          status: UserStatus.ACTIVE,
+                                          scholarStatus: 'started',
+                                          homeVisitProof:
+                                            data.homeVisitProof ||
+                                            values.homeVisitProof,
+                                        })
+                                    }}
+                                    setOpen={setOpen}
+                                  />
+                                )}
+                              >
+                                Accept
+                              </ButtonModal>
+                            )}
+                          </CustomModal>
                         </>
                       ) : (
                         <>

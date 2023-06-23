@@ -195,6 +195,7 @@ export default function Applicants({
                           }}
                           isDisabled={true}
                           isAcceptReject={roles.isAdminWrite || roles.isSuper}
+                          isApplicant={true}
                         />
                       )}
                     >

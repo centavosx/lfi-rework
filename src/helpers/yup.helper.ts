@@ -105,7 +105,8 @@ export const FormikValidation = {
         curr.name === 'waterBill' ||
         curr.name === 'electricBill' ||
         curr.name === 'wifiBill' ||
-        curr.name === 'enrollmentBill'
+        curr.name === 'enrollmentBill' ||
+        curr.name === 'homeVisitProof'
       )
         return prev
       return {
