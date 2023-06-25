@@ -737,9 +737,10 @@ export const UserInformation = memo(
                         <Flex flexDirection={'column'} sx={{ gap: 2 }}>
                           {DISPLAY_FILES.filter(
                             (v) =>
-                              v.name !== 'gradeSlip' &&
-                              v.name !== 'enrollmentBill' &&
-                              v.name !== 'homeVisitProof'
+                              (v.name !== 'gradeSlip' &&
+                                v.name !== 'enrollmentBill' &&
+                                v.name !== 'homeVisitProof') ||
+                              (!isApplicant && v.name === 'homeVisitProof')
                           ).map((v, i) => {
                             return (
                               <Editable key={v.name}>
