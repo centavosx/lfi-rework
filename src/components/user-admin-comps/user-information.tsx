@@ -1185,8 +1185,10 @@ export const UserInformation = memo(
                                       if (
                                         !data.homeVisitProof &&
                                         !values.homeVisitProof
-                                      )
+                                      ) {
                                         setReject(true)
+                                        return
+                                      }
                                       setOpen(true)
                                     }}
                                   >
