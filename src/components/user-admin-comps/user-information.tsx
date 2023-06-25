@@ -1029,7 +1029,9 @@ export const UserInformation = memo(
                                 }}
                                 errorString={errors.homeVisitProof}
                                 width={150}
-                                onChange={(link) => {}}
+                                onChange={(link) => {
+                                  setFieldValue('homeVisitProof', link)
+                                }}
                               >
                                 {!!values.homeVisitProof
                                   ? 'Upload New'
