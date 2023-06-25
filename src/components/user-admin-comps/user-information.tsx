@@ -22,6 +22,7 @@ import {
   RegFormType,
   RequiredFiles,
   SCHOOL_LEVEL,
+  SHS_LEVEL_EDUC,
   SHS_PROGRAMS,
 } from 'constant'
 import { Roles, User, UserStatus } from 'entities'
@@ -223,7 +224,7 @@ const ScholarHistory = memo(
                           options={[
                             { label: 'Select Program...', value: undefined },
                             { label: 'Others', value: 'Other' },
-                            ...((fields.level === Level.SHS
+                            ...((fields.education === Level.SHS
                               ? SHS_PROGRAMS
                               : COLLEGE_PROGRAMS) as any[]),
                           ]}
@@ -276,10 +277,16 @@ const ScholarHistory = memo(
                               label: 'Select Education Level...',
                               value: undefined,
                             },
-                            ...LEVEL_EDUC,
+                            ...(fields.education === Level.SHS
+                              ? (SHS_LEVEL_EDUC as any)
+                              : (LEVEL_EDUC as any)),
                           ]}
                           value={
-                            LEVEL_EDUC.find((v) => v.value === fields.level)!
+                            (
+                              (fields.education
+                                ? SHS_LEVEL_EDUC
+                                : LEVEL_EDUC) as any[]
+                            ).find((v) => v.value === fields.level)!
                           }
                           onChange={(v) => {
                             if (v === null) {
@@ -1134,30 +1141,28 @@ export const UserInformation = memo(
                             Reject
                           </ButtonModal>
                           <CustomModal
+                            title="Note!"
+                            titleProps={{
+                              as: 'h3',
+                              width: 'auto',
+                            }}
                             modalChild={
-                              "You can't accept an applicant without home visit proof"
+                              "You can't accept an applicant without home visit proof!"
                             }
                           >
-                            {({ setOpen }) => (
-                              <ButtonModal
+                            {({ setOpen: setReject }) => (
+                              <CustomModal
                                 title="Accept user?"
                                 titleProps={{
                                   as: 'h3',
                                   width: 'auto',
                                 }}
                                 width={['60%', '50%', '40%', '30%']}
-                                style={{ alignSelf: 'flex-end' }}
-                                disabled={isUpdating || isSubmitting}
                                 modalChild={({ setOpen }) => (
                                   <AreYouSure
                                     cancelText="No"
                                     confirmText="Yes"
                                     onSubmit={() => {
-                                      if (
-                                        !data.homeVisitProof &&
-                                        !values.homeVisitProof
-                                      )
-                                        setOpen(true)
                                       !!userData?.id &&
                                         callApi({
                                           id: userData.id,
@@ -1172,8 +1177,23 @@ export const UserInformation = memo(
                                   />
                                 )}
                               >
-                                Accept
-                              </ButtonModal>
+                                {({ setOpen }) => (
+                                  <Button
+                                    disabled={isUpdating || isSubmitting}
+                                    style={{ alignSelf: 'flex-end' }}
+                                    onClick={() => {
+                                      if (
+                                        !data.homeVisitProof &&
+                                        !values.homeVisitProof
+                                      )
+                                        setReject(true)
+                                      setOpen(true)
+                                    }}
+                                  >
+                                    Accept
+                                  </Button>
+                                )}
+                              </CustomModal>
                             )}
                           </CustomModal>
                         </>

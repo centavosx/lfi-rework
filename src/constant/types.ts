@@ -5,6 +5,16 @@ export enum Level {
   COLLEGE = 'College',
 }
 
+export enum Education_SHS {
+  shs111stSem = 'Grade 11 - 1st Sem',
+  shs112ndSem = 'Grade 11 - 2nd Sem',
+  shs11Summer = 'Grade 11 - Summer',
+
+  shs121stSem = 'Grade 12 - 1st Sem',
+  shs122ndtSem = 'Grade 12 - 2nd Sem',
+  shs12Summer = 'Grade 12 - Summer',
+}
+
 export enum Education {
   first1stSem = '1st year - 1st Sem',
   first2ndSem = '1st year - 2nd Sem',

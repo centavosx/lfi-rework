@@ -1,4 +1,10 @@
-import { Level, ShsTrackAndStrandsEnum, CollegeEnum, Education } from './types'
+import {
+  Level,
+  ShsTrackAndStrandsEnum,
+  CollegeEnum,
+  Education,
+  Education_SHS,
+} from './types'
 import { Option } from 'components/select'
 
 export const Levels = {
@@ -175,6 +181,15 @@ export const LEVEL_EDUC: Option<string, Education>[] = Object.keys(
   return {
     label: Education[v as keyof typeof Education] as Education,
     value: Education[v as keyof typeof Education] as Education,
+  }
+})
+
+export const SHS_LEVEL_EDUC: Option<string, Education_SHS>[] = Object.keys(
+  Education_SHS
+).map((v) => {
+  return {
+    label: Education_SHS[v as keyof typeof Education_SHS] as Education_SHS,
+    value: Education_SHS[v as keyof typeof Education_SHS] as Education_SHS,
   }
 })
 
