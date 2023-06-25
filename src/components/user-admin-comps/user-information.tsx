@@ -22,6 +22,7 @@ import {
   RegFormType,
   RequiredFiles,
   SCHOOL_LEVEL,
+  SHS_LEVEL_EDUC,
   SHS_PROGRAMS,
 } from 'constant'
 import { Roles, User, UserStatus } from 'entities'
@@ -223,7 +224,7 @@ const ScholarHistory = memo(
                           options={[
                             { label: 'Select Program...', value: undefined },
                             { label: 'Others', value: 'Other' },
-                            ...((fields.level === Level.SHS
+                            ...((fields.education === Level.SHS
                               ? SHS_PROGRAMS
                               : COLLEGE_PROGRAMS) as any[]),
                           ]}
@@ -276,10 +277,16 @@ const ScholarHistory = memo(
                               label: 'Select Education Level...',
                               value: undefined,
                             },
-                            ...LEVEL_EDUC,
+                            ...(fields.education === Level.SHS
+                              ? (SHS_LEVEL_EDUC as any)
+                              : (LEVEL_EDUC as any)),
                           ]}
                           value={
-                            LEVEL_EDUC.find((v) => v.value === fields.level)!
+                            (
+                              (fields.education
+                                ? SHS_LEVEL_EDUC
+                                : LEVEL_EDUC) as any[]
+                            ).find((v) => v.value === fields.level)!
                           }
                           onChange={(v) => {
                             if (v === null) {

@@ -9,6 +9,7 @@ import {
   Level,
   RegFormType,
   SCHOOL_LEVEL,
+  SHS_LEVEL_EDUC,
   SHS_PROGRAMS,
 } from 'constant'
 import { Roles, UserStatus } from 'entities'
@@ -131,10 +132,14 @@ export const UserRequiredFields = memo(
               placeholder="Select Education LEvel"
               options={[
                 { label: 'Select Education Level...', value: undefined },
-                ...LEVEL_EDUC,
+                ...(fields.education === Level.SHS
+                  ? (SHS_LEVEL_EDUC as any)
+                  : (LEVEL_EDUC as any)),
               ]}
               value={
-                LEVEL_EDUC.find((v) => v.value === fields.education) as any
+                (
+                  (fields.education ? SHS_LEVEL_EDUC : LEVEL_EDUC) as any[]
+                ).find((v) => v.value === fields.level)!
               }
               onChange={(v) => {
                 if (v === null) {
