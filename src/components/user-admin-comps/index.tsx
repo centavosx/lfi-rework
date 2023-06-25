@@ -33,6 +33,9 @@ export const UserRequiredFields = memo(
     errors: FormikErrors<CreateUserType>
     isUser?: boolean
   }) => {
+    const FILES = DISPLAY_FILES.filter(
+      (v) => (isUser && v.name !== 'homeVisitProof') || !isUser
+    )
     const findPrograms = [
       {
         label: 'Select Program...',
@@ -147,12 +150,10 @@ export const UserRequiredFields = memo(
           </Flex>
         )}
         <Flex flexWrap={'wrap'} flexDirection={'column'} sx={{ gap: 2 }}>
-          {DISPLAY_FILES.filter(
-            (v) => (isUser && v.name !== 'homeVisitProof') || !isUser
-          ).map((_, i) => {
+          {FILES.map((_, i) => {
             if (i % 2 === 0) {
-              const v = DISPLAY_FILES[i]
-              const v2 = DISPLAY_FILES[i + 1]
+              const v = FILES[i]
+              const v2 = FILES[i + 1]
               return (
                 <Flex width="100%" key={i} flexDirection={['column', 'row']}>
                   <Flex flex={[1, 0.51, 0.5]} alignItems={'center'}>
