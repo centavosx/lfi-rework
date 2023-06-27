@@ -37,9 +37,55 @@ const ColoredContainer = ({
   )
 }
 
+const Display = {
+  employee: {
+    name: 'Employees',
+    color: 'blue',
+    text: 'white',
+  },
+
+  applicant: {
+    name: 'Applicants',
+    color: 'yellow',
+    text: 'black',
+  },
+
+  scholar: {
+    name: 'Scholars',
+    color: 'green',
+    text: 'white',
+  },
+
+  shsGraduate: {
+    name: 'College Graduates',
+    color: 'brown',
+    text: 'white',
+  },
+
+  collegeGraduate: {
+    name: 'College Graduates',
+    color: '#ADD8E6',
+    text: 'black',
+  },
+  epelled: {
+    name: 'Expelled',
+    color: 'red',
+    text: 'white',
+  },
+}
+
 type DashboardProps<T extends string = string> = {
   graphValues: { x: string; y: T }[]
-  userCounts: { name: 'employee' | 'applicant' | 'scholar'; count: T }[]
+  userCounts: {
+    name:
+      | 'employee'
+      | 'applicant'
+      | 'scholar'
+      | 'shsGraduate'
+      | 'collegeGraduate'
+      | 'expelled'
+    count: T
+  }[]
   upcomingEvents: {
     id: string
     name: string
@@ -269,31 +315,71 @@ export default function Dashboard({
         sx={{ gap: 3, padding: 3, height: 'auto' }}
         flexDirection={['column', 'column', 'row']}
       >
-        <ColoredContainer color="yellow" sx={{ gap: 3, padding: 3, flex: 1 }}>
-          <Text as="h4">Number of Applicants</Text>
-          <Text as="h1" textAlign={'end'}>
-            {data?.userCounts.find((v) => v.name === 'applicant')?.count || 0}
-          </Text>
-        </ColoredContainer>
-        <ColoredContainer
-          color={theme.colors.green}
-          sx={{ gap: 3, padding: 3, flex: 1 }}
-        >
-          <Text as="h4" color={'white'}>
-            Number of scholars
-          </Text>
-          <Text as="h1" textAlign={'end'} color={'white'}>
-            {data?.userCounts.find((v) => v.name === 'scholar')?.count || 0}
-          </Text>
-        </ColoredContainer>
-        <ColoredContainer color={'blue'} sx={{ gap: 3, padding: 3, flex: 1 }}>
-          <Text as="h4" color={'white'}>
-            Number of employees
-          </Text>
-          <Text as="h1" textAlign={'end'} color={'white'}>
-            {data?.userCounts.find((v) => v.name === 'employee')?.count || 0}
-          </Text>
-        </ColoredContainer>
+        {data?.userCounts
+          .filter(
+            (v) =>
+              v.name === 'applicant' ||
+              v.name === 'scholar' ||
+              v.name === 'employee'
+          )
+          .map((v, i) => {
+            return (
+              <ColoredContainer
+                key={i}
+                color={Display[v.name as keyof typeof Display].color}
+                sx={{ gap: 3, padding: 3, flex: 1 }}
+              >
+                <Text
+                  as="h4"
+                  color={Display[v.name as keyof typeof Display].text}
+                >
+                  Number of {Display[v.name as keyof typeof Display].name}
+                </Text>
+                <Text
+                  as="h1"
+                  textAlign={'end'}
+                  color={Display[v.name as keyof typeof Display].text}
+                >
+                  {v.count ?? 0}
+                </Text>
+              </ColoredContainer>
+            )
+          })}
+      </Flex>
+      <Flex
+        sx={{ gap: 3, padding: 3, height: 'auto' }}
+        flexDirection={['column', 'column', 'row']}
+      >
+        {data?.userCounts
+          .filter(
+            (v) =>
+              v.name !== 'applicant' &&
+              v.name !== 'scholar' &&
+              v.name !== 'employee'
+          )
+          .map((v, i) => {
+            return (
+              <ColoredContainer
+                key={i}
+                color={Display[v.name as keyof typeof Display].color}
+                sx={{ gap: 3, padding: 3, flex: 1 }}
+              >
+                <Text
+                  as="h4"
+                  color={Display[v.name as keyof typeof Display].text}
+                >
+                  Number of {Display[v.name as keyof typeof Display].name}
+                </Text>
+                <Text
+                  as="h1"
+                  textAlign={'end'}
+                  color={Display[v.name as keyof typeof Display].text}
+                >
+                  {v.count ?? 0}
+                </Text>
+              </ColoredContainer>
+            )
+          })}
       </Flex>
     </Flex>
   )
