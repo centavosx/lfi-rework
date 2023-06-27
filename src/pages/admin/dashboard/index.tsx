@@ -57,7 +57,7 @@ const Display = {
   },
 
   shsGraduate: {
-    name: 'College Graduates',
+    name: 'Senior High Graduates',
     color: 'brown',
     text: 'white',
   },
