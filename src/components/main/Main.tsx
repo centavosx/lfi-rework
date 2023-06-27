@@ -102,7 +102,15 @@ const ChatClick = ({ setOpen }: { setOpen: () => void }) => {
   )
 }
 
-const NotifDataListen = ({ close, id }: { close?: () => void; id: string }) => {
+const NotifDataListen = ({
+  close,
+  id,
+  isNotAll,
+}: {
+  close?: () => void
+  id: string
+  isNotAll: boolean
+}) => {
   const [data, setData] = useState<
     {
       refId: string
@@ -111,7 +119,7 @@ const NotifDataListen = ({ close, id }: { close?: () => void; id: string }) => {
       created: string
     }[]
   >([])
-  const ref = useRef(new FirebaseRealtimeNotifications(id)).current
+  const ref = useRef(new FirebaseRealtimeNotifications(id, isNotAll)).current
   const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
@@ -211,7 +219,6 @@ const NotifClick = () => {
   useEffect(() => {
     if (!!user?.id) {
       const sub = ref.listen(() => {
-        console.log('hey')
         ref.getUnreadCount().then((v) => {
           setNumber(v)
         })
@@ -245,7 +252,11 @@ const NotifClick = () => {
       }}
       displayModal={(close) => {
         return !!user?.id ? (
-          <NotifDataListen close={close} id={user.id} />
+          <NotifDataListen
+            close={close}
+            id={user.id}
+            isNotAll={user.status !== UserStatus.ACTIVE}
+          />
         ) : (
           <></>
         )

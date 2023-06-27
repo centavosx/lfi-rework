@@ -319,9 +319,9 @@ export class FirebaseRealtimeNotifications<
   T extends Record<string, any> = Record<string, any>,
   V extends Record<string, any> = Record<string, any>
 > extends FirebaseBody<T, V> {
-  constructor(id: string) {
+  constructor(id: string, isNotAll?: boolean) {
     super(id, 'notifications', [
-      where('user', 'in', [id, 'all']),
+      where('user', 'in', isNotAll ? [id] : [id, 'all']),
       orderBy('created', 'desc'),
     ])
   }
