@@ -67,7 +67,7 @@ const Display = {
     color: '#ADD8E6',
     text: 'black',
   },
-  epelled: {
+  expelled: {
     name: 'Expelled',
     color: 'red',
     text: 'white',
