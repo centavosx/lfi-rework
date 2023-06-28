@@ -223,6 +223,12 @@ export default function Scholars({
             {
               name: 'Status',
               custom: (v) => {
+                if (!!v.collegeGraduated)
+                  return (
+                    <Text as={'h4'} color={'#90ee90'}>
+                      Graduated
+                    </Text>
+                  )
                 if (!v?.scholar || v?.scholar?.length === 0)
                   return (
                     <Text as={'h4'} color={'blue'}>

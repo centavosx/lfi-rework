@@ -740,7 +740,9 @@ export const UserInformation = memo(
                               (v.name !== 'gradeSlip' &&
                                 v.name !== 'enrollmentBill' &&
                                 v.name !== 'homeVisitProof') ||
-                              (!isApplicant && v.name === 'homeVisitProof')
+                              (!isUser &&
+                                !isApplicant &&
+                                v.name === 'homeVisitProof')
                           ).map((v, i) => {
                             return (
                               <Editable key={v.name}>
