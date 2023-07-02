@@ -65,7 +65,10 @@ export const FormikValidation = {
     fname: Yup.string().required('Required'),
     lname: Yup.string().required('Required'),
     level: Yup.string().required('Required'),
-    lastGwa: Yup.number().required('Required'),
+    lastGwa: Yup.number()
+      .min(1, '1 is the highest')
+      .max(5, '5 is the lowest')
+      .required('Required (1 is the highest, and 5 is lowest)'),
     education: Yup.string().required('Required'),
     program: Yup.string().nullable().required('Required'),
     address: Yup.string().required('Required'),
@@ -90,10 +93,15 @@ export const FormikValidation = {
     fname: Yup.string().required('Required'),
     lname: Yup.string().required('Required'),
     level: Yup.string().required('Required'),
-    lastGwa: Yup.number().required('Required'),
+    lastGwa: Yup.number()
+      .min(1, '1 is the highest')
+      .max(5, '5 is the lowest')
+      .required('Required (1 is the highest, and 5 is lowest)'),
     education: Yup.string().required('Required'),
     program: Yup.string().nullable().required('Required'),
+    home: Yup.string().required('Required'),
     address: Yup.string().required('Required'),
+    brgy: Yup.string().required('Required'),
     email: Yup.string()
       .email('Please enter a valid email')
       .required('Required'),

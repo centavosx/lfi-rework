@@ -3,24 +3,14 @@ import { theme } from 'utils/theme'
 import { useState, useEffect } from 'react'
 import { Formik } from 'formik'
 import { FormContainer, ScrollToError } from 'components/forms'
-import { FormInput, Input, InputError } from 'components/input'
-import { Button, UploadProcess } from 'components/button'
+import { FormInput, InputError } from 'components/input'
+import { Button } from 'components/button'
 import { FormikValidation } from 'helpers'
 import { refreshVerifCode, registerUser, verifyUser } from 'api'
 import { useApiPost, useUser } from 'hooks'
 import { Loading } from 'components/loading'
 
-import { Select } from 'components/select'
-import {
-  Level,
-  RegFormType,
-  DISPLAY_FILES,
-  UserInfo,
-  RequiredFiles,
-  SCHOOL_LEVEL,
-  SHS_PROGRAMS,
-  COLLEGE_PROGRAMS,
-} from 'constant'
+import { RegFormType, UserInfo, RequiredFiles } from 'constant'
 
 import { UserStatus } from 'entities'
 import { UserRequiredFields } from 'components/user-admin-comps'
@@ -172,20 +162,30 @@ export default function RegisterUser() {
       {user?.status === UserStatus.PENDING ? (
         <ValidateEmail />
       ) : (
-        <Formik<RegFormType & { checked: boolean }>
+        <Formik<RegFormType & { checked: boolean; brgy: string; home: string }>
           key={1}
           initialValues={{
             fname: '',
             lname: '',
             email: '',
+            home: '',
             address: '',
+            brgy: '',
             checked: false,
           }}
           validationSchema={FormikValidation.createNewUser}
           onSubmit={(values, { setSubmitting }) => {
             delete (values as any).checked
+
+            const completeAddress =
+              values.home + ', ' + values.address + ', ' + values.brgy
+            delete (values as any).home
+            delete (values as any).address
+            delete (values as any).brgy
+
             setSubmitting(true)
-            callApi(values as any)
+
+            callApi({ ...(values as any), address: completeAddress })
             setSubmitting(false)
           }}
           validateOnMount={true}
@@ -246,24 +246,26 @@ export default function RegisterUser() {
                 label="Email"
                 sx={{ flex: 1 }}
               />
-
+              <FormInput
+                name="home"
+                label={'House number'}
+                placeholder={'House number'}
+                containerProps={{ flex: 1 }}
+                sx={{ flex: 1 }}
+              />
               <FormInput
                 name="address"
-                label={'Address'}
-                multiline={true}
-                variant="outlined"
-                inputcolor={{
-                  labelColor: 'gray',
-                  backgroundColor: 'white',
-                  borderBottomColor: theme.mainColors.first,
-
-                  color: 'black',
-                }}
-                placeholder={'Address'}
-                maxRows={2}
-                padding={20}
-                paddingBottom={15}
-                sx={{ color: 'black', width: '100%' }}
+                label={'Street'}
+                placeholder={'Street'}
+                containerProps={{ flex: 1 }}
+                sx={{ flex: 1 }}
+              />
+              <FormInput
+                name="brgy"
+                label={'Barangay'}
+                placeholder={'Barangay'}
+                containerProps={{ flex: 1 }}
+                sx={{ flex: 1 }}
               />
               <UserRequiredFields
                 onAnyChange={setFieldValue}
