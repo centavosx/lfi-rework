@@ -83,6 +83,12 @@ export const UserRequiredFields = memo(
                           </Text>
                         ))}
                       </Flex>
+                      <Text mt={2}>
+                        Note: Follow the metric system of Lao Foundation Inc.,
+                        convert the grades if needed. If the grading system is
+                        different from the metric system of Lao Foundation Inc.,
+                        please refrain with the point system of your school.
+                      </Text>
                     </Flex>
                   }
                   title="Grade Equivalents"
