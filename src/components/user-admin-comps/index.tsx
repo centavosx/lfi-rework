@@ -17,7 +17,7 @@ import { Roles, UserStatus } from 'entities'
 import { FormikErrors } from 'formik'
 import { memo, useState } from 'react'
 import { AiFillInfoCircle } from 'react-icons/ai'
-import { Flex } from 'rebass'
+import { Flex, Text } from 'rebass'
 import { theme } from 'utils/theme'
 
 export type CreateUserType = RegFormType & {
@@ -62,8 +62,31 @@ export const UserRequiredFields = memo(
             endAdornment: (
               <InputAdornment position="end">
                 <CustomModal
+                  modalChild={
+                    <Flex flexDirection={'column'} sx={{ gap: 2, p: 2 }}>
+                      <Text>Average grade should follow: </Text>
+                      <Flex flexDirection={'column'} sx={{ gap: 2, p: 2 }}>
+                        {[
+                          '1.00...... 98-100',
+                          '1.25...... 95-97',
+                          '1.50...... 92-85',
+                          '1.75...... 89-91',
+                          '2.00...... 86-88',
+                          '2.25...... 83-85',
+                          '2.50...... 80-82',
+                          '2.75...... 77-79',
+                          '3.00...... 75-76',
+                          '5.00.... Below 75 (Failed)',
+                        ].map((v, ind) => (
+                          <Text key={ind} as={'h4'}>
+                            • {v}
+                          </Text>
+                        ))}
+                      </Flex>
+                    </Flex>
+                  }
                   title="Grade Equivalents"
-                  titleProps={{ as: 'h3' }}
+                  titleProps={{ as: 'h2' }}
                 >
                   {({ setOpen }) => (
                     <Button
