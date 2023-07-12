@@ -238,6 +238,7 @@ export default function RegisterUser() {
                   sx={{ flex: 1 }}
                 />
               </Flex>
+
               <FormInput
                 containerProps={{ flex: 1 }}
                 name="email"
@@ -246,27 +247,41 @@ export default function RegisterUser() {
                 label="Email"
                 sx={{ flex: 1 }}
               />
-              <FormInput
-                name="home"
-                label={'House number'}
-                placeholder={'House number'}
-                containerProps={{ flex: 1 }}
-                sx={{ flex: 1 }}
-              />
-              <FormInput
-                name="address"
-                label={'Street'}
-                placeholder={'Street'}
-                containerProps={{ flex: 1 }}
-                sx={{ flex: 1 }}
-              />
-              <FormInput
-                name="brgy"
-                label={'Barangay'}
-                placeholder={'Barangay'}
-                containerProps={{ flex: 1 }}
-                sx={{ flex: 1 }}
-              />
+              <Text as={'h3'}>Address</Text>
+              <Flex
+                flexDirection={'column'}
+                sx={{
+                  gap: 2,
+                  p: 4,
+                  pr: 2,
+                  pl: 2,
+                  borderTop: '1px solid black',
+                  borderBottom: '1px solid black',
+                  borderRadius: '2',
+                }}
+              >
+                <FormInput
+                  name="home"
+                  label={'House number'}
+                  placeholder={'House number'}
+                  containerProps={{ flex: 1 }}
+                  sx={{ flex: 1 }}
+                />
+                <FormInput
+                  name="address"
+                  label={'Street'}
+                  placeholder={'Street'}
+                  containerProps={{ flex: 1 }}
+                  sx={{ flex: 1 }}
+                />
+                <FormInput
+                  name="brgy"
+                  label={'Barangay'}
+                  placeholder={'Barangay'}
+                  containerProps={{ flex: 1 }}
+                  sx={{ flex: 1 }}
+                />
+              </Flex>
               <UserRequiredFields
                 onAnyChange={setFieldValue}
                 fields={values as any}

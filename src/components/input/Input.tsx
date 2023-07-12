@@ -72,6 +72,7 @@ const TextInput = ({
             </Button>
           </InputAdornment>
         ),
+        ...other.InputProps,
       }}
     />
   )
