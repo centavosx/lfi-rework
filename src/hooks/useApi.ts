@@ -48,15 +48,16 @@ export function useApi<T extends any = any, O extends any = any>(
 }
 
 export function useApiPost<T extends any = any, O extends any = any>(
-  api: (options?: O) => Promise<any>
+  api: (options?: O, state?: any) => Promise<any>
 ) {
   const [data, setData] = useState<T>()
 
-  const [{ loading, isFetching, isSuccess }, setFetching] = useState<{
+  const [{ loading, isFetching, isSuccess, state }, setFetching] = useState<{
     loading: boolean
     isFetching: boolean
     isSuccess?: boolean
     options?: O
+    state?: any
   }>({
     loading: false,
     isFetching: false,
@@ -76,8 +77,13 @@ export function useApiPost<T extends any = any, O extends any = any>(
     }
   }
 
-  const callApi = (options?: O) => {
-    setFetching({ loading: true, isFetching: true, options })
+  const callApi = (options?: O, state?: any) => {
+    setFetching({
+      loading: true,
+      isFetching: true,
+      options,
+      state: state ?? undefined,
+    })
   }
 
   useEffect(() => {
@@ -96,5 +102,6 @@ export function useApiPost<T extends any = any, O extends any = any>(
     callApi,
     error,
     isSuccess,
+    state,
   }
 }

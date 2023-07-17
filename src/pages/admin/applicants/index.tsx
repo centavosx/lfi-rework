@@ -1,13 +1,18 @@
-import React, { useEffect } from 'react'
-import { Flex, Image, Text } from 'rebass'
+import React, {
+  useEffect,
+  useState,
+  forwardRef,
+  useImperativeHandle,
+  useCallback,
+  useRef,
+} from 'react'
+import { Flex } from 'rebass'
 
 import { Section } from '../../../components/sections'
 
 import { CustomTable } from 'components/table'
-import { NextPage } from 'next'
+
 import { useApi, useUser } from 'hooks'
-import { useRouter } from 'next/navigation'
-import { useRouter as useNav } from 'next/router'
 
 import {
   ButtonModal,
@@ -26,13 +31,6 @@ import {
   UserInformation,
   UserRequiredFields,
 } from 'components/user-admin-comps'
-
-type PageProps = NextPage & {
-  limitParams: number
-  pageParams: number
-  searchParams?: string
-  statusParams?: string
-}
 
 const modalInitial: ModalFlexProps<CreateUserType, RegisterDto> = {
   api: createUser,
@@ -113,55 +111,90 @@ type ResponseDto<T> = {
   total: number
 }
 
-export default function Applicants({
-  limitParams,
-  pageParams,
-  searchParams,
-}: PageProps) {
-  const { roles } = useUser()
-  const { replace } = useRouter()
-  const { query, pathname, asPath } = useNav()
-  const { refetch, data, isFetching } = useApi<
-    ResponseDto<User>,
+const Applicants = forwardRef(
+  (
     {
-      page: number
-      limit: number
-      other: GetAllUserType
-    }
-  >(getAllUser, true)
+      userStatus,
+      title,
+      withAdd,
+      onAccepted,
+      onRejected,
+      isActive,
+    }: {
+      userStatus: UserStatus
+      title: string
+      withAdd?: boolean
+      onAccepted?: () => void
+      onRejected?: () => void
+      isActive?: boolean
+    },
+    ref
+  ) => {
+    const { roles } = useUser()
 
-  const refreshItems = () => {
-    if (asPath !== '/admin/applicants/') replace(pathname)
-    else
+    const [{ searchParams, limitParams, pageParams }, setParams] = useState({
+      searchParams: '',
+      limitParams: 20,
+      pageParams: 0,
+    })
+    const { refetch, data, isFetching } = useApi<
+      ResponseDto<User>,
+      {
+        page: number
+        limit: number
+        other: GetAllUserType
+      }
+    >(getAllUser, true)
+
+    const refreshItems = useCallback(() => {
+      if (searchParams === '' && pageParams === 0 && limitParams === 20) {
+        refetch({
+          page: 0,
+          limit: 20,
+          other: {
+            search: '',
+            role: [Roles.USER],
+            status: [userStatus],
+          },
+        })
+        return
+      }
+      setParams({
+        searchParams: '',
+        pageParams: 0,
+        limitParams: 20,
+      })
+    }, [searchParams, pageParams, limitParams])
+
+    useEffect(() => {
       refetch({
-        page: 0,
-        limit: 20,
+        page: pageParams,
+        limit: limitParams,
         other: {
+          search: searchParams,
           role: [Roles.USER],
-          status: [UserStatus.VERIFIED],
+          status: [userStatus],
         },
       })
-  }
+    }, [limitParams, pageParams, searchParams])
 
-  useEffect(() => {
-    refetch({
-      page: pageParams,
-      limit: limitParams,
-      other: {
-        search: searchParams,
-        role: [Roles.USER],
-        status: [UserStatus.VERIFIED],
+    const userData: User[] = data ? (!!data.data ? data.data : []) : []
+    const total = data?.total ?? 0
+
+    useImperativeHandle(
+      ref,
+      () => {
+        return {
+          refreshItems,
+        }
       },
-    })
-  }, [limitParams, pageParams, searchParams])
+      [refreshItems]
+    )
 
-  const userData: User[] = data ? (!!data.data ? data.data : []) : []
-  const total = data?.total ?? 0
-
-  return (
-    <Flex flexDirection={'column'} alignItems="center" width={'100%'}>
-      <Section title="Applicants" textProps={{ textAlign: 'start' }}>
+    return (
+      <Section title={title} textProps={{ textAlign: 'start' }}>
         <CustomTable
+          maxTableHeight={500}
           isCheckboxEnabled={roles.isSuper}
           dataCols={[
             { field: 'id', name: 'ID' },
@@ -174,7 +207,14 @@ export default function Applicants({
               field: 'email',
               name: 'Email',
             },
-
+            ...(userStatus === UserStatus.CANCELED
+              ? [
+                  {
+                    field: 'reason' as unknown as keyof User,
+                    name: 'Reason',
+                  },
+                ]
+              : []),
             {
               name: 'Actions',
               isNumber: true,
@@ -193,9 +233,14 @@ export default function Applicants({
                             refreshItems()
                             setOpen(false)
                           }}
+                          onAccepted={onAccepted}
+                          onRejected={onRejected}
                           isDisabled={true}
                           isAcceptReject={roles.isAdminWrite || roles.isSuper}
                           isApplicant={true}
+                          status={
+                            isActive ? UserStatus.ACTIVE : UserStatus.PROCESSING
+                          }
                         />
                       )}
                     >
@@ -211,37 +256,18 @@ export default function Applicants({
           pageSize={limitParams}
           total={total}
           rowIdentifierField={'id'}
-          handleChangePage={(_, p) => {
-            replace(
-              pathname +
-                '?' +
-                new URLSearchParams({
-                  ...query,
-                  page: p.toString(),
-                }).toString()
-            )
+          handleChangePage={(_, pageParams) => {
+            setParams((query) => ({ ...query, pageParams }))
           }}
           onSearch={(v) => {
-            replace(
-              pathname +
-                '?' +
-                new URLSearchParams({
-                  ...query,
-                  page: '0',
-                  search: v,
-                }).toString()
-            )
+            setParams((query) => ({ ...query, pageParams: 0, searchParams: v }))
           }}
           handleChangeRowsPerPage={(e) =>
-            replace(
-              pathname +
-                '?' +
-                new URLSearchParams({
-                  ...query,
-                  page: '0',
-                  limit: parseInt(e.target.value).toString(),
-                }).toString()
-            )
+            setParams((query) => ({
+              ...query,
+              pageParams: 0,
+              limitParams: parseInt(e.target.value),
+            }))
           }
         >
           {(selected, setSelected) => (
@@ -251,23 +277,12 @@ export default function Applicants({
               setSelected={setSelected}
               isFetchingData={isFetching}
               refetch={() => {
-                if (pathname !== '/admin/scholars/') replace(pathname)
-                else
-                  refetch({
-                    page: 0,
-                    limit: 20,
-                    other: {
-                      role: [
-                        Roles.ADMIN,
-                        Roles.SUPER,
-                        Roles.ADMIN_READ,
-                        Roles.ADMIN_WRITE,
-                      ],
-                    },
-                  })
+                refreshItems()
               }}
               modalCreate={
-                roles.isAdminWrite || roles.isSuper ? modalInitial : undefined
+                (roles.isAdminWrite || roles.isSuper) && withAdd
+                  ? modalInitial
+                  : undefined
               }
               onRemove={async () => {
                 await deleteRole({ ids: selected }, [Roles.USER])
@@ -276,16 +291,51 @@ export default function Applicants({
           )}
         </CustomTable>
       </Section>
+    )
+  }
+)
+
+Applicants.displayName = 'forwardApplicants'
+
+export default function ApplicantPage() {
+  const pendingRef = useRef<any>(null)
+  const processRef = useRef<any>(null)
+  const rejectRef = useRef<any>(null)
+
+  return (
+    <Flex flexDirection={'column'} alignItems="center" width={'100%'}>
+      <Applicants
+        ref={pendingRef}
+        key={0}
+        userStatus={UserStatus.VERIFIED}
+        title="Pending Applicants"
+        onAccepted={() => {
+          processRef?.current?.refreshItems()
+        }}
+        onRejected={() => {
+          rejectRef?.current?.refreshItems()
+        }}
+        withAdd={true}
+      />
+      <Applicants
+        ref={processRef}
+        key={1}
+        userStatus={UserStatus.PROCESSING}
+        title="On Processing"
+        isActive={true}
+        onRejected={() => {
+          rejectRef?.current?.refreshItems()
+        }}
+      />
+      <Applicants
+        ref={rejectRef}
+        key={2}
+        userStatus={UserStatus.CANCELED}
+        title="Rejected"
+        onAccepted={() => {
+          processRef?.current?.refreshItems()
+        }}
+      />
     </Flex>
   )
-}
-export async function getServerSideProps(context: any) {
-  let limitParams: number = Number(context.query.limit) || 20
-  let pageParams: number = Number(context.query.page) || 0
-  let searchParams: string = context.query.search || ''
-  let statusParams: string = context.query.status || ''
-
-  return {
-    props: { limitParams, pageParams, searchParams, statusParams },
-  }
 }

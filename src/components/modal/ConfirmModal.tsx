@@ -270,11 +270,11 @@ export const AreYouSure = ({
   confirmText,
   message = 'Are you sure?',
 }: {
-  setOpen: Dispatch<SetStateAction<boolean>>
-  onSubmit: () => void
+  setOpen: (v: boolean) => void
+  onSubmit: (() => Promise<void>) | (() => void)
   cancelText: string
   confirmText: string
-  message?: string
+  message?: string | ReactNode
 }) => {
   return (
     <Flex
@@ -283,17 +283,21 @@ export const AreYouSure = ({
       alignItems="center"
       flexDirection="column"
     >
-      <Text
-        width={'100%'}
-        textAlign={'center'}
-        sx={{
-          fontSize: 24,
-          color: 'black',
-          fontWeight: 'bold',
-        }}
-      >
-        {message}
-      </Text>
+      {typeof message === 'string' ? (
+        <Text
+          width={'100%'}
+          textAlign={'center'}
+          sx={{
+            fontSize: 24,
+            color: 'black',
+            fontWeight: 'bold',
+          }}
+        >
+          {message}
+        </Text>
+      ) : (
+        message
+      )}
       <Flex sx={{ gap: 10 }}>
         <Button
           style={{ padding: 12 }}
@@ -309,8 +313,8 @@ export const AreYouSure = ({
         </Button>
         <Button
           style={{ padding: 12 }}
-          onClick={() => {
-            onSubmit()
+          onClick={async () => {
+            await onSubmit()
             setOpen(false)
           }}
         >

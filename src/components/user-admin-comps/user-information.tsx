@@ -8,10 +8,16 @@ import {
   useMemo,
   useRef,
 } from 'react'
-import { getUserInfo, renewalScholar, submitBill, updateUser } from 'api'
+import {
+  getUserInfo,
+  renewalScholar,
+  submitBill,
+  updatePaid,
+  updateUser,
+} from 'api'
 import { Button, SecondaryButton, UploadProcess } from 'components/button'
 import { FormContainer, ScrollToError } from 'components/forms'
-import { FormInput, InputError } from 'components/input'
+import { FormInput, Input, InputError } from 'components/input'
 import { Loading } from 'components/loading'
 import { SelectV2 } from 'components/select'
 import {
@@ -35,6 +41,70 @@ import { AreYouSure, ButtonModal, CustomModal } from 'components/modal'
 import { enumToFileName } from 'helpers/convertFiles'
 import { AiOutlineDownCircle, AiOutlineUpCircle } from 'react-icons/ai'
 import { format } from 'date-fns'
+import { Checkbox, FormControlLabel, Radio, RadioGroup } from '@mui/material'
+
+export const OnReject = ({
+  onSubmit,
+  setOpen,
+  reasons,
+}: {
+  onSubmit: ((v: string) => Promise<void>) | ((v: string) => void)
+  setOpen: (v: boolean) => void
+  reasons: string[]
+}) => {
+  const [reason, setReason] = useState<string>(reasons[0])
+  const [other, setOther] = useState('')
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setReason((event.target as HTMLInputElement).value)
+  }
+
+  return (
+    <AreYouSure
+      cancelText="No"
+      confirmText="Yes"
+      message={
+        <Flex flexDirection={'column'} width={'100%'}>
+          <RadioGroup value={reason} onChange={handleChange}>
+            {reasons.map((v, i) => (
+              <FormControlLabel
+                key={i}
+                value={v}
+                control={<Radio />}
+                label={v}
+              />
+            ))}
+            <FormControlLabel value={''} control={<Radio />} label={'Other'} />
+          </RadioGroup>
+          <Input
+            multiline={true}
+            padding={16}
+            minRows={4}
+            maxRows={6}
+            placeholder="Other reason..."
+            value={other}
+            onChange={(e) => setOther(e.target.value)}
+          />
+          {!(reason + other) && (
+            <Text as={'h6'} color={'red'}>
+              Please specify your reasons for rejecting this application
+            </Text>
+          )}
+        </Flex>
+      }
+      onSubmit={async () => {
+        if (!(reason + other)) return
+        await onSubmit(
+          !!reason && !!other
+            ? reason + ': ' + other
+            : !!reason && !other
+            ? reason
+            : other
+        )
+      }}
+      setOpen={(v) => setOpen(v)}
+    />
+  )
+}
 
 const ScholarHistory = memo(
   ({
@@ -54,6 +124,8 @@ const ScholarHistory = memo(
     shsGraduated,
     collegeGraudated,
     isUser,
+    isEditCheckbox,
+    onCheckClick,
   }: {
     initial: {
       level?: string
@@ -62,6 +134,7 @@ const ScholarHistory = memo(
       education?: string
       gradeSlip?: string
       enrollmentBill?: string
+      paid?: boolean
     }
     otherData?: {
       created?: Date
@@ -82,6 +155,8 @@ const ScholarHistory = memo(
     shsGraduated: boolean
     collegeGraudated: boolean
     isUser?: boolean
+    isEditCheckbox?: boolean
+    onCheckClick?: (id: string) => void
   }) => {
     const ref = useRef<
       FormikProps<{
@@ -302,6 +377,16 @@ const ScholarHistory = memo(
                       </Flex>
                     )}
 
+                    {!!otherData && (
+                      <FormControlLabel
+                        checked={!!initial.paid}
+                        disabled={!isEditCheckbox}
+                        control={
+                          <Checkbox onChange={() => onCheckClick?.(id)} />
+                        }
+                        label="isPaid?"
+                      />
+                    )}
                     {!!otherData && (
                       <Flex flexDirection={'column'} sx={{ gap: 2 }}>
                         {otherData?.created && (
@@ -538,7 +623,7 @@ const DisplayOrNot = memo(
 
         {isOpen && (
           <Flex flexDirection={'column'} p={3}>
-            {children}{' '}
+            {children}
           </Flex>
         )}
       </Flex>
@@ -556,6 +641,9 @@ export const UserInformation = memo(
     isAcceptReject,
     isUser,
     isApplicant,
+    onAccepted,
+    onRejected,
+    status = UserStatus.ACTIVE,
   }: {
     id: string
     onSuccess?: () => void
@@ -563,6 +651,9 @@ export const UserInformation = memo(
     isAcceptReject?: boolean
     isUser?: boolean
     isApplicant?: boolean
+    onAccepted?: () => void
+    onRejected?: () => void
+    status?: UserStatus
   }) => {
     const {
       data: userData,
@@ -574,11 +665,23 @@ export const UserInformation = memo(
       isSuccess,
       isFetching: isUpdating,
       callApi,
+      state,
     } = useApiPost(updateUser)
 
+    const {
+      isSuccess: isSuccessPaid,
+      isFetching: isUpdatingPaid,
+      callApi: updatePaidFunc,
+    } = useApiPost(updatePaid)
+
     useEffect(() => {
-      if (isSuccess) onSuccess?.()
-    }, [isSuccess])
+      if (isSuccess && state === 'accepted') onAccepted?.()
+      if (isSuccess && state === 'rejected') onRejected?.()
+    }, [isSuccess, state])
+
+    useEffect(() => {
+      if (isSuccessPaid) refetch(id)
+    }, [isSuccessPaid])
 
     const { user } = useUser()
 
@@ -644,7 +747,10 @@ export const UserInformation = memo(
                     labelProps={{ sx: { justifyContent: 'left' } }}
                     flexProps={{ sx: { gap: 20, mb: 30, mt: 2 } }}
                   >
-                    {(isSubmitting || isFetching || isUpdating) && <Loading />}
+                    {(isSubmitting ||
+                      isFetching ||
+                      isUpdating ||
+                      isUpdatingPaid) && <Loading />}
                     <Flex
                       sx={{
                         flexDirection: ['column', 'column', 'row'],
@@ -848,14 +954,18 @@ export const UserInformation = memo(
                           college={!!userData?.collegeGraduated}
                           status={sorted?.[0]?.status}
                           id={id}
-                          onSuccess={() => refetch()}
+                          onSuccess={() => refetch(id)}
                         />
                         <Flex flexDirection={'column'}>
                           {sorted?.map((v, i) => {
                             return (
                               <ScholarHistory
+                                onCheckClick={() =>
+                                  updatePaidFunc({ id: v.id })
+                                }
                                 shsGraduated={!!userData?.shsGraduated}
                                 collegeGraudated={!!userData?.collegeGraduated}
+                                isEditCheckbox={!isUser && !isDisabled}
                                 id={id}
                                 index={i}
                                 initial={{
@@ -865,6 +975,7 @@ export const UserInformation = memo(
                                   gradeSlip: v.gradeSlip,
                                   lastGwa: v.lastGwa,
                                   program: v.program as string,
+                                  paid: v.paid,
                                 }}
                                 otherData={{
                                   accepted: v.accepted || undefined,
@@ -877,7 +988,7 @@ export const UserInformation = memo(
                                   submitBill({
                                     enrollmentBill: link,
                                     id,
-                                  }).then(() => refetch())
+                                  }).then(() => refetch(id))
                                 }
                                 custom={
                                   !isApplicant && (
@@ -1117,92 +1228,124 @@ export const UserInformation = memo(
                       </Flex>
                       {isAcceptReject ? (
                         <>
-                          <ButtonModal
-                            isSecondary={true}
-                            title="Reject user?"
-                            titleProps={{
-                              as: 'h3',
-                              width: 'auto',
-                            }}
-                            width={['60%', '50%', '40%', '30%']}
-                            style={{ alignSelf: 'flex-end' }}
-                            disabled={isUpdating || isSubmitting}
-                            modalChild={({ setOpen }) => (
-                              <AreYouSure
-                                cancelText="No"
-                                confirmText="Yes"
-                                onSubmit={() =>
-                                  !!userData?.id &&
-                                  callApi({
-                                    id: userData.id,
-                                    status: UserStatus.CANCELED,
-                                    scholarStatus: 'rejected',
-                                  })
-                                }
-                                setOpen={setOpen}
-                              />
-                            )}
-                          >
-                            Reject
-                          </ButtonModal>
-                          <CustomModal
-                            title="Note!"
-                            titleProps={{
-                              as: 'h3',
-                              width: 'auto',
-                            }}
-                            modalChild={
-                              "You can't accept an applicant without home visit proof!"
-                            }
-                          >
-                            {({ setOpen: setReject }) => (
-                              <CustomModal
-                                title="Accept user?"
-                                titleProps={{
-                                  as: 'h3',
-                                  width: 'auto',
-                                }}
-                                width={['60%', '50%', '40%', '30%']}
-                                modalChild={({ setOpen }) => (
-                                  <AreYouSure
-                                    cancelText="No"
-                                    confirmText="Yes"
-                                    onSubmit={() => {
-                                      !!userData?.id &&
-                                        callApi({
-                                          id: userData.id,
-                                          status: UserStatus.ACTIVE,
-                                          scholarStatus: 'started',
-                                          homeVisitProof:
-                                            data.homeVisitProof ||
-                                            values.homeVisitProof,
-                                        })
-                                    }}
-                                    setOpen={setOpen}
-                                  />
-                                )}
-                              >
-                                {({ setOpen }) => (
-                                  <Button
-                                    disabled={isUpdating || isSubmitting}
-                                    style={{ alignSelf: 'flex-end' }}
-                                    onClick={() => {
-                                      if (
-                                        !data.homeVisitProof &&
-                                        !values.homeVisitProof
-                                      ) {
-                                        setReject(true)
-                                        return
-                                      }
-                                      setOpen(true)
-                                    }}
-                                  >
-                                    Accept
-                                  </Button>
-                                )}
-                              </CustomModal>
-                            )}
-                          </CustomModal>
+                          {data.status !== UserStatus.CANCELED && (
+                            <ButtonModal
+                              isSecondary={true}
+                              title="Reject user?"
+                              titleProps={{
+                                as: 'h3',
+                                width: 'auto',
+                              }}
+                              width={['60%', '50%', '40%', '30%']}
+                              style={{ alignSelf: 'flex-end' }}
+                              disabled={isUpdating || isSubmitting}
+                              modalChild={({ setOpen }) => (
+                                <OnReject
+                                  onSubmit={(v) =>
+                                    !!userData?.id &&
+                                    callApi(
+                                      {
+                                        id: userData.id,
+                                        status: UserStatus.CANCELED,
+                                        scholarStatus: 'rejected',
+                                        reason: v,
+                                      },
+                                      'rejected'
+                                    )
+                                  }
+                                  setOpen={(v) => setOpen(v)}
+                                  reasons={[
+                                    "The grade does not meet the Foundation's requirements",
+                                    'Incorrect Uploaded File',
+                                    'Outdated Uploaded File',
+                                    'Not Complete File',
+                                    'After the House Visitation we noticed that the family can afford the tuition fee and other miscellaneous',
+                                  ]}
+                                />
+                              )}
+                            >
+                              Reject
+                            </ButtonModal>
+                          )}
+                          {(status === UserStatus.ACTIVE ||
+                            status === UserStatus.PROCESSING) && (
+                            <CustomModal
+                              title="Note!"
+                              titleProps={{
+                                as: 'h3',
+                                width: 'auto',
+                              }}
+                              modalChild={
+                                "You can't accept an applicant without home visit proof!"
+                              }
+                            >
+                              {({ setOpen: setReject }) => (
+                                <CustomModal
+                                  title={
+                                    status === UserStatus.PROCESSING
+                                      ? 'Process User'
+                                      : 'Accept User'
+                                  }
+                                  titleProps={{
+                                    as: 'h3',
+                                    width: 'auto',
+                                  }}
+                                  width={['60%', '50%', '40%', '30%']}
+                                  modalChild={({ setOpen }) => (
+                                    <AreYouSure
+                                      cancelText="No"
+                                      confirmText="Yes"
+                                      onSubmit={() => {
+                                        !!userData?.id &&
+                                          (status === UserStatus.ACTIVE
+                                            ? callApi(
+                                                {
+                                                  id: userData.id,
+                                                  status: UserStatus.ACTIVE,
+                                                  scholarStatus: 'started',
+                                                  homeVisitProof:
+                                                    data.homeVisitProof ||
+                                                    values.homeVisitProof,
+                                                },
+                                                'accepted'
+                                              )
+                                            : callApi(
+                                                {
+                                                  id: userData.id,
+                                                  status: UserStatus.PROCESSING,
+                                                },
+                                                'accepted'
+                                              ))
+                                      }}
+                                      setOpen={setOpen}
+                                    />
+                                  )}
+                                >
+                                  {({ setOpen }) => (
+                                    <Button
+                                      disabled={isUpdating || isSubmitting}
+                                      style={{ alignSelf: 'flex-end' }}
+                                      onClick={() => {
+                                        if (
+                                          !data.homeVisitProof &&
+                                          !values.homeVisitProof &&
+                                          status === UserStatus.ACTIVE
+                                        ) {
+                                          setReject(true)
+                                          return
+                                        }
+                                        setOpen(true)
+                                      }}
+                                    >
+                                      {status === UserStatus.ACTIVE
+                                        ? 'Accept'
+                                        : 'Process'}
+                                    </Button>
+                                  )}
+                                </CustomModal>
+                              )}
+                            </CustomModal>
+                          )}
                         </>
                       ) : (
                         <>

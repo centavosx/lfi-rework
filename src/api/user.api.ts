@@ -39,6 +39,7 @@ export const updateUser = async (
         scholarStatus?: 'started' | 'rejected' | 'ended'
         isShsGraduate?: boolean
         isCollegeGraduate?: boolean
+        reason?: string
       }
   > & {
     id: string
@@ -238,6 +239,18 @@ export const submitBill = async (data?: {
       ...data,
       id: undefined,
     })
+    return response.data
+  } catch (e) {
+    throw e
+  }
+}
+
+export const updatePaid = async (data?: { id: string }) => {
+  try {
+    if (!data) throw new Error()
+
+    const id = data.id
+    const response = await apiAuth.patch('/user/updatePaid/' + id)
     return response.data
   } catch (e) {
     throw e

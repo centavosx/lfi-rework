@@ -6,6 +6,7 @@ export enum UserStatus {
   PENDING = 'pending',
   CANCELED = 'cancelled',
   VERIFIED = 'verified',
+  PROCESSING = 'processing',
 }
 
 export enum Roles {
@@ -76,6 +77,8 @@ export type Scholar = {
   accepted: Date | null
 
   ended: Date | null
+
+  paid: boolean
 }
 
 export type User = {
@@ -108,4 +111,6 @@ export type User = {
   shsGraduated?: Date | null
 
   collegeGraduated?: Date | null
+
+  reason?: string | null
 }
