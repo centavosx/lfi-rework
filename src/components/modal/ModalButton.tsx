@@ -1,4 +1,4 @@
-import {
+import React, {
   useCallback,
   ReactNode,
   useState,
@@ -15,7 +15,7 @@ import { Flex, TextProps, Text } from 'rebass'
 
 type ChildProps = {
   isOpen: boolean
-  onSubmit: () => Promise<void>
+  onSubmit: (v?: any) => Promise<void>
   setOpen: Dispatch<SetStateAction<boolean>>
 }
 
@@ -37,7 +37,7 @@ export const ButtonModal = memo(
     ...props
   }: ButtonProps & {
     modalChild?: ((props: ChildProps) => ReactNode) | ReactNode
-    onSubmit?: () => Promise<void> | void
+    onSubmit?: (v?: any) => Promise<void> | void
     onClose?: () => void
     height?: string[] | number[] | number | string
     maxHeight?: string[] | number[] | number | string
@@ -48,10 +48,13 @@ export const ButtonModal = memo(
   }) => {
     const [open, setOpen] = useState<boolean>(false)
 
-    const onSubmitSuccess = useCallback(async () => {
-      await onSubmit?.()
-      setOpen(false)
-    }, [onSubmit, setOpen])
+    const onSubmitSuccess = useCallback(
+      async (v?: any) => {
+        await onSubmit?.(v)
+        setOpen(false)
+      },
+      [onSubmit, setOpen]
+    )
 
     useEffect(() => {
       if (open === false) onClose?.()

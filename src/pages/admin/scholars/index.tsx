@@ -1,4 +1,11 @@
-import React, { useEffect } from 'react'
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  forwardRef,
+  useImperativeHandle,
+  useRef,
+} from 'react'
 import { Flex, Text } from 'rebass'
 
 import { Section } from '../../../components/sections'
@@ -29,15 +36,11 @@ import { Roles, User, UserStatus } from 'entities'
 import { RegisterDto } from 'constant'
 
 import { CreateUserType, UserRequiredFields } from 'components/user-admin-comps'
-import { UserInformation } from 'components/user-admin-comps/user-information'
+import {
+  OnReject,
+  UserInformation,
+} from 'components/user-admin-comps/user-information'
 import { format } from 'date-fns'
-
-type PageProps = NextPage & {
-  limitParams: number
-  pageParams: number
-  searchParams?: string
-  statusParams?: string
-}
 
 const modalInitial: ModalFlexProps<CreateUserType, RegisterDto> = {
   api: createUser,
@@ -119,78 +122,104 @@ type ResponseDto<T> = {
   total: number
 }
 
-export default function Scholars({
-  limitParams,
-  pageParams,
-  searchParams,
-  statusParams,
-}: PageProps) {
-  const { roles } = useUser()
-  const { replace } = useRouter()
-  const { query, pathname, asPath } = useNav()
-  const { isSuccess, isFetching: isUpdating, callApi } = useApiPost(updateUser)
-
-  const {
-    refetch,
-    data,
-    isFetching: isFetchingData,
-  } = useApi<
-    ResponseDto<User>,
+const Scholars = forwardRef(
+  (
     {
-      page: number
-      limit: number
-      other: GetAllUserType
-    }
-  >(getAllUser, true)
+      statusParams,
+      title,
+      onRejected,
+    }: {
+      statusParams: UserStatus.ACTIVE | UserStatus.EXPELLED
+      title: string
+      onRejected?: () => void
+    },
+    ref
+  ) => {
+    const { roles } = useUser()
+    const {
+      isSuccess,
+      isFetching: isUpdating,
+      callApi,
+      state,
+    } = useApiPost(updateUser)
 
-  const userData: User[] = data ? (!!data.data ? data.data : []) : []
-  const total = data?.total ?? 0
+    const [{ limitParams, pageParams, searchParams }, setParams] = useState({
+      limitParams: 20,
+      pageParams: 0,
+      searchParams: '',
+    })
 
-  const refreshItems = () => {
-    if (asPath !== '/admin/scholars/') replace(pathname)
-    else
+    const {
+      refetch,
+      data,
+      isFetching: isFetchingData,
+    } = useApi<
+      ResponseDto<User>,
+      {
+        page: number
+        limit: number
+        other: GetAllUserType
+      }
+    >(getAllUser, true)
+
+    const userData: User[] = data ? (!!data.data ? data.data : []) : []
+    const total = data?.total ?? 0
+
+    const refreshItems = useCallback(() => {
+      if (searchParams === '' && pageParams === 0 && limitParams === 20) {
+        refetch({
+          page: 0,
+          limit: 20,
+          other: {
+            search: '',
+            role: [Roles.USER],
+            status: [statusParams],
+          },
+        })
+        return
+      }
+      setParams({
+        searchParams: '',
+        pageParams: 0,
+        limitParams: 20,
+      })
+    }, [searchParams, pageParams, limitParams])
+
+    useEffect(() => {
       refetch({
-        page: 0,
-        limit: 20,
+        page: pageParams,
+        limit: limitParams,
         other: {
+          search: searchParams,
           role: [Roles.USER],
-          status:
-            statusParams === UserStatus.ACTIVE ||
-            statusParams === UserStatus.EXPELLED
-              ? ([statusParams] as any)
-              : [UserStatus.ACTIVE, UserStatus.EXPELLED],
+          status: [statusParams],
         },
       })
-  }
+    }, [limitParams, pageParams, searchParams, statusParams])
 
-  useEffect(() => {
-    refetch({
-      page: pageParams,
-      limit: limitParams,
-      other: {
-        search: searchParams,
-        role: [Roles.USER],
-        status:
-          statusParams === UserStatus.ACTIVE ||
-          statusParams === UserStatus.EXPELLED
-            ? ([statusParams] as any)
-            : [UserStatus.ACTIVE, UserStatus.EXPELLED],
+    useEffect(() => {
+      if (isSuccess) refreshItems()
+      if (isSuccess && state === 'expelled') onRejected?.()
+    }, [isSuccess, refreshItems, state])
+
+    useImperativeHandle(
+      ref,
+      () => {
+        return {
+          refreshItems,
+        }
       },
-    })
-  }, [limitParams, pageParams, searchParams, statusParams])
+      [refreshItems]
+    )
 
-  useEffect(() => {
-    if (isSuccess) refreshItems()
-  }, [isSuccess])
-
-  return (
-    <Flex flexDirection={'column'} alignItems="center" width={'100%'}>
+    return (
       <Section
-        title="Scholars"
+        title={title}
         textProps={{ textAlign: 'start' }}
         isFetching={isUpdating}
       >
         <CustomTable
+          maxTableHeight={800}
           isCheckboxEnabled={roles.isSuper}
           dataCols={[
             { field: 'id', name: 'ID' },
@@ -204,22 +233,34 @@ export default function Scholars({
               name: 'Email',
             },
 
-            {
-              name: 'Graduated Shs',
-              custom: (d) => {
-                return !!d.shsGraduated
-                  ? format(new Date(d?.shsGraduated), 'cccc LLLL d, yyyy')
-                  : '---'
-              },
-            },
-            {
-              name: 'Graduated College',
-              custom: (d) => {
-                return !!d.collegeGraduated
-                  ? format(new Date(d?.collegeGraduated), 'cccc LLLL d, yyyy')
-                  : '---'
-              },
-            },
+            ...(statusParams === UserStatus.ACTIVE
+              ? [
+                  {
+                    name: 'Graduated Shs' as keyof User,
+                    custom: (d: any) => {
+                      return !!d.shsGraduated
+                        ? format(new Date(d?.shsGraduated), 'cccc LLLL d, yyyy')
+                        : '---'
+                    },
+                  },
+                  {
+                    name: 'Graduated College' as keyof User,
+                    custom: (d: any) => {
+                      return !!d.collegeGraduated
+                        ? format(
+                            new Date(d?.collegeGraduated),
+                            'cccc LLLL d, yyyy'
+                          )
+                        : '---'
+                    },
+                  },
+                ]
+              : [
+                  {
+                    field: 'reason' as unknown as keyof User,
+                    name: 'Reason',
+                  },
+                ]),
             {
               name: 'Status',
               custom: (v) => {
@@ -261,28 +302,6 @@ export default function Scholars({
                   }`}</Text>
                 )
               },
-
-              items: {
-                itemValues: ['All', UserStatus.ACTIVE, UserStatus.EXPELLED],
-                onChange: (v: string | UserStatus) => {
-                  const queries = { ...query }
-                  if (v === 'All') {
-                    delete queries.status
-                  } else {
-                    queries.status = v
-                  }
-                  replace(
-                    pathname +
-                      '?' +
-                      new URLSearchParams({
-                        ...queries,
-                        page: '0',
-                        search: '',
-                        limit: '',
-                      }).toString()
-                  )
-                },
-              },
             },
             {
               name: 'Actions',
@@ -308,44 +327,43 @@ export default function Scholars({
                     >
                       View
                     </ButtonModal>
-                    {(roles.isSuper || roles.isAdminWrite) && (
-                      <ButtonModal
-                        isSecondary={true}
-                        title={
-                          d?.status === UserStatus.ACTIVE
-                            ? 'Expell User?'
-                            : 'UnExpell User?'
-                        }
-                        titleProps={{
-                          as: 'h3',
-                        }}
-                        width={['60%', '50%', '40%', '30%']}
-                        modalChild={({ setOpen, onSubmit }) => (
-                          <AreYouSure
-                            setOpen={setOpen}
-                            cancelText="No"
-                            confirmText="Yes"
-                            onSubmit={async () => {
-                              await onSubmit()
-                              setOpen(false)
-                            }}
-                          />
-                        )}
-                        onSubmit={() => {
-                          callApi({
-                            id: d.id,
-                            status:
-                              d.status === UserStatus.ACTIVE
-                                ? UserStatus.EXPELLED
-                                : UserStatus.ACTIVE,
-                          })
-                        }}
-                      >
-                        {d.status === UserStatus.ACTIVE
-                          ? 'Expell'
-                          : 'Reactivate'}
-                      </ButtonModal>
-                    )}
+                    {(roles.isSuper || roles.isAdminWrite) &&
+                      UserStatus.ACTIVE && (
+                        <ButtonModal
+                          isSecondary={true}
+                          title={'Expell User?'}
+                          titleProps={{
+                            as: 'h3',
+                          }}
+                          width={['60%', '50%', '40%', '30%']}
+                          modalChild={({ setOpen, onSubmit }) => (
+                            <OnReject
+                              setOpen={(v) => setOpen(v)}
+                              onSubmit={async (v) => {
+                                await onSubmit(v)
+                                setOpen(false)
+                              }}
+                              reasons={[
+                                'Sorry we noticed in your grade slip you failed a subject',
+                                "You violated the foundation's rules",
+                                'After the meeting about having low grades, sorry but we have to cancel the scholarship',
+                              ]}
+                            />
+                          )}
+                          onSubmit={(v) => {
+                            callApi(
+                              {
+                                id: d.id,
+                                status: UserStatus.EXPELLED,
+                                reason: v,
+                              },
+                              'expelled'
+                            )
+                          }}
+                        >
+                          Expell
+                        </ButtonModal>
+                      )}
                   </Flex>
                 )
               },
@@ -356,37 +374,18 @@ export default function Scholars({
           pageSize={limitParams}
           total={total}
           rowIdentifierField={'id'}
-          handleChangePage={(_, p) => {
-            replace(
-              pathname +
-                '?' +
-                new URLSearchParams({
-                  ...query,
-                  page: p.toString(),
-                }).toString()
-            )
+          handleChangePage={(_, pageParams) => {
+            setParams((query) => ({ ...query, pageParams }))
           }}
           onSearch={(v) => {
-            replace(
-              pathname +
-                '?' +
-                new URLSearchParams({
-                  ...query,
-                  page: '0',
-                  search: v,
-                }).toString()
-            )
+            setParams((query) => ({ ...query, pageParams: 0, searchParams: v }))
           }}
           handleChangeRowsPerPage={(e) =>
-            replace(
-              pathname +
-                '?' +
-                new URLSearchParams({
-                  ...query,
-                  page: '0',
-                  limit: parseInt(e.target.value).toString(),
-                }).toString()
-            )
+            setParams((query) => ({
+              ...query,
+              pageParams: 0,
+              limitParams: parseInt(e.target.value),
+            }))
           }
         >
           {(selected, setSelected) => (
@@ -408,16 +407,32 @@ export default function Scholars({
           )}
         </CustomTable>
       </Section>
+    )
+  }
+)
+Scholars.displayName = 'forwardScholar'
+
+export default function ScholarPage() {
+  const activeRef = useRef<any>(null)
+  const expellRef = useRef<any>(null)
+
+  return (
+    <Flex flexDirection={'column'} alignItems="center" width={'100%'}>
+      <Scholars
+        ref={activeRef}
+        key={0}
+        title="Scholars"
+        statusParams={UserStatus.ACTIVE}
+        onRejected={() => {
+          expellRef?.current?.refreshItems()
+        }}
+      />
+      <Scholars
+        ref={expellRef}
+        key={1}
+        title="Expelled"
+        statusParams={UserStatus.EXPELLED}
+      />
     </Flex>
   )
-}
-export async function getServerSideProps(context: any) {
-  let limitParams: number = Number(context.query.limit) || 20
-  let pageParams: number = Number(context.query.page) || 0
-  let searchParams: string = context.query.search || ''
-  let statusParams: string = context.query.status || ''
-
-  return {
-    props: { limitParams, pageParams, searchParams, statusParams },
-  }
 }

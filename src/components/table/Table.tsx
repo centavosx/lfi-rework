@@ -180,9 +180,13 @@ export function CustomTable<T extends object = any>({
   handleChangePage,
   onRowClick,
   onSearch,
-
+  maxTableHeight,
   children,
-}: TableProps<T> & { onSearch?: (v: string) => void; isFetching?: boolean }) {
+}: TableProps<T> & {
+  onSearch?: (v: string) => void
+  isFetching?: boolean
+  maxTableHeight?: number
+}) {
   const [selected, setSelected] = useState<any[]>([])
 
   const handleSelectAllClick = useCallback(
@@ -207,7 +211,7 @@ export function CustomTable<T extends object = any>({
   )
 
   return (
-    <TableContainer component={Paper}>
+    <TableContainer component={Paper} style={{ maxHeight: maxTableHeight }}>
       {typeof children === 'function'
         ? children(selected, setSelected)
         : children}
@@ -283,7 +287,7 @@ export function CustomTable<T extends object = any>({
             ))}
           </TableRow>
         </TableHead>
-        <TableBody>
+        <TableBody style={{ flex: 1 }}>
           {dataRow.map((row, i) => (
             <TableRow
               key={i}
