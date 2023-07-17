@@ -8,7 +8,13 @@ import {
   useMemo,
   useRef,
 } from 'react'
-import { getUserInfo, renewalScholar, submitBill, updateUser } from 'api'
+import {
+  getUserInfo,
+  renewalScholar,
+  submitBill,
+  updatePaid,
+  updateUser,
+} from 'api'
 import { Button, SecondaryButton, UploadProcess } from 'components/button'
 import { FormContainer, ScrollToError } from 'components/forms'
 import { FormInput, Input, InputError } from 'components/input'
@@ -35,7 +41,7 @@ import { AreYouSure, ButtonModal, CustomModal } from 'components/modal'
 import { enumToFileName } from 'helpers/convertFiles'
 import { AiOutlineDownCircle, AiOutlineUpCircle } from 'react-icons/ai'
 import { format } from 'date-fns'
-import { FormControlLabel, Radio, RadioGroup } from '@mui/material'
+import { Checkbox, FormControlLabel, Radio, RadioGroup } from '@mui/material'
 
 export const OnReject = ({
   onSubmit,
@@ -118,6 +124,8 @@ const ScholarHistory = memo(
     shsGraduated,
     collegeGraudated,
     isUser,
+    isEditCheckbox,
+    onCheckClick,
   }: {
     initial: {
       level?: string
@@ -126,6 +134,7 @@ const ScholarHistory = memo(
       education?: string
       gradeSlip?: string
       enrollmentBill?: string
+      paid?: boolean
     }
     otherData?: {
       created?: Date
@@ -146,6 +155,8 @@ const ScholarHistory = memo(
     shsGraduated: boolean
     collegeGraudated: boolean
     isUser?: boolean
+    isEditCheckbox?: boolean
+    onCheckClick?: (id: string) => void
   }) => {
     const ref = useRef<
       FormikProps<{
@@ -366,6 +377,16 @@ const ScholarHistory = memo(
                       </Flex>
                     )}
 
+                    {!!otherData && (
+                      <FormControlLabel
+                        checked={!!initial.paid}
+                        disabled={!isEditCheckbox}
+                        control={
+                          <Checkbox onChange={() => onCheckClick?.(id)} />
+                        }
+                        label="isPaid?"
+                      />
+                    )}
                     {!!otherData && (
                       <Flex flexDirection={'column'} sx={{ gap: 2 }}>
                         {otherData?.created && (
@@ -647,11 +668,20 @@ export const UserInformation = memo(
       state,
     } = useApiPost(updateUser)
 
+    const {
+      isSuccess: isSuccessPaid,
+      isFetching: isUpdatingPaid,
+      callApi: updatePaidFunc,
+    } = useApiPost(updatePaid)
+
     useEffect(() => {
-      if (isSuccess) onSuccess?.()
       if (isSuccess && state === 'accepted') onAccepted?.()
       if (isSuccess && state === 'rejected') onRejected?.()
     }, [isSuccess, state])
+
+    useEffect(() => {
+      if (isSuccessPaid) refetch(id)
+    }, [isSuccessPaid])
 
     const { user } = useUser()
 
@@ -717,7 +747,10 @@ export const UserInformation = memo(
                     labelProps={{ sx: { justifyContent: 'left' } }}
                     flexProps={{ sx: { gap: 20, mb: 30, mt: 2 } }}
                   >
-                    {(isSubmitting || isFetching || isUpdating) && <Loading />}
+                    {(isSubmitting ||
+                      isFetching ||
+                      isUpdating ||
+                      isUpdatingPaid) && <Loading />}
                     <Flex
                       sx={{
                         flexDirection: ['column', 'column', 'row'],
@@ -921,14 +954,18 @@ export const UserInformation = memo(
                           college={!!userData?.collegeGraduated}
                           status={sorted?.[0]?.status}
                           id={id}
-                          onSuccess={() => refetch()}
+                          onSuccess={() => refetch(id)}
                         />
                         <Flex flexDirection={'column'}>
                           {sorted?.map((v, i) => {
                             return (
                               <ScholarHistory
+                                onCheckClick={() =>
+                                  updatePaidFunc({ id: v.id })
+                                }
                                 shsGraduated={!!userData?.shsGraduated}
                                 collegeGraudated={!!userData?.collegeGraduated}
+                                isEditCheckbox={!isUser && !isDisabled}
                                 id={id}
                                 index={i}
                                 initial={{
@@ -938,6 +975,7 @@ export const UserInformation = memo(
                                   gradeSlip: v.gradeSlip,
                                   lastGwa: v.lastGwa,
                                   program: v.program as string,
+                                  paid: v.paid,
                                 }}
                                 otherData={{
                                   accepted: v.accepted || undefined,
@@ -950,7 +988,7 @@ export const UserInformation = memo(
                                   submitBill({
                                     enrollmentBill: link,
                                     id,
-                                  }).then(() => refetch())
+                                  }).then(() => refetch(id))
                                 }
                                 custom={
                                   !isApplicant && (

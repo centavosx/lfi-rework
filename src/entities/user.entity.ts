@@ -77,6 +77,8 @@ export type Scholar = {
   accepted: Date | null
 
   ended: Date | null
+
+  paid: boolean
 }
 
 export type User = {
