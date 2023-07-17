@@ -328,7 +328,7 @@ const Scholars = forwardRef(
                       View
                     </ButtonModal>
                     {(roles.isSuper || roles.isAdminWrite) &&
-                      UserStatus.ACTIVE && (
+                      d.status === UserStatus.ACTIVE && (
                         <ButtonModal
                           isSecondary={true}
                           title={'Expell User?'}
