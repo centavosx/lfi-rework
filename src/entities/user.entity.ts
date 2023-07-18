@@ -79,6 +79,8 @@ export type Scholar = {
   ended: Date | null
 
   paid: boolean
+
+  receipt?: string | null
 }
 
 export type User = {

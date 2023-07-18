@@ -40,7 +40,7 @@ export const CustomModal = memo(
     maxHeight?: number[] | string[] | number | string
     maxWidth?: number[] | string[] | number | string
     isModalOverFlow?: boolean
-    width?: string[] | number[] | number | string
+    width?: string[] | number[] | number | string | any
     titleProps?: TextProps
     title?: string
     onClose?: () => void

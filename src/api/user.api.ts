@@ -245,12 +245,14 @@ export const submitBill = async (data?: {
   }
 }
 
-export const updatePaid = async (data?: { id: string }) => {
+export const updatePaid = async (data?: { id: string; link?: string }) => {
   try {
     if (!data) throw new Error()
 
     const id = data.id
-    const response = await apiAuth.patch('/user/updatePaid/' + id)
+    const response = await apiAuth.patch('/user/updatePaid/' + id, {
+      link: data.link,
+    })
     return response.data
   } catch (e) {
     throw e

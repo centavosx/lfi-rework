@@ -228,6 +228,40 @@ export default function Home() {
           </BoxWithTitle>
         ))}
       </Section>
+      <Section
+        title="Benefits"
+        textProps={{
+          color: theme.colors.white,
+          padding: 50,
+          backgroundColor: theme.colors.darkestGreen,
+        }}
+        padding={0}
+        alignItems={'left'}
+        contentProps={{
+          flexDirection: ['column', 'row'],
+          pl: 4,
+          pr: 4,
+          pb: 4,
+          alignItems: 'start',
+        }}
+      >
+        <ListContainer>
+          {[
+            'Monthly Kamustahan for Emotional Support and Character Development',
+            'Tuition Fee',
+            'Weekly Meal and Transpo Allowance',
+            'Every Sem Miscellaneous Fee',
+          ].map((v, i) => (
+            <ListItem
+              key={i}
+              color="black"
+              style={{ color: 'black', fontSize: 20, fontWeight: '600' }}
+            >
+              {v}
+            </ListItem>
+          ))}
+        </ListContainer>
+      </Section>
     </>
   )
 }
