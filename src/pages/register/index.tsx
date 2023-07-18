@@ -329,9 +329,9 @@ export default function RegisterUser() {
                             return (
                               <Flex flexDirection={'column'}>
                                 <Text>
-                                  By applying to the Lao Foundation Inc.
+                                  By applying to the
                                   scholarship program, the applicant agrees that
-                                  the Lao Foundation Inc. will be collecting,
+                                  the Scholarship Administrator will be collecting,
                                   storing, and processing their personal data
                                   and is not limited to their:
                                 </Text>
@@ -360,7 +360,7 @@ export default function RegisterUser() {
                                   assess your application and if the applicant
                                   is to be given the merit of scholarship; hence
                                   the information gathered will not be used and
-                                  shared publicly but within Lao Foundation Inc.
+                                  shared publicly but within Scholarship
                                   only.
                                 </Text>
                               </Flex>
