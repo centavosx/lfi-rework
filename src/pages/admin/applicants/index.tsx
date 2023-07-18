@@ -40,8 +40,10 @@ const modalInitial: ModalFlexProps<CreateUserType, RegisterDto> = {
     fname: '',
     mname: '',
     lname: '',
+    suffix: '',
     address: '',
     email: '',
+    status: UserStatus.VERIFIED,
     role: [Roles.USER],
   },
   fields: [
@@ -52,13 +54,18 @@ const modalInitial: ModalFlexProps<CreateUserType, RegisterDto> = {
     },
     {
       field: 'mname',
-      label: 'Middle Name',
+      label: 'Middle Name (Optional)',
       placeHolder: 'Please type middle name',
     },
     {
       field: 'lname',
       label: 'Last Name',
       placeHolder: 'Please type last name',
+    },
+    {
+      field: 'suffix',
+      label: 'Suffix (Optional)',
+      placeHolder: 'Please type suffix',
     },
     {
       type: 'email',
@@ -87,7 +94,7 @@ const modalInitial: ModalFlexProps<CreateUserType, RegisterDto> = {
   onError: (v) => console.log(v),
   validationSchema: FormikValidation.register,
   onSubmit: async (
-    { fname, mname, lname, email, address, status, role, ...other },
+    { fname, mname, lname, email, address, status, role, suffix, ...other },
     { setSubmitting },
     fetch
   ) => {
@@ -96,12 +103,16 @@ const modalInitial: ModalFlexProps<CreateUserType, RegisterDto> = {
       fname,
       mname,
       lname,
+      suffix,
       email,
       address,
       status,
       role,
     }
-    fetch({ ...userDetails, userData: { ...other } as any } as any)
+    fetch({
+      ...userDetails,
+      userData: { ...other } as any,
+    } as any)
     setSubmitting(false)
   },
 }
@@ -200,7 +211,11 @@ const Applicants = forwardRef(
             { field: 'id', name: 'ID' },
             {
               name: 'Name',
-              custom: (d) => <>{`${d.lname}, ${d.fname} ${d.mname}`}</>,
+              custom: (d) => (
+                <>{`${d.fname} ${!!d.mname ? d.mname + ' ' : ''}${d.lname}${
+                  !!d.suffix ? ', ' + d.suffix : ''
+                } `}</>
+              ),
             },
 
             {

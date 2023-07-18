@@ -862,6 +862,15 @@ export const UserInformation = memo(
                         sx={{ flex: 1 }}
                         disabled={true}
                       />
+                      <FormInput
+                        containerProps={{ flex: 1 }}
+                        name="suffix"
+                        type={'text'}
+                        label={'Suffix (Optional)'}
+                        placeholder="Suffix (Optional)"
+                        sx={{ flex: 1 }}
+                        disabled={true}
+                      />
                     </Flex>
                     <FormInput
                       containerProps={{ flex: 1 }}
