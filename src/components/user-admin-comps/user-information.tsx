@@ -43,6 +43,19 @@ import { AiOutlineDownCircle, AiOutlineUpCircle } from 'react-icons/ai'
 import { format } from 'date-fns'
 import { Checkbox, FormControlLabel, Radio, RadioGroup } from '@mui/material'
 
+const UploadReceipt = ({ onSubmit }: { onSubmit: (v: string) => void }) => {
+  const [link, setLink] = useState<string | undefined>()
+  return (
+    <Flex flexDirection={'column'} sx={{ gap: 2 }}>
+      <UploadProcess onChange={(v) => setLink(v)} />
+      {!link && <Text color={'red'}>Please upload file</Text>}
+      <Button onClick={() => !!link && onSubmit(link)} disabled={!link}>
+        Save
+      </Button>
+    </Flex>
+  )
+}
+
 export const OnReject = ({
   onSubmit,
   setOpen,
@@ -126,6 +139,7 @@ const ScholarHistory = memo(
     isUser,
     isEditCheckbox,
     onCheckClick,
+    isAdmin,
   }: {
     initial: {
       level?: string
@@ -135,6 +149,7 @@ const ScholarHistory = memo(
       gradeSlip?: string
       enrollmentBill?: string
       paid?: boolean
+      receipt?: string | null
     }
     otherData?: {
       created?: Date
@@ -156,7 +171,8 @@ const ScholarHistory = memo(
     collegeGraudated: boolean
     isUser?: boolean
     isEditCheckbox?: boolean
-    onCheckClick?: (id: string) => void
+    onCheckClick?: (id: string, link?: string) => void
+    isAdmin?: boolean
   }) => {
     const ref = useRef<
       FormikProps<{
@@ -378,14 +394,71 @@ const ScholarHistory = memo(
                     )}
 
                     {!!otherData && (
-                      <FormControlLabel
-                        checked={!!initial.paid}
-                        disabled={!isEditCheckbox}
-                        control={
-                          <Checkbox onChange={() => onCheckClick?.(id)} />
-                        }
-                        label="isPaid?"
-                      />
+                      <Flex flexDirection={'column'} sx={{ gap: 2 }}>
+                        <Text as={'h3'}>Tuition Fee Payment</Text>
+                        <Flex
+                          flexDirection={'row'}
+                          alignItems={'center'}
+                          name="checked"
+                          sx={{ gap: 2 }}
+                        >
+                          <CustomModal
+                            title="Upload Receipt"
+                            titleProps={{ as: 'h3' }}
+                            width={['80%', 350, 350]}
+                            modalChild={({}) => {
+                              return (
+                                <UploadReceipt
+                                  onSubmit={(v) => {
+                                    onCheckClick?.(id, v)
+                                  }}
+                                />
+                              )
+                            }}
+                          >
+                            {({ setOpen }) => (
+                              <Checkbox
+                                checked={!!initial.paid}
+                                disabled={!isEditCheckbox}
+                                style={{ pointerEvents: 'auto' }}
+                                onClick={() => {
+                                  setOpen(true)
+                                }}
+                              />
+                            )}
+                          </CustomModal>
+                          <Text as={'h4'}>
+                            Paid
+                            {!!initial.receipt && !!initial.paid && isAdmin && (
+                              <Button
+                                style={{ marginLeft: 14 }}
+                                onClick={() =>
+                                  !!window &&
+                                  window.open(initial.receipt as string)
+                                }
+                              >
+                                View
+                              </Button>
+                            )}
+                          </Text>
+                        </Flex>
+                        <Flex
+                          flexDirection={'row'}
+                          alignItems={'center'}
+                          name="checked"
+                          sx={{ gap: 2 }}
+                        >
+                          <Checkbox
+                            checked={!!!initial.paid}
+                            disabled={!isEditCheckbox}
+                            style={{ pointerEvents: 'auto' }}
+                            onClick={() => {
+                              onCheckClick?.(id)
+                            }}
+                          />{' '}
+                          <Text as={'h4'}>Not Paid</Text>
+                        </Flex>
+                      </Flex>
                     )}
                     {!!otherData && (
                       <Flex flexDirection={'column'} sx={{ gap: 2 }}>
@@ -683,7 +756,7 @@ export const UserInformation = memo(
       if (isSuccessPaid) refetch(id)
     }, [isSuccessPaid])
 
-    const { user } = useUser()
+    const { user, roles } = useUser()
 
     const data = useMemo(() => {
       let userInfo = structuredClone(userData) as unknown as Partial<
@@ -960,9 +1033,10 @@ export const UserInformation = memo(
                           {sorted?.map((v, i) => {
                             return (
                               <ScholarHistory
-                                onCheckClick={() =>
-                                  updatePaidFunc({ id: v.id })
+                                onCheckClick={(_, link) =>
+                                  updatePaidFunc({ id: v.id, link })
                                 }
+                                isAdmin={roles.isAdmin || roles.isSuper}
                                 shsGraduated={!!userData?.shsGraduated}
                                 collegeGraudated={!!userData?.collegeGraduated}
                                 isEditCheckbox={!isUser && !isDisabled}
@@ -976,6 +1050,7 @@ export const UserInformation = memo(
                                   lastGwa: v.lastGwa,
                                   program: v.program as string,
                                   paid: v.paid,
+                                  receipt: v.receipt,
                                 }}
                                 otherData={{
                                   accepted: v.accepted || undefined,
