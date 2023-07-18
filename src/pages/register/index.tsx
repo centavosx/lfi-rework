@@ -237,6 +237,14 @@ export default function RegisterUser() {
                   placeholder="Last Name"
                   sx={{ flex: 1 }}
                 />
+                <FormInput
+                  containerProps={{ flex: 1 }}
+                  name="suffix"
+                  type={'text'}
+                  label={'Suffix (Optional)'}
+                  placeholder="Suffix"
+                  sx={{ flex: 1 }}
+                />
               </Flex>
 
               <FormInput

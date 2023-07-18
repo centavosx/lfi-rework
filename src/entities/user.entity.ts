@@ -92,6 +92,8 @@ export type User = {
 
   lname: string
 
+  suffix?: string | null
+
   email: string
 
   status: UserStatus

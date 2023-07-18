@@ -80,6 +80,7 @@ export type UserDetails = {
   fname: string
   mname?: string
   lname: string
+  suffix?: string
   email: string
   address: string
 }
@@ -106,6 +107,7 @@ export type RegFormType = {
   fname: string
   mname?: string
   lname: string
+  suffix?: string
   level?: Level
   address: string
   email: string

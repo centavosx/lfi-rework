@@ -20,7 +20,9 @@ export default function Waiting() {
       <Text>
         Hi!{' '}
         <b>
-          {user?.lname}, {user?.fname} {user?.mname}
+          {`${user?.fname} ${!!user?.mname ? user.mname + ' ' : ''}${
+            user?.lname
+          }${!!user?.suffix ? ', ' + user?.suffix : ''} `}
         </b>
         , thank you for signing up to our scholarship program but we need to
         process your account before you can proceed, {"we'll"} email or notify
