@@ -422,7 +422,7 @@ const ScholarHistory = memo(
                                 disabled={!isEditCheckbox}
                                 style={{ pointerEvents: 'auto' }}
                                 onClick={() => {
-                                  setOpen(true)
+                                  if (!initial.paid) setOpen(true)
                                 }}
                               />
                             )}
@@ -453,7 +453,7 @@ const ScholarHistory = memo(
                             disabled={!isEditCheckbox}
                             style={{ pointerEvents: 'auto' }}
                             onClick={() => {
-                              onCheckClick?.(id)
+                              if (!!initial.paid) onCheckClick?.(id)
                             }}
                           />{' '}
                           <Text as={'h4'}>Not Paid</Text>
