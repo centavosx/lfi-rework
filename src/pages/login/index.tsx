@@ -108,7 +108,7 @@ export default function Login({ who = 'Scholar' }: { who?: User }) {
     >
       <Flex flex={1}>
         <Image
-          src={'/assets/lao1.PNG'}
+          src={'/assets/SignIn.PNG'}
           margin={'auto'}
           minWidth={'auto'}
           alt="image"

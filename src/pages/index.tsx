@@ -85,7 +85,7 @@ export default function Home() {
     <>
       <Carousel
         fadeDuration={150}
-        carouselContent={['lao2', 'lao3', 'lao4'].map((data, i) => (
+        carouselContent={['page1', 'page2', 'page3'].map((data, i) => (
           <Image
             rel="preload"
             key={i}

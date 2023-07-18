@@ -351,9 +351,9 @@ export const Main = ({
                         color: theme.colors.darkGreen,
                       }}
                     >
-                      LAO
+                      SCHOLAR
                     </span>
-                    FOUNDATION
+                    SHIP
                   </Text>
                 </Flex>
               </Anchor>

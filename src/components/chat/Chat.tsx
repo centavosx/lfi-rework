@@ -194,7 +194,7 @@ export const Chat = ({
   title,
   id,
   from,
-  img = '/assets/logo.png',
+  img = '/assets/Logo_RemovedBG.png',
 }: {
   title: string
   id: string
@@ -225,7 +225,7 @@ export const Chat = ({
         <>
           <Flex sx={{ gap: 2, alignItems: 'center' }} mb={2}>
             <Image
-              src={img || '/assets/logo.png'}
+              src={img || '/assets/Logo_RemovedBG.png'}
               size={64}
               sx={{ borderRadius: '100%' }}
               alt="logo"
