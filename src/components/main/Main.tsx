@@ -491,7 +491,7 @@ export const Main = ({
                 >
                   <Text as={'h5'}>ADDRESS</Text>
                   <Text>
-                    65 Colle Industria Bagumbayan Quezon City 1110, Philippines
+                   Quezon City, Philippines
                   </Text>
                 </Flex>
                 <Flex
@@ -501,8 +501,8 @@ export const Main = ({
                   textAlign={['center', 'left']}
                 >
                   <Text as={'h5'}>CONTACT US</Text>
-                  <Text>hello@thelaoufoundation.org</Text>
-                  <Text>+63 2 8635 0680</Text>
+                  <Text>hello.org</Text>
+                  <Text>+63 0680</Text>
                 </Flex>
                 <Flex
                   flex={0.2}

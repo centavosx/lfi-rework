@@ -65,9 +65,9 @@ const SideNav = ({ isWeb }: { isWeb?: boolean }) => {
                     color: theme.colors.white,
                   }}
                 >
-                  LAO
+                  SCHOLAR
                 </span>
-                FOUNDATION
+                SHIP
               </Text>
             )}
           </Flex>
