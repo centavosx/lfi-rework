@@ -117,7 +117,7 @@ export default function Home() {
               lives and the community”
             </Text>
             <Text color={theme.colors.white} flex={1}>
-              Lao Foundation Inc. works to build people of character and skill
+              Scholarship works to build people of character and skill
               by providing the necessary education, livelihood skills, and
               support to help them improve their lives. Our goal is to empower
               the less fortunate to attain a better life for themselves and the
@@ -138,7 +138,7 @@ export default function Home() {
             </Text>
             <Text flex={1}>
               We believe that long-lasting change comes from within. That is why
-              the Lao Foundation is focused on developing and investing in
+              the Scholarship is focused on developing and investing in
               individuals, their families, as well as the community at large
               through various programs, not only to help them succeed in life,
               but also to encourage them to help others succeed. By providing

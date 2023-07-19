@@ -225,7 +225,7 @@ export const Chat = ({
         <>
           <Flex sx={{ gap: 2, alignItems: 'center' }} mb={2}>
             <Image
-              src={img || '/assets/Logo_RemovedBG.png'}
+              src={img || '/assets/Logo_RemovedBGs.png'}
               size={64}
               sx={{ borderRadius: '100%' }}
               alt="logo"
