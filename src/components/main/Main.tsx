@@ -295,7 +295,7 @@ export const Main = ({
   return (
     <>
       <BaseHead
-        title="Lao Foundation"
+        title="Scholarship"
         pageTitle={pageTitle}
         description="Scholarships"
       />

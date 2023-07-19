@@ -112,7 +112,7 @@ export const AdminMain = ({
   return (
     <>
       <BaseHead
-        title="Lao Foundation Admin"
+        title="Scholarship Admin"
         pageTitle={pageTitle}
         description="Scholarships"
       />
