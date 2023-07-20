@@ -167,8 +167,8 @@ const UserInfo = memo(
           src={
             !img
               ? isSelected
-                ? '/assets/logo-white.png'
-                : '/assets/logo.png'
+                ? '/assets/surelogo.png'
+                : '/assets/surelogo.png'
               : img
           }
           size={64}

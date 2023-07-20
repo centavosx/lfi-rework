@@ -140,7 +140,7 @@ export default function Login({ who = 'Scholar' }: { who?: User }) {
               <FormContainer
                 flex={1}
                 label={`Login as ${whoUser}`}
-                image="/assets/logo.png"
+                image="/assets/surelogo.png"
                 imageProps={{ height: 100, width: 100 }}
                 labelProps={{ sx: { justifyContent: 'center' } }}
                 flexProps={{ sx: { gap: 20, mb: 30 } }}

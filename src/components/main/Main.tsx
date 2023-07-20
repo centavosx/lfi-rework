@@ -332,7 +332,7 @@ export const Main = ({
                 <Flex alignItems={'center'} sx={{ gap: 1 }}>
                   <Image
                     rel="preload"
-                    src={'/assets/logo.png'}
+                    src={'/assets/surelogo.png'}
                     width={50}
                     height={50}
                     minWidth={'auto'}
@@ -475,7 +475,7 @@ export const Main = ({
               >
                 <Image
                   rel="preload"
-                  src={'/assets/logo-white.png'}
+                  src={'/assets/surelogo.png'}
                   width={50}
                   height={50}
                   mr={[0, 4]}

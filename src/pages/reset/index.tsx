@@ -39,7 +39,7 @@ export default function Reset({ token }: { token: string }) {
         {({ values, isSubmitting }) => (
           <FormContainer
             flex={1}
-            image="/assets/logo.png"
+            image="/assets/surelogo.png"
             imageProps={{ height: 80, width: 80 }}
             label="Reset your password"
             labelProps={{ sx: { justifyContent: 'center' } }}
