@@ -44,7 +44,7 @@ const SideNav = ({ isWeb }: { isWeb?: boolean }) => {
           <Flex alignItems={'center'} sx={{ gap: 2 }} width={'100%'}>
             <Image
               rel="preload"
-              src={'/assets/logo-white.png'}
+              src={'/assets/surelogo.png'}
               width={60}
               height={60}
               minWidth={'auto'}
