@@ -294,7 +294,7 @@ export default function Dashboard({
                   alignSelf: 'center',
                   backgroundColor:
                     statusParams === UserStatus.EXPELLED
-                      ? 'red'
+                      ? '#FAA0A0'
                       : theme.colors.green,
                 },
                 avgLineColor: theme.colors.black,
