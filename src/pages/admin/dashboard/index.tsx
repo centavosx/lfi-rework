@@ -71,6 +71,8 @@ const Display = {
     name: 'Expelled',
     color: '#ad0303',
     text: 'black',
+    borderWidth: 1,
+    borderColor: 'black',
   },
 }
 
