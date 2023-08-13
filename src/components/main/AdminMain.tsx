@@ -116,11 +116,7 @@ export const AdminMain = ({
         pageTitle={pageTitle}
         description="Scholarships"
       />
-      <Flex
-        width={'100vw'}
-        backgroundColor={theme.colors.green}
-        height={'100vh'}
-      >
+      <Flex width={'100vw'} backgroundColor={'#96D294'} height={'100vh'}>
         <Flex
           flexDirection={['column', 'row', 'row', 'row']}
           sx={{
@@ -131,7 +127,7 @@ export const AdminMain = ({
           width={'100vw'}
           overflow={'auto'}
           height={'100vh'}
-          backgroundColor={theme.colors.green}
+          backgroundColor={'#96D294'}
         >
           <AdminWebView>
             <SideNav isWeb={true} />
