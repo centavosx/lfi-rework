@@ -717,6 +717,7 @@ export const UserInformation = memo(
     onAccepted,
     onRejected,
     status = UserStatus.ACTIVE,
+    userStatus,
   }: {
     id: string
     onSuccess?: () => void
@@ -727,6 +728,7 @@ export const UserInformation = memo(
     onAccepted?: () => void
     onRejected?: () => void
     status?: UserStatus
+    userStatus?: UserStatus
   }) => {
     const {
       data: userData,
@@ -1312,45 +1314,51 @@ export const UserInformation = memo(
                       </Flex>
                       {isAcceptReject ? (
                         <>
-                          {data.status !== UserStatus.CANCELED && (
-                            <ButtonModal
-                              isSecondary={true}
-                              title="Reject user?"
-                              titleProps={{
-                                as: 'h3',
-                                width: 'auto',
-                              }}
-                              width={['60%', '50%', '40%', '30%']}
-                              style={{ alignSelf: 'flex-end' }}
-                              disabled={isUpdating || isSubmitting}
-                              modalChild={({ setOpen }) => (
-                                <OnReject
-                                  onSubmit={(v) =>
-                                    !!userData?.id &&
-                                    callApi(
-                                      {
-                                        id: userData.id,
-                                        status: UserStatus.CANCELED,
-                                        scholarStatus: 'rejected',
-                                        reason: v,
-                                      },
-                                      'rejected'
-                                    )
-                                  }
-                                  setOpen={(v) => setOpen(v)}
-                                  reasons={[
-                                    "The grade does not meet the Foundation's requirements",
-                                    'Incorrect Uploaded File',
-                                    'Outdated Uploaded File',
-                                    'Not Complete File',
-                                    'After the House Visitation we noticed that the family can afford the tuition fee and other miscellaneous',
-                                  ]}
-                                />
-                              )}
-                            >
-                              Reject
-                            </ButtonModal>
-                          )}
+                          {data.status !== UserStatus.CANCELED &&
+                            !!userStatus && (
+                              <ButtonModal
+                                isSecondary={true}
+                                title="Reject user?"
+                                titleProps={{
+                                  as: 'h3',
+                                  width: 'auto',
+                                }}
+                                width={['60%', '50%', '40%', '30%']}
+                                style={{ alignSelf: 'flex-end' }}
+                                disabled={isUpdating || isSubmitting}
+                                modalChild={({ setOpen }) => (
+                                  <OnReject
+                                    onSubmit={(v) =>
+                                      !!userData?.id &&
+                                      callApi(
+                                        {
+                                          id: userData.id,
+                                          status: UserStatus.CANCELED,
+                                          scholarStatus: 'rejected',
+                                          reason: v,
+                                        },
+                                        'rejected'
+                                      )
+                                    }
+                                    setOpen={(v) => setOpen(v)}
+                                    reasons={
+                                      userStatus === UserStatus.PROCESSING
+                                        ? [
+                                            'After the House Visitation we noticed that the family can afford the tuition fee and other miscellaneous',
+                                          ]
+                                        : [
+                                            "The grade does not meet the Foundation's requirements",
+                                            'Incorrect Uploaded File',
+                                            'Outdated Uploaded File',
+                                            'Not Complete File',
+                                          ]
+                                    }
+                                  />
+                                )}
+                              >
+                                Reject
+                              </ButtonModal>
+                            )}
                           {(status === UserStatus.ACTIVE ||
                             status === UserStatus.PROCESSING) && (
                             <CustomModal
