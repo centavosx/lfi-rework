@@ -116,7 +116,7 @@ export const AdminMain = ({
         pageTitle={pageTitle}
         description="Scholarships"
       />
-      <Flex width={'100vw'} backgroundColor={'#96D294'} height={'100vh'}>
+      <Flex width={'100vw'} backgroundColor={'#467844'} height={'100vh'}>
         <Flex
           flexDirection={['column', 'row', 'row', 'row']}
           sx={{

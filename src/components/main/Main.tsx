@@ -399,7 +399,7 @@ export const Main = ({
         <Flex
           sx={{
             gap: 2,
-            backgroundColor: theme.colors.white,
+            backgroundColor: "theme.colors.white",
             height: '100%',
             overflow: 'auto',
             width: '100%',
@@ -451,7 +451,7 @@ export const Main = ({
             sx={{
               width: '100%',
               flexDirection: 'column',
-              backgroundColor: theme.colors.darkestGreen,
+              backgroundColor: '#29352C',
             }}
           >
             <Header
