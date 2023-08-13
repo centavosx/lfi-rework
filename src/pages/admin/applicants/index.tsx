@@ -253,6 +253,7 @@ const Applicants = forwardRef(
                           isDisabled={true}
                           isAcceptReject={roles.isAdminWrite || roles.isSuper}
                           isApplicant={true}
+                          userStatus={userStatus}
                           status={
                             isActive ? UserStatus.ACTIVE : UserStatus.PROCESSING
                           }
