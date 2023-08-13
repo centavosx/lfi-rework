@@ -41,7 +41,7 @@ const Display = {
   employee: {
     name: 'Employees',
     color: '#B3060463',
-    text: 'white',
+    text: 'black',
   },
 
   applicant: {
@@ -53,13 +53,13 @@ const Display = {
   scholar: {
     name: 'Scholars',
     color: '#B3054a0f',
-    text: 'white',
+    text: 'black',
   },
 
   shsGraduate: {
     name: 'Senior High Graduates',
     color: '#B3d4d006',
-    text: 'white',
+    text: 'black',
   },
 
   collegeGraduate: {
@@ -70,7 +70,7 @@ const Display = {
   expelled: {
     name: 'Expelled',
     color: '#B3ad0303',
-    text: 'white',
+    text: 'black',
   },
 }
 
