@@ -40,36 +40,36 @@ const ColoredContainer = ({
 const Display = {
   employee: {
     name: 'Employees',
-    color: '#B3060463',
+    color: '#060463',
     text: 'black',
   },
 
   applicant: {
     name: 'Applicants',
-    color: '#B35856a8',
+    color: '#5856a8',
     text: 'black',
   },
 
   scholar: {
     name: 'Scholars',
-    color: '#B3054a0f',
+    color: '#054a0f',
     text: 'black',
   },
 
   shsGraduate: {
     name: 'Senior High Graduates',
-    color: '#B3d4d006',
+    color: '#d4d006',
     text: 'black',
   },
 
   collegeGraduate: {
     name: 'College Graduates',
-    color: '#B3ADD8E6',
+    color: '#ADD8E6',
     text: 'black',
   },
   expelled: {
     name: 'Expelled',
-    color: '#B3ad0303',
+    color: '#ad0303',
     text: 'black',
   },
 }
