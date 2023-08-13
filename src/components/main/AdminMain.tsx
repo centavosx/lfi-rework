@@ -127,7 +127,7 @@ export const AdminMain = ({
           width={'100vw'}
           overflow={'auto'}
           height={'100vh'}
-          backgroundColor={'#96D294'}
+          backgroundColor={'#467844'}
         >
           <AdminWebView>
             <SideNav isWeb={true} />
