@@ -52,13 +52,13 @@ const Display = {
 
   scholar: {
     name: 'Scholars',
-    color: '#66054a0f',
+    color: '#B3054a0f',
     text: 'white',
   },
 
   shsGraduate: {
     name: 'Senior High Graduates',
-    color: '#66d4d006',
+    color: '#B3d4d006',
     text: 'white',
   },
 
@@ -69,7 +69,7 @@ const Display = {
   },
   expelled: {
     name: 'Expelled',
-    color: '#66ad0303',
+    color: '#B3ad0303',
     text: 'white',
   },
 }
