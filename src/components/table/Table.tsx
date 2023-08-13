@@ -239,52 +239,58 @@ export function CustomTable<T extends object = any>({
                 />
               </TableCell>
             )}
-            {dataCols.map((head) => (
-              <TableCell
-                key={head.field as string}
-                align={head.isNumber ? 'right' : 'left'}
-              >
-                {!!head.items ? (
-                  <Select
-                    displayEmpty
-                    input={<OutlinedInput />}
-                    renderValue={(selected) => {
-                      if (selected !== null) {
-                        return head.name
-                      }
+            {dataCols
+              ?.filter((head) => head.field !== 'id')
+              .map((head) => (
+                <TableCell
+                  key={head.field as string}
+                  align={head.isNumber ? 'right' : 'left'}
+                  style={{
+                    fontFamily: '"Times New Roman", Times, serif',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {!!head.items ? (
+                    <Select
+                      displayEmpty
+                      input={<OutlinedInput />}
+                      renderValue={(selected) => {
+                        if (selected !== null) {
+                          return head.name
+                        }
 
-                      return selected
-                    }}
-                    sx={{
-                      div: {
-                        padding: '2.5px',
-                        borderColor: 'transparent',
-                      },
-                      fieldset: {
-                        border: 0,
-                        borderColor: 'transparent',
-                      },
-                      fontFamily: '"Roboto","Helvetica","Arial",sans-serif',
-                      fontWeight: 500,
-                      fontSize: '0.875rem',
-                      lineHeight: '1.5rem',
-                      letterSpacing: '0.01071em',
-                    }}
-                    onChange={(v) =>
-                      head.items?.onChange((v?.target?.value ?? '') as string)
-                    }
-                  >
-                    {head.items.itemValues.map((name) => (
-                      <MenuItem key={name} value={name}>
-                        {name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                ) : (
-                  head.name
-                )}
-              </TableCell>
-            ))}
+                        return selected
+                      }}
+                      sx={{
+                        div: {
+                          padding: '2.5px',
+                          borderColor: 'transparent',
+                        },
+                        fieldset: {
+                          border: 0,
+                          borderColor: 'transparent',
+                        },
+                        fontFamily: '"Times New Roman", Times, serif',
+                        fontWeight: 'bold',
+                        fontSize: '0.875rem',
+                        lineHeight: '1.5rem',
+                        letterSpacing: '0.01071em',
+                      }}
+                      onChange={(v) =>
+                        head.items?.onChange((v?.target?.value ?? '') as string)
+                      }
+                    >
+                      {head.items.itemValues.map((name) => (
+                        <MenuItem key={name} value={name}>
+                          {name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  ) : (
+                    head.name
+                  )}
+                </TableCell>
+              ))}
           </TableRow>
         </TableHead>
         <TableBody style={{ flex: 1 }}>
@@ -308,43 +314,52 @@ export function CustomTable<T extends object = any>({
                   />
                 </TableCell>
               )}
-              {dataCols.map((d, k) => (
-                <TableCell
-                  key={k}
-                  component="th"
-                  scope="row"
-                  onClick={() => onRowClick?.(row)}
-                  sx={{ width: d?.field === 'id' ? 320 : undefined }}
-                >
-                  {!!d.field
-                    ? !!d.sub
-                      ? d.sub === 'date'
-                        ? !!(row[d.field] as any)?.[d.sub]
+              {dataCols
+                ?.filter((head) => head.field !== 'id')
+                .map((d, k) => (
+                  <TableCell
+                    key={k}
+                    component="th"
+                    scope="row"
+                    onClick={() => onRowClick?.(row)}
+                    sx={{ width: d?.field === 'id' ? 320 : undefined }}
+                  >
+                    {!!d.field
+                      ? !!d.sub
+                        ? d.sub === 'date'
+                          ? !!(row[d.field] as any)?.[d.sub]
+                            ? format(
+                                new Date((row[d.field] as any)?.[d.sub]),
+                                'cccc LLLL d, yyyy'
+                              )
+                            : null
+                          : (row[d.field] as any)?.[d.sub]
+                        : d.field === 'date'
+                        ? !!row[d.field]
                           ? format(
-                              new Date((row[d.field] as any)?.[d.sub]),
+                              new Date(row[d.field] as any),
                               'cccc LLLL d, yyyy'
                             )
                           : null
-                        : (row[d.field] as any)?.[d.sub]
-                      : d.field === 'date'
-                      ? !!row[d.field]
-                        ? format(
-                            new Date(row[d.field] as any),
-                            'cccc LLLL d, yyyy'
-                          )
-                        : null
-                      : row[d.field]
-                    : d?.custom?.(dataRow[i], i)}
-                </TableCell>
-              ))}
+                        : row[d.field]
+                      : d?.custom?.(dataRow[i], i)}
+                  </TableCell>
+                ))}
             </TableRow>
           ))}
         </TableBody>
         <TableFooter>
           <TableRow>
             <TableCell sx={{ width: 160, maxWidth: 180, position: 'absolute' }}>
-              <Text alignSelf={'center'} width={'100%'}>
-                Total Items: {total}
+              <Text
+                alignSelf={'center'}
+                width={'100%'}
+                style={{
+                  fontFamily: '"Times New Roman", Times, serif',
+                  fontWeight: 'bold',
+                }}
+              >
+                <b>Total Items:</b> {total}
               </Text>
             </TableCell>
             <TablePagination
@@ -355,6 +370,10 @@ export function CustomTable<T extends object = any>({
               SelectProps={{
                 inputProps: {
                   'aria-label': 'rows per page',
+                  style: {
+                    fontFamily: '"Times New Roman", Times, serif',
+                    fontWeight: 'bold',
+                  },
                 },
                 native: true,
               }}
